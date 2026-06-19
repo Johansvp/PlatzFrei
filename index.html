@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>PlatzFrei – Sportanlagen buchen</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;background:#f0f4fb;color:#111827;max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+:root{--g:#1a5fd4;--gd:#0d3d7a;--gl:#4a90e2;--gp:#dbeafe;--or:#f4931a;--ol:#fff3e0;--bg:#f0f4fb;--bd:#dde3f0;--tx:#111827;--mt:#6b7280;--sh:0 2px 12px rgba(26,95,212,.08);--shl:0 8px 30px rgba(26,95,212,.15);--r:16px;--rs:10px;--nh:80px}
+
+/* AUTH */
+#auth-screen{min-height:100vh;background:linear-gradient(160deg,var(--gd) 0%,var(--g) 55%,var(--gl) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.auth-logo{width:80px;height:80px;background:rgba(255,255,255,.15);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:16px;backdrop-filter:blur(10px)}
+.auth-title{color:#fff;font-size:34px;font-weight:800;letter-spacing:-.5px}
+.auth-sub{color:rgba(255,255,255,.7);font-size:15px;margin-top:6px;margin-bottom:36px}
+.auth-card{background:#fff;border-radius:24px;padding:28px 24px;width:100%;max-width:380px;box-shadow:var(--shl)}
+.auth-tabs{display:flex;background:#f3f4f6;border-radius:10px;padding:4px;margin-bottom:24px}
+.auth-tab{flex:1;padding:10px;border:none;background:transparent;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;color:var(--mt);transition:all .2s}
+.auth-tab.active{background:#fff;color:var(--g);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.fg{margin-bottom:16px}
+.fl{display:block;font-size:12px;font-weight:700;color:var(--mt);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
+.fi{width:100%;padding:14px 16px;border:2px solid var(--bd);border-radius:var(--rs);font-size:16px;color:var(--tx);background:#fff;transition:border-color .2s;outline:none;font-family:inherit}
+.fi:focus{border-color:var(--g)}
+.btn-p{width:100%;padding:16px;background:linear-gradient(135deg,var(--gl),var(--g));color:#fff;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer;transition:transform .1s;letter-spacing:.3px}
+.btn-p:active{transform:scale(.98)}
+.btn-p:disabled{opacity:.5;cursor:not-allowed}
+.btn-sm{padding:9px 16px;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer}
+.btn-blue{background:var(--g);color:#fff}
+.btn-gray{background:#f3f4f6;color:var(--mt)}
+.btn-red{background:#fee2e2;color:#dc2626}
+
+/* APP */
+#app-screen{display:none;min-height:100vh}
+.page{display:none;min-height:calc(100vh - var(--nh));padding-bottom:var(--nh)}
+.page.active{display:block}
+
+/* NAV */
+#bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nh);background:#fff;border-top:1px solid var(--bd);display:flex;align-items:center;box-shadow:0 -4px 20px rgba(26,95,212,.1);z-index:100}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0;cursor:pointer;border:none;background:transparent;color:var(--mt);transition:color .2s;position:relative}
+.ni.active{color:var(--g)}
+.ni-icon{font-size:24px;margin-bottom:3px}
+.ni-label{font-size:11px;font-weight:600;letter-spacing:.3px}
+.nbadge{position:absolute;top:4px;right:calc(50% - 20px);background:var(--or);color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;padding:0 4px;display:none;align-items:center;justify-content:center}
+
+/* PAGE HEADER */
+.ph{background:linear-gradient(135deg,var(--gd) 0%,var(--g) 100%);padding:56px 24px 24px;color:#fff}
+.ph h1{font-size:28px;font-weight:800}
+.ph p{color:rgba(255,255,255,.7);font-size:14px;margin-top:4px}
+
+/* HOME */
+.home-hero{background:linear-gradient(160deg,var(--gd) 0%,var(--g) 60%,var(--gl) 100%);padding:56px 24px 32px;position:relative;overflow:hidden}
+.home-hero::before{content:'🏟️';position:absolute;font-size:180px;right:-20px;bottom:-20px;opacity:.06}
+.htop{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.greeting{display:flex;align-items:center;gap:12px;cursor:pointer;flex:1}
+.gpav{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:2px solid rgba(255,255,255,.4)}
+.gname{font-size:22px;font-weight:800;color:#fff}
+.gsub{font-size:13px;color:rgba(255,255,255,.65);margin-top:2px}
+.nbell{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;backdrop-filter:blur(5px);flex-shrink:0}
+.nbellbadge{position:absolute;top:-2px;right:-2px;background:var(--or);color:#fff;font-size:10px;font-weight:800;width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center}
+.hero-card{background:rgba(255,255,255,.13);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:var(--r);padding:20px;color:#fff}
+.hero-card h2{font-size:20px;font-weight:700;margin-bottom:8px}
+.hero-card p{font-size:14px;color:rgba(255,255,255,.82);line-height:1.5}
+.hstats{display:flex;gap:10px;margin-top:14px}
+.hstat{flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:12px;text-align:center}
+.hstat-n{font-size:22px;font-weight:800}
+.hstat-l{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px}
+.home-content{padding:20px 16px}
+.st{font-size:18px;font-weight:700;margin-bottom:12px}
+.sr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.see-all{color:var(--g);font-size:14px;font-weight:600;cursor:pointer;background:none;border:none}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.qcard{background:#fff;border-radius:var(--r);padding:18px 14px;box-shadow:var(--sh);cursor:pointer;transition:transform .15s;border:2px solid transparent}
+.qcard:active{transform:scale(.97)}
+.qcard:hover{border-color:var(--gp)}
+.qi{font-size:30px;margin-bottom:10px}
+.ql{font-size:14px;font-weight:700}
+.qs{font-size:12px;color:var(--mt);margin-top:2px}
+.bprev{background:#fff;border-radius:var(--r);padding:14px;box-shadow:var(--sh);display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer}
+.bdot{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:var(--gp)}
+.binfo{flex:1;min-width:0}
+.bname{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bmeta{font-size:13px;color:var(--mt);margin-top:2px}
+.btime{font-size:12px;color:var(--g);font-weight:600;background:var(--gp);padding:4px 8px;border-radius:6px;white-space:nowrap}
+
+/* STANDORTE */
+.sc{padding:16px}
+.sbar{display:flex;align-items:center;gap:10px;background:#fff;border-radius:var(--rs);padding:12px 16px;margin-bottom:14px;box-shadow:var(--sh);border:2px solid transparent}
+.sbar:focus-within{border-color:var(--g)}
+.sbar input{flex:1;border:none;outline:none;font-size:16px;background:transparent;font-family:inherit}
+.fchips{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.fchips::-webkit-scrollbar{display:none}
+.fc{padding:8px 16px;border-radius:20px;border:2px solid var(--bd);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;background:#fff;color:var(--mt);transition:all .2s}
+.fc.active{background:var(--g);border-color:var(--g);color:#fff}
+.cletter{font-size:12px;font-weight:800;color:var(--mt);padding:10px 4px 4px;letter-spacing:1px;text-transform:uppercase}
+.cc{background:#fff;border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;box-shadow:var(--sh);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s;border:2px solid transparent}
+.cc:active{transform:scale(.98)}
+.cc:hover{border-color:var(--gp)}
+.cicon{font-size:26px;width:42px;height:42px;background:var(--gp);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.cn{font-weight:700;font-size:16px}
+.ccount{font-size:13px;color:var(--mt);margin-top:2px}
+.ca{color:var(--mt);font-size:18px;margin-left:auto}
+.back-btn{background:none;border:none;cursor:pointer;color:#fff;font-size:22px;padding:0 4px;display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.back-btn span{font-size:16px;font-weight:600}
+.vts{margin-bottom:20px}
+.vth{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:0 4px}
+.vc{background:#fff;border-radius:var(--rs);padding:14px;margin-bottom:8px;box-shadow:var(--sh);cursor:pointer;display:flex;align-items:center;gap:12px;transition:transform .15s}
+.vc:active{transform:scale(.98)}
+.vci{font-size:20px;width:38px;height:38px;background:var(--gp);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vcn{font-weight:700;font-size:15px}
+.vca{font-size:12px;color:var(--mt);margin-top:2px}
+.avail{font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;white-space:nowrap}
+.avail.free{background:#dcfce7;color:#16a34a}
+.avail.busy{background:#fee2e2;color:#dc2626}
+
+/* BUCHUNGEN */
+.bc{padding:16px}
+.bcard{background:#fff;border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh);border-left:4px solid var(--g)}
+.bcard.past{border-left-color:#d1d5db}
+.bch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.bct{font-weight:700;font-size:15px}
+.bcs{font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px}
+.s-up{background:var(--gp);color:var(--g)}
+.s-p{background:#f3f4f6;color:var(--mt)}
+.bcd{display:flex;flex-direction:column;gap:6px}
+.bdr{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mt)}
+.bfr{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.bfc{background:var(--gp);color:var(--g);font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px}
+
+/* NACHRICHTEN */
+.fhdr{padding:56px 24px 0;background:linear-gradient(135deg,var(--gd),var(--g));color:#fff}
+.ftabs{display:flex;gap:0;margin-top:14px;overflow-x:auto;scrollbar-width:none}
+.ftabs::-webkit-scrollbar{display:none}
+.ftab{padding:12px 16px;border:none;background:transparent;color:rgba(255,255,255,.6);font-size:14px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.ftab.active{color:#fff;border-bottom-color:#fff}
+
+/* CHAT LIST */
+.chat-item{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--bd)}
+.chat-item:hover{background:var(--bg)}
+.caw{position:relative;flex-shrink:0}
+.cav{width:52px;height:52px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:26px}
+.odot{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid #fff}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-weight:700;font-size:15px}
+.ci-last{font-size:13px;color:var(--mt);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ci-time{font-size:12px;color:var(--mt)}
+.ci-unread{background:var(--g);color:#fff;font-size:11px;font-weight:700;width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+
+/* FRIEND MANAGEMENT */
+.freq-section-title{font-size:12px;font-weight:800;color:var(--mt);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 8px;padding:0 2px}
+.freq-card{background:#fff;border-radius:var(--rs);padding:14px;margin-bottom:8px;box-shadow:var(--sh);display:flex;align-items:center;gap:12px}
+.freq-av{width:46px;height:46px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.freq-info{flex:1;min-width:0}
+.freq-name{font-weight:700;font-size:15px}
+.freq-sub{font-size:12px;color:var(--mt);margin-top:2px}
+.freq-btns{display:flex;gap:6px}
+
+/* GRUPPEN */
+.group-card{background:#fff;border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;box-shadow:var(--sh);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s}
+.group-card:active{transform:scale(.98)}
+.group-av{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--g),var(--gl));display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;color:#fff}
+
+/* CHAT SCREEN */
+.chat-screen{display:none;position:fixed;inset:0;background:#fff;z-index:300;flex-direction:column;max-width:430px;margin:0 auto}
+.chat-screen.active{display:flex}
+.ch-hdr{display:flex;align-items:center;gap:12px;padding:16px 16px 14px;background:#fff;border-bottom:1px solid var(--bd);padding-top:50px}
+.ch-av{width:40px;height:40px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:22px}
+.ch-av.group{border-radius:12px;background:linear-gradient(135deg,var(--g),var(--gl));color:#fff;font-size:20px}
+.ch-name{font-weight:700;font-size:16px}
+.ch-st{font-size:13px;color:var(--mt)}
+.ch-back{background:none;border:none;font-size:28px;cursor:pointer;color:var(--g);padding:4px;line-height:1}
+.ch-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.mw{display:flex;flex-direction:column}
+.mw.me{align-items:flex-end}
+.mb{max-width:78%;padding:11px 14px;border-radius:18px;font-size:15px;line-height:1.4}
+.mw.them .mb{background:#fff;color:var(--tx);border-bottom-left-radius:4px;box-shadow:var(--sh)}
+.mw.me .mb{background:var(--g);color:#fff;border-bottom-right-radius:4px}
+.msg-sender{font-size:11px;font-weight:700;color:var(--g);margin-bottom:3px;padding:0 4px}
+.mt{font-size:11px;color:var(--mt);margin-top:3px;padding:0 4px}
+.ch-input-bar{display:flex;gap:10px;padding:12px 16px;background:#fff;border-top:1px solid var(--bd);align-items:flex-end}
+.ch-input-field{flex:1;border:2px solid var(--bd);border-radius:20px;padding:10px 16px;font-size:15px;outline:none;transition:border-color .2s;resize:none;max-height:100px;font-family:inherit;background:var(--bg)}
+.ch-input-field:focus{border-color:var(--g)}
+.sbtn{width:44px;height:44px;border-radius:50%;background:var(--g);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s;color:#fff}
+.sbtn:active{transform:scale(.92)}
+
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;backdrop-filter:blur(4px)}
+.moverlay.active{display:flex}
+.msheet{background:#fff;width:100%;max-width:430px;margin:0 auto;border-radius:24px 24px 0 0;padding:20px 20px 36px;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease;position:relative}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhandle{width:36px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 20px}
+.mtitle{font-size:20px;font-weight:800;margin-bottom:4px}
+.msub{font-size:14px;color:var(--mt);margin-bottom:20px}
+.close-modal{position:absolute;top:20px;right:20px;background:var(--bg);border:none;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dpills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.dp{padding:10px 20px;border-radius:20px;border:2px solid var(--bd);background:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--mt)}
+.dp.sel{background:var(--g);border-color:var(--g);color:#fff}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.ts{padding:11px 6px;border-radius:var(--rs);border:2px solid var(--bd);background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;color:var(--tx)}
+.ts:hover{border-color:var(--g);color:var(--g)}
+.ts.sel{background:var(--g);border-color:var(--g);color:#fff}
+.ts.taken{background:#f9fafb;color:#d1d5db;cursor:not-allowed;text-decoration:line-through;border-color:#f3f4f6}
+.sl-label{font-size:14px;font-weight:700;margin-bottom:10px}
+.fi-title{font-size:15px;font-weight:700;margin-bottom:10px}
+.fi-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.fi-item{display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:var(--rs);cursor:pointer;transition:background .2s}
+.fi-item.sel{background:var(--gp)}
+.fi-av{width:38px;height:38px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.fi-name{font-weight:600;font-size:14px;flex:1}
+.fi-chk{width:24px;height:24px;border-radius:50%;border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s;color:transparent}
+.fi-chk.chk{background:var(--g);border-color:var(--g);color:#fff}
+
+/* CONFIRM */
+.covl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:center;justify-content:center;padding:24px}
+.covl.active{display:flex}
+.ccard{background:#fff;border-radius:24px;padding:32px 24px;width:100%;max-width:360px;text-align:center;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.c-icon{font-size:60px;margin-bottom:16px}
+.c-title{font-size:24px;font-weight:800;color:var(--g);margin-bottom:8px}
+.c-text{font-size:15px;color:var(--mt);line-height:1.6;margin-bottom:20px}
+.c-details{background:var(--gp);border-radius:var(--rs);padding:16px;margin-bottom:20px;text-align:left}
+.cdr{display:flex;align-items:flex-start;gap:8px;font-size:14px;font-weight:600;margin-bottom:8px;color:var(--gd)}
+.cdr:last-child{margin-bottom:0}
+
+/* NOTIF */
+.nsheet{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end}
+.nsheet.active{display:flex}
+.ncont{background:#fff;width:100%;max-width:430px;margin:0 auto;border-radius:24px 24px 0 0;padding:24px;max-height:70vh;overflow-y:auto;animation:slideUp .3s ease}
+.ni-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--bd)}
+.ni-icon-w{width:44px;height:44px;border-radius:12px;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+
+/* PROFILE */
+.av-opt{width:44px;height:44px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;border:3px solid transparent;transition:all .15s}
+.av-opt.sel{border-color:var(--g);background:#c7d9fb}
+
+/* BOT */
+.bot-wrap{display:flex;flex-direction:column}
+.bot-msgs{padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg);min-height:200px;max-height:calc(100vh - var(--nh) - 280px);overflow-y:auto}
+.bot-input-bar{display:flex;gap:10px;padding:12px 16px;background:#fff;border-top:1px solid var(--bd);align-items:flex-end}
+.bot-input{flex:1;border:2px solid var(--bd);border-radius:20px;padding:10px 16px;font-size:15px;outline:none;transition:border-color .2s;font-family:inherit;background:var(--bg)}
+.bot-input:focus{border-color:var(--g)}
+.cfab{position:fixed;bottom:calc(var(--nh)+14px);right:16px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--or),#e07b00);border:none;cursor:pointer;font-size:24px;box-shadow:0 4px 16px rgba(244,147,26,.4);z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.cfab:hover{transform:scale(1.1)}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 24px}
+.empty-i{font-size:56px;margin-bottom:14px}
+.empty-t{font-size:18px;font-weight:700;margin-bottom:8px}
+.empty-s{color:var(--mt);font-size:14px;line-height:1.5}
+
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-logo">🏟️</div>
+  <h1 class="auth-title">PlatzFrei</h1>
+  <p class="auth-sub">Sportanlagen einfach buchen</p>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="authTab('login')">Anmelden</button>
+      <button class="auth-tab" onclick="authTab('register')">Registrieren</button>
+    </div>
+    <div id="login-form">
+      <div class="fg"><label class="fl">Benutzername</label><input class="fi" id="lu" type="text" placeholder="Dein Benutzername" autocomplete="username"></div>
+      <div class="fg"><label class="fl">Passwort</label><input class="fi" id="lp" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn-p" onclick="doLogin()">Anmelden</button>
+    </div>
+    <div id="reg-form" style="display:none">
+      <div class="fg"><label class="fl">Vollständiger Name</label><input class="fi" id="rn" type="text" placeholder="Max Mustermann"></div>
+      <div class="fg"><label class="fl">Benutzername</label><input class="fi" id="ru" type="text" placeholder="maxmuster" autocomplete="username"></div>
+      <div class="fg"><label class="fl">E-Mail</label><input class="fi" id="re" type="email" placeholder="max@email.de"></div>
+      <div class="fg"><label class="fl">Passwort</label><input class="fi" id="rp" type="password" placeholder="Mindestens 6 Zeichen" autocomplete="new-password"></div>
+      <button class="btn-p" onclick="doRegister()">Konto erstellen</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+
+  <!-- HOME -->
+  <div id="page-home" class="page active">
+    <div class="home-hero">
+      <div class="htop">
+        <div class="greeting" onclick="openProfile()">
+          <div class="gpav" id="home-pav">😊</div>
+          <div><div class="gname" id="hgreet">Hallo! 👋</div><div class="gsub">Profil & Einstellungen →</div></div>
+        </div>
+        <button class="nbell" onclick="showNotifs()">🔔<div class="nbellbadge" id="nbellb"></div></button>
+      </div>
+      <div class="hero-card">
+        <h2>Jetzt buchen</h2>
+        <p>Reserviere Fußballplätze, Tennisplätze, Hallen und Badmintonplätze in deiner Stadt – schnell, einfach, zuverlässig.</p>
+        <div class="hstats">
+          <div class="hstat"><div class="hstat-n">36</div><div class="hstat-l">Städte</div></div>
+          <div class="hstat"><div class="hstat-n">200+</div><div class="hstat-l">Anlagen</div></div>
+          <div class="hstat"><div class="hstat-n" id="stat-friends">3</div><div class="hstat-l">Freunde</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="home-content">
+      <div class="qgrid">
+        <div class="qcard" onclick="showPage('standorte')"><div class="qi">⚽</div><div class="ql">Fußballplatz</div><div class="qs">Platz buchen</div></div>
+        <div class="qcard" onclick="showPage('standorte')"><div class="qi">🎾</div><div class="ql">Tennisplatz</div><div class="qs">Platz buchen</div></div>
+        <div class="qcard" onclick="showPage('standorte')"><div class="qi">🏸</div><div class="ql">Badminton</div><div class="qs">Halle buchen</div></div>
+        <div class="qcard" onclick="showPage('standorte')"><div class="qi">🏟️</div><div class="ql">Sporthalle</div><div class="qs">Halle buchen</div></div>
+      </div>
+      <div class="sr"><div class="st">Aktuelle Buchungen</div><button class="see-all" onclick="showPage('buchungen')">Alle anzeigen</button></div>
+      <div id="home-blist"></div>
+    </div>
+  </div>
+
+  <!-- STANDORTE -->
+  <div id="page-standorte" class="page">
+    <div id="city-list">
+      <div class="ph"><h1>Standorte</h1><p>Sportanlagen in ganz Deutschland</p></div>
+      <div class="sc">
+        <div class="sbar">🔍 <input type="text" placeholder="Stadt suchen..." id="csearch" oninput="filterCities(this.value)"></div>
+        <div class="fchips">
+          <div class="fc active" onclick="setVF('all',this)">Alle</div>
+          <div class="fc" onclick="setVF('fusball',this)">⚽ Fußball</div>
+          <div class="fc" onclick="setVF('tennis',this)">🎾 Tennis</div>
+          <div class="fc" onclick="setVF('badminton',this)">🏸 Badminton</div>
+          <div class="fc" onclick="setVF('halle',this)">🏟️ Halle</div>
+        </div>
+        <div id="cities-cont"></div>
+      </div>
+    </div>
+    <div id="city-detail" style="display:none">
+      <div class="ph">
+        <button class="back-btn" onclick="backToList()">‹ <span>Zurück</span></button>
+        <h1 id="cd-name"></h1><p id="cd-sub"></p>
+      </div>
+      <div style="padding:16px" id="venues-cont"></div>
+    </div>
+  </div>
+
+  <!-- BUCHUNGEN -->
+  <div id="page-buchungen" class="page">
+    <div class="ph"><h1>Buchungen</h1><p>Alle deine Reservierungen</p></div>
+    <div class="bc" id="buch-list"></div>
+  </div>
+
+  <!-- NACHRICHTEN -->
+  <div id="page-freunde" class="page">
+    <div class="fhdr">
+      <div style="font-size:26px;font-weight:800;color:#fff">Nachrichten</div>
+      <div class="ftabs">
+        <button class="ftab active" onclick="fTab('chats',this)">💬 Chats</button>
+        <button class="ftab" onclick="fTab('groups',this)">👥 Gruppen</button>
+        <button class="ftab" onclick="fTab('friends',this)">➕ Freunde</button>
+        <button class="ftab" onclick="fTab('bot',this)">🤖 SportBot</button>
+      </div>
+    </div>
+
+    <!-- CHATS TAB -->
+    <div id="ftab-chats"><div id="chat-list"></div></div>
+
+    <!-- GRUPPEN TAB -->
+    <div id="ftab-groups" style="display:none">
+      <div style="padding:16px;background:#fff;border-bottom:1px solid var(--bd)">
+        <button class="btn-p" onclick="openCreateGroup()" style="background:linear-gradient(135deg,var(--gl),var(--g))">+ Neue Gruppe erstellen</button>
+      </div>
+      <div id="group-list" style="padding:8px 16px"></div>
+    </div>
+
+    <!-- FREUNDE TAB -->
+    <div id="ftab-friends" style="display:none">
+      <div style="padding:16px;border-bottom:1px solid var(--bd);background:#fff">
+        <div style="font-size:15px;font-weight:700;margin-bottom:10px">Nutzer finden</div>
+        <div class="sbar" style="margin-bottom:8px">🔍 <input type="text" id="fsearch" placeholder="Benutzername eingeben..." oninput="searchUsers(this.value)"></div>
+        <div id="fsearch-results"></div>
+      </div>
+      <div style="padding:16px" id="freq-section"></div>
+    </div>
+
+    <!-- SPORTBOT TAB -->
+    <div id="ftab-bot" style="display:none">
+      <div style="padding:20px 16px;text-align:center;background:#fff;border-bottom:1px solid var(--bd)">
+        <div style="font-size:40px;margin-bottom:8px">🤖</div>
+        <div style="font-weight:800;font-size:18px;margin-bottom:6px">SportBot</div>
+        <div style="font-size:14px;color:var(--mt)">Dein Buchungsassistent – ich beantworte Fragen und buche Plätze für dich!</div>
+      </div>
+      <div class="bot-wrap">
+        <div class="bot-msgs" id="bot-msgs"></div>
+        <div class="bot-input-bar">
+          <input class="bot-input" id="bot-in" placeholder="Frag SportBot..." onkeypress="if(event.key==='Enter')sendBot()">
+          <button class="sbtn" onclick="sendBot()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav id="bnav">
+    <button class="ni active" id="n-home" onclick="showPage('home')"><div class="ni-icon">🏠</div><div class="ni-label">Home</div></button>
+    <button class="ni" id="n-standorte" onclick="showPage('standorte')"><div class="ni-icon">📍</div><div class="ni-label">Standorte</div></button>
+    <button class="ni" id="n-buchungen" onclick="showPage('buchungen')"><div class="ni-icon">📅</div><div class="ni-label">Buchungen</div><div class="nbadge" id="nb-buch"></div></button>
+    <button class="ni" id="n-freunde" onclick="showPage('freunde')"><div class="ni-icon">💬</div><div class="ni-label">Nachrichten</div><div class="nbadge" id="nb-frnd"></div></button>
+  </nav>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="moverlay" id="book-modal" onclick="closeModal()">
+  <div class="msheet" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <button class="close-modal" onclick="closeModal()">✕</button>
+    <div class="mtitle" id="m-vname">Platz buchen</div>
+    <div class="msub" id="m-vsub"></div>
+    <div class="sl-label">Spieldauer</div>
+    <div class="dpills">
+      <div class="dp" onclick="selDur(30,this)">30 Min.</div>
+      <div class="dp" onclick="selDur(60,this)">60 Min.</div>
+      <div class="dp" onclick="selDur(90,this)">90 Min.</div>
+    </div>
+    <div class="sl-label">Uhrzeit wählen</div>
+    <div class="tgrid" id="tgrid"></div>
+    <div class="fi-title">👥 Freunde einladen (optional)</div>
+    <div class="fi-list" id="fi-list"></div>
+    <button class="btn-p" id="bk-btn" onclick="doBook()" disabled style="opacity:.5">Jetzt buchen</button>
+  </div>
+</div>
+
+<!-- GRUPPE ERSTELLEN MODAL -->
+<div class="moverlay" id="group-modal" onclick="closeGroupModal()">
+  <div class="msheet" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <button class="close-modal" onclick="closeGroupModal()">✕</button>
+    <div class="mtitle">Gruppe erstellen</div>
+    <div class="msub">Gib einen Namen ein und wähle Mitglieder</div>
+    <div class="fg"><label class="fl">Gruppenname</label><input class="fi" id="g-name" placeholder="z.B. Fußball-Team 2025"></div>
+    <div class="fi-title">Mitglieder wählen</div>
+    <div class="fi-list" id="g-member-list"></div>
+    <button class="btn-p" onclick="createGroup()">Gruppe erstellen</button>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="covl" id="conf-ovl">
+  <div class="ccard">
+    <div class="c-icon">🎉</div>
+    <div class="c-title">Buchung bestätigt!</div>
+    <div class="c-text">Vielen Dank! Deine Reservierung ist gespeichert und aktiv.</div>
+    <div class="c-details" id="conf-det"></div>
+    <button class="btn-p" onclick="closeConf()">Super, danke!</button>
+  </div>
+</div>
+
+<!-- NOTIF -->
+<div class="nsheet" id="nsheet" onclick="this.classList.remove('active')">
+  <div class="ncont" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:16px">Benachrichtigungen 🔔</div>
+    <div id="nlist"></div>
+  </div>
+</div>
+
+<!-- CHAT SCREEN -->
+<div class="chat-screen" id="chat-scr">
+  <div class="ch-hdr">
+    <button class="ch-back" onclick="closeChat()">‹</button>
+    <div class="ch-av" id="ch-av"></div>
+    <div><div class="ch-name" id="ch-name"></div><div class="ch-st" id="ch-st"></div></div>
+  </div>
+  <div class="ch-msgs" id="ch-msgs"></div>
+  <div class="ch-input-bar">
+    <textarea class="ch-input-field" id="ch-inp" placeholder="Nachricht schreiben..." rows="1"></textarea>
+    <button class="sbtn" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="chat-screen" id="prof-scr">
+  <div class="ch-hdr" style="background:linear-gradient(135deg,var(--gd),var(--g))">
+    <button class="ch-back" onclick="closeProfile()" style="color:#fff">‹</button>
+    <div style="flex:1"><div class="ch-name" style="color:#fff;font-size:18px">Mein Profil</div></div>
+    <button onclick="saveProfile()" style="background:rgba(255,255,255,.2);border:none;color:#fff;font-size:14px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer">Speichern</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;background:var(--bg)">
+    <div style="background:linear-gradient(135deg,var(--gd),var(--g));padding:0 0 28px;display:flex;flex-direction:column;align-items:center">
+      <div id="prof-av-big" style="width:88px;height:88px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:10px">😊</div>
+      <div style="color:rgba(255,255,255,.8);font-size:13px">Emoji auswählen</div>
+    </div>
+    <div style="background:#fff;padding:16px;border-bottom:1px solid var(--bd)">
+      <div style="font-size:12px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Eigenes Foto</div>
+      <input type="file" id="prof-img-input" accept="image/*" style="display:none" onchange="handleImgUpload(this)">
+      <button onclick="document.getElementById('prof-img-input').click()" style="width:100%;padding:12px;border:2px dashed var(--bd);border-radius:var(--rs);background:var(--bg);color:var(--g);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:4px">📷 Foto hochladen</button>
+      <div style="font-size:12px;color:var(--mt);text-align:center;margin-bottom:14px">oder wähle ein Emoji unten</div>
+      <div style="font-size:12px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Emoji wählen</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="avatar-picker"></div>
+    </div>
+    <div style="background:#fff;padding:20px 16px;margin-top:10px;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)">
+      <div style="font-size:12px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">Persönliche Daten</div>
+      <div class="fg"><label class="fl">Vollständiger Name</label><input class="fi" id="prof-name" type="text"></div>
+      <div class="fg"><label class="fl">Benutzername</label><input class="fi" id="prof-user" type="text"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">E-Mail</label><input class="fi" id="prof-email" type="email"></div>
+    </div>
+    <div style="padding:20px 16px">
+      <div style="font-size:18px;font-weight:700;margin-bottom:14px">📋 Buchungshistorie</div>
+      <div id="prof-history"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHATBOT FAB -->
+<button class="cfab" id="cfab" onclick="showPage('freunde');fTab('bot',document.querySelectorAll('.ftab')[3])" title="SportBot öffnen">🤖</button>
+
+<script>
+// ===== DATA =====
+const CITIES = ['Aachen','Augsburg','Berlin','Bielefeld','Bochum','Bonn','Bremen','Chemnitz','Dortmund','Dresden','Düsseldorf','Erfurt','Essen','Frankfurt','Freiburg','Hamburg','Hannover','Heidelberg','Karlsruhe','Kiel','Köln','Leipzig','Lübeck','Magdeburg','Mainz','Mannheim','München','Münster','Nürnberg','Regensburg','Rostock','Saarbrücken','Stuttgart','Wiesbaden','Wuppertal','Würzburg'];
+
+const VTYPES = {
+  fusball:  {icon:'⚽',label:'Fußballplatz', mk:(c)=>[{n:`FC ${c} Hauptplatz`,a:`Sportstraße 1, ${c}`},{n:`Bezirkssportanlage ${c} Nord`,a:`Nordring 45, ${c}`},{n:`${c} Arena Trainingsgelände`,a:`Am Stadion 8, ${c}`}]},
+  tennis:   {icon:'🎾',label:'Tennisplatz',  mk:(c)=>[{n:`TC ${c} Center`,a:`Tennisallee 12, ${c}`},{n:`Sport-Club ${c} West`,a:`Westpark 3, ${c}`},{n:`${c} Tennis & Sports`,a:`Schillerstr. 77, ${c}`}]},
+  badminton:{icon:'🏸',label:'Badmintonplatz',mk:(c)=>[{n:`Badminton-Halle ${c}`,a:`Hallengasse 5, ${c}`},{n:`Shuttle-Sport ${c}`,a:`Industrieweg 22, ${c}`},{n:`BC ${c} Spielfeld`,a:`Sportpark 14, ${c}`}]},
+  halle:    {icon:'🏟️',label:'Sporthalle',   mk:(c)=>[{n:`Stadthalle ${c}`,a:`Marktplatz 1, ${c}`},{n:`Mehrzweckhalle ${c} West`,a:`Hallenweg 9, ${c}`},{n:`Sport-Arena ${c}`,a:`Arenastraße 100, ${c}`}]},
+};
+
+const DEMO_FRIENDS = [
+  {id:'demo_max',  name:'Max Müller',   av:'👨', status:'online', sortTs: Date.now()-3600000},
+  {id:'demo_sarah',name:'Sarah Schmidt',av:'👩', status:'offline',sortTs: Date.now()-86400000},
+  {id:'demo_tom',  name:'Thomas Weber', av:'🧔', status:'online', sortTs: Date.now()-172800000},
+];
+
+const INIT_MSGS = {
+  demo_max:  [{f:'demo_max',t:'Hey! Spielen wir heute Abend Fußball? 😄',ts:'18:30',st:Date.now()-3600000},{f:'me',t:'Ja klar!',ts:'18:32',st:Date.now()-3500000},{f:'demo_max',t:'Super! ⚽',ts:'18:33',st:Date.now()-3400000}],
+  demo_sarah:[{f:'demo_sarah',t:'Wann gehen wir wieder Tennis spielen? 🎾',ts:'Gestern',st:Date.now()-86400000},{f:'me',t:'Samstag passt mir gut!',ts:'Gestern',st:Date.now()-86000000},{f:'demo_sarah',t:'Perfekt! 😊',ts:'Gestern',st:Date.now()-85000000}],
+  demo_tom:  [{f:'demo_tom',t:'Halle für Freitag gebucht?',ts:'Mo.',st:Date.now()-172800000},{f:'me',t:'Mache ich gleich!',ts:'Mo.',st:Date.now()-172000000}],
+};
+
+// ===== STATE =====
+let S = {user:null,bookings:[],msgs:{},notifs:[],curPage:'home',curChat:null,curChatType:null};
+let bkS = {city:null,vtype:null,vname:null,dur:null,time:null,friends:[]};
+let gkS = {members:[]};
+let botState = {step:null,city:null,vtype:null,dur:null,time:null,venue:null};
+let botInited = false;
+let currentTab = 'chats';
+
+// ===== FRIEND SYSTEM =====
+function getAllReqs(){return JSON.parse(localStorage.getItem('sb_freq')||'[]');}
+function saveAllReqs(r){localStorage.setItem('sb_freq',JSON.stringify(r));}
+function getMyRealFriendIds(){
+  const uid=S.user.id;
+  return getAllReqs().filter(r=>r.status==='accepted'&&(r.from===uid||r.to===uid))
+    .map(r=>r.from===uid?r.to:r.from);
+}
+function getMyRealFriends(){
+  const ids=getMyRealFriendIds();
+  return JSON.parse(localStorage.getItem('sb_users')||'[]').filter(u=>ids.includes(u.id));
+}
+function getPendingToMe(){
+  const users=JSON.parse(localStorage.getItem('sb_users')||'[]');
+  return getAllReqs().filter(r=>r.to===S.user.id&&r.status==='pending').map(r=>({
+    ...r, senderName:users.find(u=>u.id===r.from)?.name||'Unbekannt',
+    senderAv:users.find(u=>u.id===r.from)?.avatar||'👤'
+  }));
+}
+function isAlreadyFriend(uid){return getMyRealFriendIds().includes(uid);}
+function hasPendingTo(uid){return getAllReqs().some(r=>r.from===S.user.id&&r.to===uid&&r.status==='pending');}
+function hasPendingFrom(uid){return getAllReqs().some(r=>r.from===uid&&r.to===S.user.id&&r.status==='pending');}
+
+function sendFriendReq(toUser){
+  if(isAlreadyFriend(toUser.id)){toast('Ihr seid bereits befreundet.');return;}
+  if(hasPendingTo(toUser.id)){toast('Anfrage bereits gesendet.');return;}
+  const reqs=getAllReqs();
+  reqs.push({id:Date.now(),from:S.user.id,fromName:S.user.name,to:toUser.id,toName:toUser.name,status:'pending',ts:new Date().toISOString()});
+  saveAllReqs(reqs);
+  toast(`Anfrage an ${toUser.name} gesendet! ✅`);
+  searchUsers(document.getElementById('fsearch').value);
+  renderFriendSection();
+}
+function acceptReq(reqId){
+  const reqs=getAllReqs();const r=reqs.find(x=>x.id===reqId);if(r)r.status='accepted';
+  saveAllReqs(reqs);
+  S.notifs.unshift({icon:'👥',title:'Neue Freundschaft!',body:`Du und ${r?.fromName} seid jetzt befreundet.`,time:'Gerade eben'});
+  updateNotifBadge();renderFriendSection();renderChatList();updateFriendCount();
+}
+function declineReq(reqId){
+  saveAllReqs(getAllReqs().filter(x=>x.id!==reqId));renderFriendSection();
+}
+function removeFriend(uid){
+  saveAllReqs(getAllReqs().filter(r=>!((r.from===S.user.id&&r.to===uid)||(r.to===S.user.id&&r.from===uid))));
+  renderFriendSection();renderChatList();updateFriendCount();
+}
+
+function realChatKey(a,b){return `sb_rc_${Math.min(Number(a),Number(b))}_${Math.max(Number(a),Number(b))}`;}
+function getRealChat(fid){return JSON.parse(localStorage.getItem(realChatKey(S.user.id,fid))||'[]');}
+function saveRealChat(fid,msgs){localStorage.setItem(realChatKey(S.user.id,fid),JSON.stringify(msgs));}
+
+// ===== GROUPS =====
+function getGroups(){return JSON.parse(localStorage.getItem('sb_groups')||'[]');}
+function saveGroups(g){localStorage.setItem('sb_groups',JSON.stringify(g));}
+function getGroupChat(gid){return JSON.parse(localStorage.getItem('sb_gc_'+gid)||'[]');}
+function saveGroupChat(gid,msgs){localStorage.setItem('sb_gc_'+gid,JSON.stringify(msgs));}
+
+function openCreateGroup(){
+  gkS.members=[];
+  const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name,av:u.avatar||'👤'}))];
+  document.getElementById('g-name').value='';
+  document.getElementById('g-member-list').innerHTML=allF.map(f=>`
+    <div class="fi-item" id="gm-${f.id}" onclick="togGroupMember('${f.id}',this)">
+      <div class="fi-av">${f.av}</div>
+      <div class="fi-name">${f.name}</div>
+      <div class="fi-chk" id="gc-${f.id}">✓</div>
+    </div>`).join('');
+  document.getElementById('group-modal').classList.add('active');
+}
+function closeGroupModal(){document.getElementById('group-modal').classList.remove('active');}
+
+function togGroupMember(id,el){
+  const idx=gkS.members.indexOf(id);
+  const chk=document.getElementById('gc-'+id);
+  if(idx>-1){gkS.members.splice(idx,1);el.classList.remove('sel');chk.classList.remove('chk');}
+  else{gkS.members.push(id);el.classList.add('sel');chk.classList.add('chk');}
+}
+
+function createGroup(){
+  const name=document.getElementById('g-name').value.trim();
+  if(!name){alert('Bitte einen Gruppennamen eingeben.');return;}
+  if(!gkS.members.length){alert('Bitte mindestens einen Freund hinzufügen.');return;}
+  const groups=getGroups();
+  const g={id:Date.now(),name,creator:S.user.id,members:[S.user.id,...gkS.members],at:new Date().toISOString()};
+  groups.push(g);saveGroups(groups);
+  // Welcome message
+  const chat=getGroupChat(g.id);
+  chat.push({f:'system',t:`Gruppe "${name}" wurde erstellt. Willkommen! 🎉`,ts:nowTime(),st:Date.now()});
+  saveGroupChat(g.id,chat);
+  closeGroupModal();
+  renderGroupList();
+  toast(`Gruppe "${name}" erstellt! 🎉`);
+}
+
+function renderGroupList(){
+  const cont=document.getElementById('group-list');
+  const groups=getGroups().filter(g=>g.members.includes(S.user.id));
+  if(!groups.length){
+    cont.innerHTML=`<div class="empty"><div class="empty-i">👥</div><div class="empty-t">Noch keine Gruppen</div><div class="empty-s">Erstelle eine Gruppe mit deinen Freunden!</div></div>`;
+    return;
+  }
+  cont.innerHTML=groups.map(g=>{
+    const chat=getGroupChat(g.id);
+    const last=chat[chat.length-1];
+    return `<div class="group-card" onclick="openGroupChat(${g.id})">
+      <div class="group-av">👥</div>
+      <div class="ci-info">
+        <div class="ci-name" style="font-weight:700;font-size:15px">${g.name}</div>
+        <div class="ci-last">${last?last.t.substring(0,40):'Noch keine Nachrichten'}</div>
+      </div>
+      <div class="ci-meta"><div class="ci-time">${last?.ts||''}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function openGroupChat(gid){
+  const groups=getGroups();
+  const g=groups.find(x=>x.id===gid);
+  if(!g)return;
+  S.curChat=gid;S.curChatType='group';
+  document.getElementById('ch-av').textContent='👥';
+  document.getElementById('ch-av').className='ch-av group';
+  document.getElementById('ch-name').textContent=g.name;
+  const allUsers=JSON.parse(localStorage.getItem('sb_users')||'[]');
+  const memberNames=g.members.map(id=>{
+    if(id===S.user.id)return 'Du';
+    const df=DEMO_FRIENDS.find(f=>f.id===id);if(df)return df.name;
+    return allUsers.find(u=>u.id===id)?.name||'?';
+  });
+  document.getElementById('ch-st').textContent=`${g.members.length} Mitglieder`;
+  const chat=getGroupChat(gid);
+  renderGroupMsgs(chat);
+  document.getElementById('chat-scr').classList.add('active');
+}
+
+function renderGroupMsgs(msgs){
+  const c=document.getElementById('ch-msgs');
+  const allUsers=JSON.parse(localStorage.getItem('sb_users')||'[]');
+  c.innerHTML=msgs.map(m=>{
+    if(m.f==='system') return `<div style="text-align:center;font-size:12px;color:var(--mt);padding:8px;background:rgba(26,95,212,.06);border-radius:10px;margin:4px 0">${m.t}</div>`;
+    const isMe=m.f===S.user.id||m.f==='me';
+    let senderName='';
+    if(!isMe){
+      const df=DEMO_FRIENDS.find(f=>f.id===m.f);
+      senderName=df?.name||allUsers.find(u=>u.id===m.f)?.name||m.senderName||'?';
+    }
+    return `<div class="mw ${isMe?'me':'them'}">
+      ${!isMe?`<div class="msg-sender">${senderName}</div>`:''}
+      <div class="mb">${m.t.replace(/\n/g,'<br>')}</div>
+      <div class="mt">${m.ts}</div>
+    </div>`;
+  }).join('');
+  setTimeout(()=>c.scrollTop=c.scrollHeight,50);
+}
+
+// ===== AUTH =====
+function authTab(t){
+  document.querySelectorAll('.auth-tab').forEach((el,i)=>el.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('login-form').style.display=t==='login'?'':'none';
+  document.getElementById('reg-form').style.display=t==='register'?'':'none';
+}
+function doLogin(){
+  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
+  if(!u||!p){alert('Bitte alle Felder ausfüllen.');return;}
+  const found=JSON.parse(localStorage.getItem('sb_users')||'[]').find(x=>x.u===u&&x.p===p);
+  if(!found){alert('Benutzername oder Passwort falsch.');return;}
+  startSession(found);
+}
+function doRegister(){
+  const n=document.getElementById('rn').value.trim(),u=document.getElementById('ru').value.trim(),
+        e=document.getElementById('re').value.trim(),p=document.getElementById('rp').value;
+  if(!n||!u||!e||!p){alert('Bitte alle Felder ausfüllen.');return;}
+  if(p.length<6){alert('Passwort mind. 6 Zeichen.');return;}
+  const users=JSON.parse(localStorage.getItem('sb_users')||'[]');
+  if(users.find(x=>x.u===u)){alert('Benutzername bereits vergeben.');return;}
+  const nu={id:Date.now(),name:n,u,e,p,avatar:'😊'};
+  users.push(nu);localStorage.setItem('sb_users',JSON.stringify(users));
+  startSession(nu);
+}
+function startSession(user){
+  S.user=user;localStorage.setItem('sb_ses',JSON.stringify(user));
+  const all=JSON.parse(localStorage.getItem('sb_books')||'[]');
+  S.bookings=all.filter(b=>b.uid===user.id);
+  const sm=localStorage.getItem('sb_msgs_'+user.id);
+  S.msgs=sm?JSON.parse(sm):JSON.parse(JSON.stringify(INIT_MSGS));
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  initApp();
+}
+
+// ===== INIT =====
+function initApp(){
+  document.getElementById('hgreet').textContent=`Hallo, ${S.user.name.split(' ')[0]}! 👋`;
+  if(S.user.avatar)setAvEl(document.getElementById('home-pav'),S.user.avatar);
+  renderCities('');renderChatList();updateHome();updateBadges();updateFriendCount();
+  document.getElementById('ch-inp').addEventListener('keypress',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}});
+  setInterval(()=>{updateBadges();updateFriendCount();if(currentTab==='friends')renderFriendSection();if(currentTab==='groups')renderGroupList();},5000);
+}
+
+// ===== NAV =====
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('n-'+p).classList.add('active');
+  document.getElementById('cfab').style.display=p==='freunde'?'none':'flex';
+  S.curPage=p;
+  if(p==='buchungen')renderBuch();
+  if(p==='home')updateHome();
+  if(p==='freunde'){renderChatList();renderFriendSection();renderGroupList();}
+}
+
+// ===== HOME =====
+function updateHome(){
+  const el=document.getElementById('home-blist');
+  const now=new Date();
+  const up=S.bookings.filter(b=>new Date(b.dt)>=now).sort((a,b)=>new Date(a.dt)-new Date(b.dt)).slice(0,3);
+  if(!up.length){
+    el.innerHTML=`<div class="empty"><div class="empty-i">📅</div><div class="empty-t">Noch keine Buchungen</div><div class="empty-s">Buche deinen ersten Platz!</div></div>`;
+    return;
+  }
+  el.innerHTML=up.map(b=>`<div class="bprev" onclick="showPage('buchungen')">
+    <div class="bdot">${VTYPES[b.vtype]?.icon||'📍'}</div>
+    <div class="binfo"><div class="bname">${b.vname}</div><div class="bmeta">📍 ${b.city} · ⏱ ${b.dur} Min.</div></div>
+    <div class="btime">${fmtDT(b.dt)}</div>
+  </div>`).join('');
+  updateNotifBadge();
+}
+function updateFriendCount(){
+  document.getElementById('stat-friends').textContent=DEMO_FRIENDS.length+getMyRealFriendIds().length;
+}
+function updateNotifBadge(){
+  const b=document.getElementById('nbellb');b.textContent=S.notifs.length;b.style.display=S.notifs.length?'flex':'none';
+}
+function showNotifs(){
+  const nl=document.getElementById('nlist');
+  nl.innerHTML=!S.notifs.length?`<div class="empty" style="padding:30px 0"><div class="empty-i">🔕</div><div class="empty-t">Keine Benachrichtigungen</div></div>`:
+    S.notifs.map(n=>`<div class="ni-item"><div class="ni-icon-w">${n.icon}</div><div><div style="font-weight:700;font-size:14px">${n.title}</div><div style="font-size:13px;color:var(--mt);margin-top:2px">${n.body}</div><div style="font-size:12px;color:var(--g);margin-top:4px">${n.time}</div></div></div>`).join('');
+  document.getElementById('nsheet').classList.add('active');
+}
+
+// ===== CITIES =====
+function renderCities(q){
+  const cont=document.getElementById('cities-cont');
+  const list=CITIES.filter(c=>c.toLowerCase().includes(q.toLowerCase()));
+  const grp={};list.forEach(c=>{const l=c[0];if(!grp[l])grp[l]=[];grp[l].push(c);});
+  let h='';
+  Object.keys(grp).sort().forEach(l=>{
+    h+=`<div class="cletter">${l}</div>`;
+    grp[l].forEach(c=>h+=`<div class="cc" onclick="showCity('${c}')"><div class="cicon">🏙️</div><div><div class="cn">${c}</div><div class="ccount">12 Sportanlagen verfügbar</div></div><div class="ca">›</div></div>`);
+  });
+  cont.innerHTML=h||`<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Keine Städte gefunden</div></div>`;
+}
+function filterCities(v){renderCities(v);}
+function setVF(t,el){document.querySelectorAll('.fc').forEach(x=>x.classList.remove('active'));el.classList.add('active');}
+function showCity(city){
+  document.getElementById('city-list').style.display='none';
+  document.getElementById('city-detail').style.display='';
+  document.getElementById('cd-name').textContent=city;
+  document.getElementById('cd-sub').textContent=`Sportanlagen in ${city}`;
+  const allBooks=JSON.parse(localStorage.getItem('sb_books')||'[]');
+  let h='';
+  Object.entries(VTYPES).forEach(([type,info])=>{
+    h+=`<div class="vts"><div class="vth"><span style="font-size:18px">${info.icon}</span><span style="font-size:16px;font-weight:700;margin-left:8px">${info.label}</span></div>`;
+    info.mk(city).forEach(v=>{
+      const busy=allBooks.some(b=>b.city===city&&b.vname===v.n&&isBusy(b));
+      h+=`<div class="vc" onclick="openBook('${city}','${type}','${v.n.replace(/'/g,"\\'")}','${v.a.replace(/'/g,"\\'")}')">
+        <div class="vci">${info.icon}</div>
+        <div style="flex:1"><div class="vcn">${v.n}</div><div class="vca">📍 ${v.a}</div></div>
+        <div class="avail ${busy?'busy':'free'}">${busy?'Belegt':'Frei'}</div>
+      </div>`;
+    });h+='</div>';
+  });
+  document.getElementById('venues-cont').innerHTML=h;
+}
+function isBusy(b){const n=new Date();const s=new Date(b.dt);return n>=s&&n<=new Date(s.getTime()+b.dur*60000);}
+function backToList(){document.getElementById('city-list').style.display='';document.getElementById('city-detail').style.display='none';}
+
+// ===== BOOKING =====
+function openBook(city,vtype,vname,vaddr){
+  bkS={city,vtype,vname,dur:null,time:null,friends:[]};
+  document.getElementById('m-vname').textContent=vname;
+  document.getElementById('m-vsub').textContent='📍 '+vaddr;
+  document.querySelectorAll('.dp').forEach(x=>x.classList.remove('sel'));
+  genSlots(city,vname);renderFriendInvite();
+  document.getElementById('bk-btn').disabled=true;document.getElementById('bk-btn').style.opacity='.5';
+  document.getElementById('book-modal').classList.add('active');
+}
+function closeModal(){document.getElementById('book-modal').classList.remove('active');}
+function genSlots(city,vname){
+  const all=JSON.parse(localStorage.getItem('sb_books')||'[]');const now=new Date();let h='';
+  for(let hr=8;hr<=21;hr++)for(let mn=0;mn<60;mn+=30){
+    const ts=`${String(hr).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
+    const sd=new Date();sd.setHours(hr,mn,0,0);
+    const taken=(sd<now)||all.some(b=>{
+      if(b.city!==city||b.vname!==vname)return false;
+      const bs=new Date(b.dt);return sd>=bs&&sd<new Date(bs.getTime()+b.dur*60000);
+    });
+    h+=`<div class="ts${taken?' taken':''}" ${taken?'':`onclick="selTime('${ts}',this)"`}>${ts}</div>`;
+  }
+  document.getElementById('tgrid').innerHTML=h;
+}
+function selDur(d,el){document.querySelectorAll('.dp').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');bkS.dur=d;chkBk();}
+function selTime(t,el){document.querySelectorAll('.ts:not(.taken)').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');bkS.time=t;chkBk();}
+function chkBk(){const ok=bkS.dur&&bkS.time;document.getElementById('bk-btn').disabled=!ok;document.getElementById('bk-btn').style.opacity=ok?'1':'.5';}
+function renderFriendInvite(){
+  const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name,av:u.avatar||'👤'}))];
+  document.getElementById('fi-list').innerHTML=allF.map(f=>`
+    <div class="fi-item" id="fii-${f.id}" onclick="togFI('${f.id}')">
+      <div class="fi-av">${f.av}</div><div class="fi-name">${f.name}</div>
+      <div class="fi-chk" id="fic-${f.id}">✓</div>
+    </div>`).join('');
+}
+function togFI(id){
+  const idx=bkS.friends.indexOf(id);
+  if(idx>-1){bkS.friends.splice(idx,1);document.getElementById('fii-'+id).classList.remove('sel');document.getElementById('fic-'+id).classList.remove('chk');}
+  else{bkS.friends.push(id);document.getElementById('fii-'+id).classList.add('sel');document.getElementById('fic-'+id).classList.add('chk');}
+}
+function doBook(){
+  if(!bkS.dur||!bkS.time)return;
+  const now=new Date();const[h,m]=bkS.time.split(':').map(Number);
+  const dt=new Date();dt.setHours(h,m,0,0);if(dt<now)dt.setDate(dt.getDate()+1);
+  const bk={id:Date.now(),uid:S.user.id,city:bkS.city,vtype:bkS.vtype,vname:bkS.vname,dur:bkS.dur,dt:dt.toISOString(),friends:bkS.friends,at:new Date().toISOString()};
+  S.bookings.push(bk);
+  const all=JSON.parse(localStorage.getItem('sb_books')||'[]');all.push(bk);localStorage.setItem('sb_books',JSON.stringify(all));
+  const invTxt=`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
+  bkS.friends.forEach(fid=>{
+    if(fid.startsWith('demo_')){
+      if(!S.msgs[fid])S.msgs[fid]=[];
+      S.msgs[fid].push({f:'me',t:invTxt,ts:nowTime(),st:Date.now()});
+      setTimeout(()=>{S.msgs[fid].push({f:fid,t:'Super! Ich bin dabei! 🙌',ts:nowTime(),st:Date.now()});saveMsgs();},2500);
+    }else{const c=getRealChat(fid);c.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveRealChat(fid,c);}
+  });
+  saveMsgs();
+  S.notifs.unshift({icon:VTYPES[bkS.vtype]?.icon||'📅',title:'Buchung bestätigt',body:`${bk.vname} · ${fmtDT(bk.dt)}`,time:'Gerade eben'});
+  closeModal();showConf(bk);updateHome();updateBadges();
+}
+function showConf(bk){
+  const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
+  const inv=bk.friends.map(id=>allF.find(f=>f.id===id)?.name).filter(Boolean);
+  document.getElementById('conf-det').innerHTML=`
+    <div class="cdr">📍 ${bk.vname}</div><div class="cdr">🏙️ ${bk.city}</div>
+    <div class="cdr">🕐 ${fmtDT(bk.dt)}</div><div class="cdr">⏱ ${bk.dur} Minuten</div>
+    ${inv.length?`<div class="cdr">👥 ${inv.join(', ')}</div>`:''}`;
+  document.getElementById('conf-ovl').classList.add('active');
+}
+function closeConf(){document.getElementById('conf-ovl').classList.remove('active');}
+
+// ===== BUCHUNGEN =====
+function renderBuch(){
+  const cont=document.getElementById('buch-list');
+  if(!S.bookings.length){cont.innerHTML=`<div class="empty"><div class="empty-i">📅</div><div class="empty-t">Keine Buchungen</div><div class="empty-s">Gehe zu Standorte und buche deinen ersten Platz!</div></div>`;return;}
+  const now=new Date();const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
+  cont.innerHTML=[...S.bookings].sort((a,b)=>new Date(b.dt)-new Date(a.dt)).map(b=>{
+    const up=new Date(b.dt)>=now;
+    const inv=(b.friends||[]).map(id=>allF.find(f=>f.id===id)?.name).filter(Boolean);
+    return `<div class="bcard ${up?'':'past'}">
+      <div class="bch">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">${VTYPES[b.vtype]?.icon||'📍'}</span><div class="bct">${b.vname}</div></div>
+        <div class="bcs ${up?'s-up':'s-p'}">${up?'Bevorstehend':'Vergangen'}</div>
+      </div>
+      <div class="bcd"><div class="bdr">🏙️ ${b.city}</div><div class="bdr">🕐 ${fmtDT(b.dt)}</div><div class="bdr">⏱ ${b.dur} Min.</div></div>
+      ${inv.length?`<div class="bfr">${inv.map(n=>`<div class="bfc">👤 ${n}</div>`).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ===== CHAT (sorted newest first) =====
+function getChatItems(){
+  const demoItems=DEMO_FRIENDS.map(f=>{
+    const ms=S.msgs[f.id]||[];const last=ms[ms.length-1];
+    const unr=ms.filter(m=>m.f===f.id&&!m.rd).length;
+    return {id:f.id,type:'demo',f,ms,last,unr,lastSt:last?.st||f.sortTs||0};
+  });
+  const realItems=getMyRealFriends().map(u=>{
+    const chat=getRealChat(u.id);const last=chat[chat.length-1];
+    const unr=chat.filter(m=>m.f===u.id&&!m.rd).length;
+    return {id:u.id,type:'real',f:{id:u.id,name:u.name,av:u.avatar||'👤',status:'online'},ms:chat,last,unr,lastSt:last?.st||0};
+  });
+  return [...demoItems,...realItems].sort((a,b)=>b.lastSt-a.lastSt);
+}
+
+function renderChatList(){
+  const cont=document.getElementById('chat-list');
+  const items=getChatItems();
+  if(!items.length){cont.innerHTML=`<div class="empty"><div class="empty-i">💬</div><div class="empty-t">Keine Chats</div><div class="empty-s">Füge Freunde hinzu!</div></div>`;return;}
+  cont.innerHTML=items.map(({f,last,unr,type})=>`
+    <div class="chat-item" onclick="openChat('${f.id}','${type}')">
+      <div class="caw"><div class="cav">${f.av}</div>${f.status==='online'?'<div class="odot"></div>':''}</div>
+      <div class="ci-info">
+        <div class="ci-name">${f.name}${type==='real'?' <span style="font-size:10px;background:var(--gp);color:var(--g);padding:2px 6px;border-radius:8px;font-weight:700">ECHT</span>':''}</div>
+        <div class="ci-last">${last?(last.f===f.id?'':last.f==='me'?'Du: ':`Du: `)+last.t.split('\n')[0]:'Noch keine Nachrichten'}</div>
+      </div>
+      <div class="ci-meta"><div class="ci-time">${last?.ts||''}</div>${unr?`<div class="ci-unread">${unr}</div>`:''}</div>
+    </div>`).join('');
+}
+
+function openChat(fid,type){
+  S.curChat=fid;S.curChatType=type;
+  document.getElementById('ch-av').className='ch-av';
+  let fr,msgs;
+  if(type==='real'){
+    fr=JSON.parse(localStorage.getItem('sb_users')||'[]').find(u=>u.id===Number(fid)||u.id===fid);
+    msgs=getRealChat(fid);msgs.forEach(m=>{if(m.f===fid||m.f===Number(fid))m.rd=true;});saveRealChat(fid,msgs);
+  }else{
+    fr=DEMO_FRIENDS.find(f=>f.id===fid);
+    if(!S.msgs[fid])S.msgs[fid]=[];S.msgs[fid].forEach(m=>m.rd=true);msgs=S.msgs[fid];saveMsgs();
+  }
+  document.getElementById('ch-av').textContent=fr?.avatar||fr?.av||'👤';
+  document.getElementById('ch-name').textContent=fr?.name||'Unbekannt';
+  document.getElementById('ch-st').textContent=type==='real'?'🟢 Registrierter Nutzer':(fr?.status==='online'?'🟢 Online':'⚫ Offline');
+  renderDemoMsgs(msgs,fid,type);
+  document.getElementById('chat-scr').classList.add('active');
+  updateBadges();
+}
+function renderDemoMsgs(msgs,fid,type){
+  const c=document.getElementById('ch-msgs');
+  c.innerHTML=msgs.map(m=>{
+    const isMe=m.f==='me'||m.f===S.user?.id;
+    return `<div class="mw ${isMe?'me':'them'}"><div class="mb">${m.t.replace(/\n/g,'<br>')}</div><div class="mt">${m.ts}</div></div>`;
+  }).join('');
+  setTimeout(()=>c.scrollTop=c.scrollHeight,50);
+}
+function closeChat(){document.getElementById('chat-scr').classList.remove('active');S.curChat=null;S.curChatType=null;renderChatList();}
+
+function sendChat(){
+  const inp=document.getElementById('ch-inp');const t=inp.value.trim();
+  if(!t||!S.curChat)return;inp.value='';const now=Date.now();
+  if(S.curChatType==='group'){
+    const chat=getGroupChat(S.curChat);
+    chat.push({f:S.user.id,senderName:S.user.name,t,ts:nowTime(),st:now});
+    saveGroupChat(S.curChat,chat);renderGroupMsgs(chat);
+  }else if(S.curChatType==='real'){
+    const chat=getRealChat(S.curChat);
+    chat.push({f:S.user.id,senderName:S.user.name,t,ts:nowTime(),st:now});
+    saveRealChat(S.curChat,chat);renderDemoMsgs(chat,S.curChat,'real');
+  }else{
+    const msg={f:'me',t,ts:nowTime(),st:now,rd:true};
+    if(!S.msgs[S.curChat])S.msgs[S.curChat]=[];
+    S.msgs[S.curChat].push(msg);saveMsgs();
+    renderDemoMsgs(S.msgs[S.curChat],S.curChat,'demo');
+    const fr=DEMO_FRIENDS.find(f=>f.id===S.curChat);
+    if(fr?.status==='online'){
+      const rep=['Super Idee! 👍','Ja, klingt gut!','Ich bin dabei! 💪','Wann genau?','Perfekt! Bis dann! 😊','Haha 😄','Lass uns das machen!'];
+      setTimeout(()=>{
+        if(S.curChat&&S.curChatType!=='group'&&S.curChatType!=='real'){
+          S.msgs[S.curChat].push({f:S.curChat,t:rep[Math.floor(Math.random()*rep.length)],ts:nowTime(),st:Date.now()});
+          renderDemoMsgs(S.msgs[S.curChat],S.curChat,'demo');saveMsgs();
+        }
+      },1500);
+    }
+  }
+}
+
+// ===== TABS =====
+function fTab(t,el){
+  document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active'));el.classList.add('active');
+  ['chats','groups','friends','bot'].forEach(k=>document.getElementById('ftab-'+k).style.display=k===t?'':'none');
+  currentTab=t;
+  if(t==='friends')renderFriendSection();
+  if(t==='groups')renderGroupList();
+  if(t==='bot'&&!botInited){botInited=true;addBotMsg('Hallo! Ich bin SportBot 🤖\n\nIch helfe dir bei:\n• 📅 Platz buchen\n• ❓ Fragen zur App\n• 🏙️ Standorte finden\n\nTippe einfach – z.B. "Ich möchte buchen"');}
+}
+
+// ===== FRIEND SEARCH =====
+function searchUsers(q){
+  const res=document.getElementById('fsearch-results');
+  if(!q||q.length<2){res.innerHTML='';return;}
+  const found=JSON.parse(localStorage.getItem('sb_users')||'[]').filter(u=>u.id!==S.user.id&&(u.u.toLowerCase().includes(q.toLowerCase())||u.name.toLowerCase().includes(q.toLowerCase())));
+  if(!found.length){res.innerHTML=`<div style="padding:10px 4px;color:var(--mt);font-size:14px">Kein Nutzer gefunden.</div>`;return;}
+  res.innerHTML=found.map(u=>{
+    const isFr=isAlreadyFriend(u.id);const isPend=hasPendingTo(u.id);const pendMe=hasPendingFrom(u.id);
+    let btn='';
+    if(isFr)btn=`<span style="background:var(--gp);color:var(--g);font-size:12px;font-weight:700;padding:6px 12px;border-radius:12px">✓ Befreundet</span>`;
+    else if(pendMe)btn=`<button class="btn-sm btn-blue" onclick="acceptReqByUid(${u.id})">Annehmen</button>`;
+    else if(isPend)btn=`<span style="font-size:12px;color:var(--mt);padding:6px 10px">Ausstehend</span>`;
+    else btn=`<button class="btn-sm btn-blue" onclick='sendFriendReq(${JSON.stringify({id:u.id,name:u.name})})'>+ Hinzufügen</button>`;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--gp);border-radius:var(--rs);margin-bottom:8px">
+      <div style="width:40px;height:40px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${u.avatar||'👤'}</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:14px">${u.name}</div><div style="font-size:12px;color:var(--mt)">@${u.u}</div></div>
+      ${btn}
+    </div>`;
+  }).join('');
+}
+function acceptReqByUid(uid){
+  const r=getAllReqs().find(x=>x.from===uid&&x.to===S.user.id&&x.status==='pending');
+  if(r)acceptReq(r.id);searchUsers(document.getElementById('fsearch').value);
+}
+function renderFriendSection(){
+  const cont=document.getElementById('freq-section');let h='';
+  const pending=getPendingToMe();
+  if(pending.length){
+    h+=`<div class="freq-section-title">📬 Anfragen (${pending.length})</div>`;
+    h+=pending.map(r=>`<div class="freq-card">
+      <div class="freq-av">${r.senderAv}</div>
+      <div class="freq-info"><div class="freq-name">${r.fromName}</div><div class="freq-sub">möchte dein Freund sein</div></div>
+      <div class="freq-btns"><button class="btn-sm btn-blue" onclick="acceptReq(${r.id})">✓ Annehmen</button><button class="btn-sm btn-gray" onclick="declineReq(${r.id})">✕</button></div>
+    </div>`).join('');
+  }
+  const realFr=getMyRealFriends();
+  h+=`<div class="freq-section-title">👥 Freunde (${DEMO_FRIENDS.length+realFr.length})</div>`;
+  h+=DEMO_FRIENDS.map(f=>`<div class="freq-card">
+    <div class="freq-av">${f.av}</div>
+    <div class="freq-info"><div class="freq-name">${f.name}</div><div class="freq-sub">${f.status==='online'?'🟢 Online':'⚫ Offline'}</div></div>
+  </div>`).join('');
+  if(realFr.length){
+    h+=realFr.map(u=>`<div class="freq-card">
+      <div class="freq-av">${u.avatar||'👤'}</div>
+      <div class="freq-info"><div class="freq-name">${u.name}</div><div class="freq-sub">🟢 Registriert · @${u.u}</div></div>
+      <button class="btn-sm btn-red" onclick="removeFriend(${u.id})">Entfernen</button>
+    </div>`).join('');
+  }
+  if(!realFr.length){
+    h+=`<div style="margin-top:12px;padding:14px;background:var(--gp);border-radius:var(--rs);font-size:14px;color:var(--gd);line-height:1.5">💡 <strong>Tipp:</strong> Suche oben nach dem Benutzernamen eines anderen PlatzFrei-Nutzers, um ihn als Freund hinzuzufügen!</div>`;
+  }
+  cont.innerHTML=h;
+}
+
+// ===== BADGES =====
+function updateBadges(){
+  const now=new Date();
+  const uc=S.bookings.filter(b=>new Date(b.dt)>=now).length;
+  const bb=document.getElementById('nb-buch');bb.textContent=uc;bb.style.display=uc?'flex':'none';
+  let unr=0;
+  DEMO_FRIENDS.forEach(f=>{if(S.msgs[f.id])unr+=S.msgs[f.id].filter(m=>m.f===f.id&&!m.rd).length;});
+  getMyRealFriends().forEach(u=>{unr+=getRealChat(u.id).filter(m=>(m.f===u.id||m.f===Number(u.id))&&!m.rd).length;});
+  unr+=getPendingToMe().length;
+  const fb=document.getElementById('nb-frnd');fb.textContent=unr;fb.style.display=unr?'flex':'none';
+  updateNotifBadge();
+}
+
+// ===== SPORTBOT =====
+function addBotMsg(t){
+  const c=document.getElementById('bot-msgs');
+  const d=document.createElement('div');d.className='mw them';
+  d.innerHTML=`<div class="mb" style="background:#fff;color:var(--tx)">${t.replace(/\n/g,'<br>')}</div><div class="mt">${nowTime()}</div>`;
+  c.appendChild(d);setTimeout(()=>c.scrollTop=c.scrollHeight,50);
+}
+function addUserBotMsg(t){
+  const c=document.getElementById('bot-msgs');
+  const d=document.createElement('div');d.className='mw me';
+  d.innerHTML=`<div class="mb">${t}</div><div class="mt">${nowTime()}</div>`;
+  c.appendChild(d);setTimeout(()=>c.scrollTop=c.scrollHeight,50);
+}
+function sendBot(){
+  const inp=document.getElementById('bot-in');const t=inp.value.trim();if(!t)return;
+  addUserBotMsg(t);inp.value='';setTimeout(()=>addBotMsg(botReply(t)),800);
+}
+function botReply(raw){
+  const t=raw.toLowerCase();
+  if(botState.step==='city'){
+    const c=CITIES.find(x=>t.includes(x.toLowerCase()));
+    if(c){botState.city=c;botState.step='vtype';return `In ${c}! Welche Sportart? ⚽ Fußball, 🎾 Tennis, 🏸 Badminton oder 🏟️ Halle?`;}
+    return 'Diese Stadt kenne ich nicht. Bitte nenne eine deutsche Stadt, z.B. München oder Berlin.';
+  }
+  if(botState.step==='vtype'){
+    let vt=null;
+    if(t.includes('fußball')||t.includes('fussball'))vt='fusball';
+    else if(t.includes('tennis'))vt='tennis';
+    else if(t.includes('badminton'))vt='badminton';
+    else if(t.includes('halle')||t.includes('sport'))vt='halle';
+    if(vt){botState.vtype=vt;botState.step='dur';return `Wie lange? 30, 60 oder 90 Minuten?`;}
+    return 'Bitte wähle: Fußball, Tennis, Badminton oder Halle.';
+  }
+  if(botState.step==='dur'){
+    let d=null;if(t.includes('30'))d=30;else if(t.includes('60'))d=60;else if(t.includes('90'))d=90;
+    if(d){botState.dur=d;botState.step='time';return `${d} Minuten – zu welcher Uhrzeit? (z.B. 18:00 oder 15 Uhr)`;}
+    return 'Bitte nenne: 30, 60 oder 90 Minuten.';
+  }
+  if(botState.step==='time'){
+    const m=raw.match(/(\d{1,2})(?::(\d{2}))?/);
+    if(m){const h=parseInt(m[1]);const mn=parseInt(m[2]||0);
+      if(h>=8&&h<=21){
+        botState.time=`${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;botState.step='confirm';
+        const v=VTYPES[botState.vtype].mk(botState.city)[0];botState.venue=v;
+        return `Mein Vorschlag:\n📍 ${v.n}\n🏙️ ${botState.city}\n🕐 ${botState.time} Uhr · ⏱ ${botState.dur} Min.\n\nBuchen? (Ja/Nein)`;
+      }
+    }
+    return 'Bitte Uhrzeit zwischen 08:00 und 21:00 Uhr angeben.';
+  }
+  if(botState.step==='confirm'){
+    if(t.includes('ja')||t.includes('ok')||t.includes('super')||t.includes('klar')||t.includes('bitte')){
+      const now=new Date();const[h,m]=botState.time.split(':').map(Number);
+      const dt=new Date();dt.setHours(h,m,0,0);if(dt<now)dt.setDate(dt.getDate()+1);
+      const bk={id:Date.now(),uid:S.user.id,city:botState.city,vtype:botState.vtype,vname:botState.venue.n,dur:botState.dur,dt:dt.toISOString(),friends:[],at:new Date().toISOString()};
+      S.bookings.push(bk);const all=JSON.parse(localStorage.getItem('sb_books')||'[]');all.push(bk);localStorage.setItem('sb_books',JSON.stringify(all));
+      S.notifs.unshift({icon:VTYPES[botState.vtype]?.icon||'📅',title:'Buchung durch SportBot',body:`${bk.vname} · ${fmtDT(bk.dt)}`,time:'Gerade eben'});
+      updateHome();updateBadges();
+      const res=`✅ Gebucht!\n📍 ${bk.vname}\n🏙️ ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Min.\n\nViel Spaß! 💪`;
+      botState={step:null,city:null,vtype:null,dur:null,time:null,venue:null};return res;
+    }else{botState={step:null};return 'Buchung abgebrochen. Wie kann ich sonst helfen?';}
+  }
+  // FAQ
+  if(t.includes('buchen')||t.includes('reservieren')){botState={step:'city'};return 'Gerne! In welcher Stadt möchtest du buchen?';}
+  if(t.includes('hallo')||t.includes('hi')||t.includes('hey'))return 'Hallo! 😊 Tippe "buchen" und ich helfe dir Schritt für Schritt!';
+  if(t.includes('was ist')||t.includes('wofür')||t.includes('app'))return 'PlatzFrei ist deine App für Sportanlagen! ⚽🎾🏸🏟️\n\nBuche Plätze in 36 Städten, lade Freunde ein und chatte im Team!';
+  if(t.includes('wie')&&t.includes('buch'))return 'So buchst du:\n1️⃣ Standorte öffnen\n2️⃣ Stadt & Platz wählen\n3️⃣ Dauer & Zeit wählen\n4️⃣ Freunde einladen\n5️⃣ Bestätigen! ✅';
+  if(t.includes('preis')||t.includes('kosten'))return '⚽ Fußball: ab 20€/Std\n🎾 Tennis: ab 15€/Std\n🏸 Badminton: ab 12€/Std\n🏟️ Halle: ab 25€/Std';
+  if(t.includes('städte')||t.includes('standorte'))return `Wir sind in ${CITIES.length} Städten! z.B. ${CITIES.slice(0,6).join(', ')} u.v.m.`;
+  if(t.includes('freunde')||t.includes('einladen'))return 'Bei jeder Buchung kannst du Freunde einladen! Sie bekommen automatisch eine Nachricht. 📬';
+  if(t.includes('danke'))return 'Gerne! Viel Spaß beim Sport! 💪⚽';
+  const fb=['Das habe ich nicht verstanden. 🤔 Versuche "buchen" oder "Was ist PlatzFrei?"','Hmm, das weiß ich nicht. Kann ich dir beim Buchen helfen? Tippe einfach "buchen"! 😊'];
+  return fb[Math.floor(Math.random()*fb.length)];
+}
+
+// ===== PROFILE =====
+const AVATARS=['😊','😎','🤩','🥳','💪','⚡','🏆','🎯','⚽','🎾','🏸','🏟️','🦁','🐯','🦊','🐺','🦅','🌟','🔥','❄️','🎸','🚀','🌈','🎲'];
+let profAv='😊';
+function openProfile(){
+  profAv=S.user.avatar||'😊';
+  setAvEl(document.getElementById('prof-av-big'),profAv);
+  document.getElementById('prof-name').value=S.user.name||'';
+  document.getElementById('prof-user').value=S.user.u||'';
+  document.getElementById('prof-email').value=S.user.e||'';
+  document.getElementById('avatar-picker').innerHTML=AVATARS.map(a=>`<div class="av-opt${a===profAv?' sel':''}" onclick="pickAv('${a}',this)">${a}</div>`).join('');
+  const now=new Date();
+  const sorted=[...S.bookings].sort((a,b)=>new Date(b.dt)-new Date(a.dt));
+  document.getElementById('prof-history').innerHTML=!sorted.length?
+    `<div class="empty" style="padding:30px 0"><div class="empty-i">📋</div><div class="empty-t">Keine Buchungen</div></div>`:
+    sorted.map(b=>`<div class="bcard ${new Date(b.dt)>=now?'':'past'}" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:20px">${VTYPES[b.vtype]?.icon||'📍'}</span>
+        <div style="flex:1"><div style="font-weight:700;font-size:14px">${b.vname}</div><div style="font-size:12px;color:var(--mt)">${b.city}</div></div>
+        <div class="bcs ${new Date(b.dt)>=now?'s-up':'s-p'}" style="font-size:11px">${new Date(b.dt)>=now?'Bald':'Abgeschl.'}</div>
+      </div>
+      <div style="font-size:13px;color:var(--mt);display:flex;gap:12px"><span>🕐 ${fmtDT(b.dt)}</span><span>⏱ ${b.dur} Min.</span></div>
+    </div>`).join('');
+  document.getElementById('prof-scr').classList.add('active');
+}
+function pickAv(av,el){
+  profAv=av;
+  document.querySelectorAll('.av-opt').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');
+  setAvEl(document.getElementById('prof-av-big'),av);
+}
+function handleImgUpload(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>2*1024*1024){toast('Bild zu groß! Maximal 2 MB.');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    profAv=e.target.result;
+    document.querySelectorAll('.av-opt').forEach(x=>x.classList.remove('sel'));
+    setAvEl(document.getElementById('prof-av-big'),profAv);
+    toast('✅ Foto ausgewählt!');
+  };
+  reader.readAsDataURL(file);
+}
+// Renders emoji or image into an element
+function setAvEl(el,av){
+  if(av&&av.startsWith('data:')){
+    el.textContent='';
+    el.style.overflow='hidden';el.style.padding='0';
+    el.innerHTML=`<img src="${av}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+  }else{
+    el.innerHTML=av||'😊';
+    el.style.overflow='';el.style.padding='';
+  }
+}
+function saveProfile(){
+  const name=document.getElementById('prof-name').value.trim(),uname=document.getElementById('prof-user').value.trim(),email=document.getElementById('prof-email').value.trim();
+  if(!name||!uname){alert('Name und Benutzername dürfen nicht leer sein.');return;}
+  S.user.name=name;S.user.u=uname;S.user.e=email;S.user.avatar=profAv;
+  const users=JSON.parse(localStorage.getItem('sb_users')||'[]');
+  const idx=users.findIndex(x=>x.id===S.user.id);if(idx>-1){users[idx]=S.user;localStorage.setItem('sb_users',JSON.stringify(users));}
+  localStorage.setItem('sb_ses',JSON.stringify(S.user));
+  document.getElementById('hgreet').textContent=`Hallo, ${name.split(' ')[0]}! 👋`;
+  setAvEl(document.getElementById('home-pav'),profAv);
+  closeProfile();toast('✅ Profil gespeichert!');
+}
+function closeProfile(){document.getElementById('prof-scr').classList.remove('active');}
+
+// ===== HELPERS =====
+function fmtDT(iso){
+  const d=new Date(iso),n=new Date(),t=d.toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'})+' Uhr';
+  const tom=new Date(n);tom.setDate(tom.getDate()+1);
+  if(d.toDateString()===n.toDateString())return`Heute, ${t}`;
+  if(d.toDateString()===tom.toDateString())return`Morgen, ${t}`;
+  return d.toLocaleDateString('de',{day:'2-digit',month:'2-digit',year:'2-digit'})+', '+t;
+}
+function nowTime(){return new Date().toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'});}
+function saveMsgs(){if(S.user)localStorage.setItem('sb_msgs_'+S.user.id,JSON.stringify(S.msgs));}
+function toast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:calc(var(--nh)+20px);left:50%;transform:translateX(-50%);background:var(--g);color:#fff;padding:12px 24px;border-radius:20px;font-weight:700;font-size:14px;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:opacity .3s';
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);
+}
+
+// ===== BOOT =====
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('lp').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin();});
+  document.getElementById('rp').addEventListener('keypress',e=>{if(e.key==='Enter')doRegister();});
+  const ses=localStorage.getItem('sb_ses');
+  if(ses){
+    const u=JSON.parse(ses);
+    const found=JSON.parse(localStorage.getItem('sb_users')||'[]').find(x=>x.id===u.id);
+    if(found){
+      S.user=found;
+      S.bookings=JSON.parse(localStorage.getItem('sb_books')||'[]').filter(b=>b.uid===found.id);
+      const sm=localStorage.getItem('sb_msgs_'+found.id);
+      S.msgs=sm?JSON.parse(sm):JSON.parse(JSON.stringify(INIT_MSGS));
+      document.getElementById('auth-screen').style.display='none';
+      document.getElementById('app-screen').style.display='block';
+      initApp();
+    }
+  }
+});
+</script>
+</body>
+</html>
