@@ -1112,10 +1112,10 @@ function saveMsgs(){if(S.user)localStorage.setItem('sb_msgs_'+S.user.id,JSON.str
 function toast(msg){const t=document.createElement('div');t.style.cssText='position:fixed;bottom:calc(var(--nh)+20px);left:50%;transform:translateX(-50%);background:var(--c4);color:#fff;padding:11px 22px;border-radius:18px;font-weight:700;font-size:13px;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.18);transition:opacity .3s';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);}
 
 // ═══ BOOT ═══
+function fbReady(){return false;}
 window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('lp').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin();});
   document.getElementById('rp').addEventListener('keypress',e=>{if(e.key==='Enter')doRegister();});
-  initFirebase();
   const ses=localStorage.getItem('sb_ses');
   if(ses){const u=JSON.parse(ses);const found=JSON.parse(localStorage.getItem('sb_users')||'[]').find(x=>String(x.id)===String(u.id));if(found)startSession(found);}
 });
