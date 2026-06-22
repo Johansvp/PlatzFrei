@@ -1022,7 +1022,13 @@ function sendBot(){
 }
 function botReply(raw){
   const t=raw.toLowerCase();
-  const botReset=()=>{bot={step:null,city:null,vtype:null,dur:null,time:null,venue:null,inviteFid:null,inviteName:null,groupName:null,groupMembers:[],cancelBid:null};};
+  const botReset=()=>{bot={step:null,city:null,vtype:null,dur:null,time:null,venue:null,inviteFid:null,inviteName:null,groupName:null,groupMembers:[],cancelBid:null,newBkId:null};};
+  const postBookPrompt=()=>{
+    const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
+    const myGroups=getGroups().filter(g=>g.members.includes(S.user.id));
+    const opts=[];if(allF.length)opts.push('👥 Freunde einladen');if(myGroups.length)opts.push('🫂 In Gruppe teilen');opts.push('❌ Nein danke');
+    return`Möchtest du noch jemanden dazu holen?\n\n${opts.join('\n')}`;
+  };
 
   // ── BUCHEN FLOW ──
   if(bot.step==='city'){const c=CITIES.find(x=>t.includes(x.toLowerCase()));if(c){bot.city=c;bot.step='vtype';return`In ${c}! Welche Sportart? ⚽ Fußball, 🎾 Tennis, 🏸 Badminton oder 🏟️ Halle?`;}return'Diese Stadt kenne ich nicht. Nenne eine deutsche Stadt, z.B. München.';}
@@ -1032,12 +1038,63 @@ function botReply(raw){
   if(bot.step==='confirm'){
     if(t.includes('ja')||t.includes('ok')||t.includes('super')||t.includes('klar')||t.includes('bitte')){
       const now=new Date();const[h,m]=bot.time.split(':').map(Number);const dt=new Date();dt.setHours(h,m,0,0);if(dt<now)dt.setDate(dt.getDate()+1);
-      const bk={id:Date.now(),uid:S.user.id,city:bot.city,vtype:bot.vtype,vname:bot.venue.n,dur:bot.dur,dt:dt.toISOString(),friends:[],at:new Date().toISOString()};
+      const bk={id:Date.now(),uid:S.user.id,city:bot.city,vtype:bot.vtype,vname:bot.venue.n,dur:bot.dur,dt:dt.toISOString(),friends:[],groups:[],at:new Date().toISOString()};
       S.bookings.push(bk);const all=JSON.parse(localStorage.getItem('sb_books')||'[]');all.push(bk);localStorage.setItem('sb_books',JSON.stringify(all));
       S.notifs.unshift({icon:VTYPES[bot.vtype]?.icon||'📅',title:'Buchung durch SportBot',body:`${bk.vname} · ${fmtDT(bk.dt)}`,time:'Gerade eben'});
-      updateHome();updateBadges();const res=`✅ Gebucht!\n📍 ${bk.vname}\n🏙️ ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Min.\n\nViel Spaß! 💪`;
-      botReset();return res;
+      updateHome();updateBadges();bot.newBkId=bk.id;bot.step='post_book';
+      return`✅ Gebucht!\n📍 ${bk.vname}\n🏙️ ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Min.\n\n${postBookPrompt()}`;
     }else{botReset();return'Buchung abgebrochen. Wie kann ich sonst helfen?';}
+  }
+
+  // ── NACH DER BUCHUNG: Einladen / Gruppe ──
+  if(bot.step==='post_book'){
+    if(t.includes('nein')||t.includes('danke')||t.includes('skip')){botReset();return'Alles klar! Viel Spaß beim Sport! 💪⚽';}
+    if(t.includes('freund')||t.includes('einladen')){
+      const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
+      if(!allF.length){botReset();return'Du hast noch keine Freunde in der App.';}
+      const list=allF.map((f,i)=>`${i+1}. ${f.name}`).join('\n');
+      bot.step='post_invite_pick';return`Wen möchtest du einladen?\n\n${list}`;
+    }
+    if(t.includes('gruppe')||t.includes('group')||t.includes('teilen')){
+      const myGroups=getGroups().filter(g=>g.members.includes(S.user.id));
+      if(!myGroups.length){bot.step='post_book';return`Du hast noch keine Gruppen.\n\n${postBookPrompt()}`;}
+      const list=myGroups.map((g,i)=>`${i+1}. ${g.name}`).join('\n');
+      bot.step='post_group_pick';return`In welche Gruppe soll die Buchung geteilt werden?\n\n${list}`;
+    }
+    return postBookPrompt();
+  }
+  if(bot.step==='post_invite_pick'){
+    const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
+    const num=parseInt(t);let picked=null;
+    if(!isNaN(num)&&num>=1&&num<=allF.length)picked=allF[num-1];
+    else picked=allF.find(f=>t.includes(f.name.toLowerCase().split(' ')[0]));
+    if(picked){
+      const bk=S.bookings.find(b=>b.id===bot.newBkId);
+      if(bk&&!bk.friends.includes(picked.id))bk.friends.push(picked.id);
+      const all=JSON.parse(localStorage.getItem('sb_books')||'[]');const idx=all.findIndex(b=>b.id===bot.newBkId);if(idx>-1){all[idx]=bk;localStorage.setItem('sb_books',JSON.stringify(all));}
+      const msg=`Hey ${picked.name}! Ich habe einen Platz gebucht:\n📍 ${bk?.vname||''}\n🕐 ${bk?fmtDT(bk.dt):''}\n⏱ ${bk?.dur||''} Min.\n\nKommst du mit? 🏟️`;
+      if(String(picked.id).startsWith('demo_')){if(!S.msgs[picked.id])S.msgs[picked.id]=[];S.msgs[picked.id].push({f:'me',t:msg,ts:nowTime(),st:Date.now()});saveMsgs();}
+      else{const c=getRealChat(picked.id);c.push({f:S.user.id,senderName:S.user.name,t:msg,ts:nowTime(),st:Date.now()});saveRealChat(picked.id,c);}
+      updateBadges();bot.step='post_book';
+      return`✅ ${picked.name} eingeladen!\n\n${postBookPrompt()}`;
+    }
+    return'Bitte Nummer oder Namen tippen.';
+  }
+  if(bot.step==='post_group_pick'){
+    const myGroups=getGroups().filter(g=>g.members.includes(S.user.id));
+    const num=parseInt(t);let picked=null;
+    if(!isNaN(num)&&num>=1&&num<=myGroups.length)picked=myGroups[num-1];
+    else picked=myGroups.find(g=>t.includes(g.name.toLowerCase()));
+    if(picked){
+      const bk=S.bookings.find(b=>b.id===bot.newBkId);
+      if(bk&&!bk.groups.includes(picked.id))bk.groups.push(picked.id);
+      const all=JSON.parse(localStorage.getItem('sb_books')||'[]');const idx=all.findIndex(b=>b.id===bot.newBkId);if(idx>-1){all[idx]=bk;localStorage.setItem('sb_books',JSON.stringify(all));}
+      const msg=`📅 Neue Buchung!\n📍 ${bk?.vname||''}\n🕐 ${bk?fmtDT(bk.dt):''}\n⏱ ${bk?.dur||''} Min.\n\nWer ist dabei? 🙌`;
+      const gc=getGroupChat(picked.id);gc.push({f:S.user.id,senderName:S.user.name,t:msg,ts:nowTime(),st:Date.now()});saveGroupChat(picked.id,gc);
+      updateBadges();bot.step='post_book';
+      return`✅ Buchung in "${picked.name}" geteilt!\n\n${postBookPrompt()}`;
+    }
+    return'Bitte Nummer oder Gruppenname tippen.';
   }
 
   // ── FREUND EINLADEN FLOW ──
