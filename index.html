@@ -141,11 +141,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .bc{padding:14px}
 .bcard{background:#fff;border-radius:var(--r);padding:15px;margin-bottom:10px;box-shadow:var(--sh);border-left:4px solid var(--c3)}
 .bcard.past{border-left-color:var(--c1)}
+.bcard.cancelled{border-left-color:#dc2626;opacity:.75}
 .bch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .bct{font-weight:700;font-size:14px;color:var(--gd)}
 .bcs{font-size:11px;font-weight:700;padding:4px 8px;border-radius:10px}
 .s-up{background:var(--c1);color:var(--c3)}
 .s-p{background:var(--c0);color:var(--mt)}
+.s-c{background:#fee2e2;color:#dc2626}
 .bcd{display:flex;flex-direction:column;gap:5px}
 .bdr{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mt)}
 .bfr{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
@@ -695,22 +697,18 @@ function cancelBooking(bid){
   if(bk){
     const cancelTxt=`❌ Absage!\nDie Buchung wurde storniert:\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
     (bk.friends||[]).forEach(fid=>{
-      if(String(fid).startsWith('demo_')){
-        if(!S.msgs[fid])S.msgs[fid]=[];
-        S.msgs[fid].push({f:'me',t:cancelTxt,ts:nowTime(),st:Date.now()});
-      }else{
-        const c=getRealChat(fid);c.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveRealChat(fid,c);
-      }
+      if(String(fid).startsWith('demo_')){if(!S.msgs[fid])S.msgs[fid]=[];S.msgs[fid].push({f:'me',t:cancelTxt,ts:nowTime(),st:Date.now()});}
+      else{const c=getRealChat(fid);c.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveRealChat(fid,c);}
     });
     (bk.groups||[]).forEach(gid=>{
       const g=getGroups().find(x=>x.id===gid);if(!g)return;
       const gc=getGroupChat(gid);gc.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveGroupChat(gid,gc);
     });
+    bk.cancelled=true;
     saveMsgs();
   }
-  S.bookings=S.bookings.filter(b=>b.id!==bid);
-  const all=JSON.parse(localStorage.getItem('sb_books')||'[]').filter(b=>b.id!==bid);
-  localStorage.setItem('sb_books',JSON.stringify(all));
+  const all=JSON.parse(localStorage.getItem('sb_books')||'[]');
+  const idx=all.findIndex(b=>b.id===bid);if(idx>-1){all[idx].cancelled=true;localStorage.setItem('sb_books',JSON.stringify(all));}
   renderBuch();updateHome();updateBadges();toast('Buchung storniert.');
 }
 function openGroupChat(gid){
@@ -898,8 +896,10 @@ function renderBuch(){
   if(!S.bookings.length){cont.innerHTML=`<div class="empty"><div class="empty-i">📅</div><div class="empty-t">Keine Buchungen</div><div class="empty-s">Gehe zu Standorte und buche deinen ersten Platz!</div></div>`;return;}
   const now=new Date();const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
   cont.innerHTML=[...S.bookings].sort((a,b)=>new Date(b.dt)-new Date(a.dt)).map(b=>{
-    const up=new Date(b.dt)>=now;const inv=(b.friends||[]).map(id=>allF.find(f=>f.id===id)?.name).filter(Boolean);
-    return`<div class="bcard-wrap" id="bw-${b.id}"><div class="bcard ${up?'':'past'}"><div class="bch"><div style="display:flex;align-items:center;gap:9px"><span style="font-size:20px">${VTYPES[b.vtype]?.icon||'📍'}</span><div class="bct">${b.vname}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="bcs ${up?'s-up':'s-p'}">${up?'Bevorstehend':'Vergangen'}</div>${up?`<button class="bcard-dots" onclick="event.stopPropagation();toggleBookCancel(${b.id})">⋯</button>`:''}</div></div><div class="bcd"><div class="bdr">🏙️ ${b.city}</div><div class="bdr">🕐 ${fmtDT(b.dt)}</div><div class="bdr">⏱ ${b.dur} Min.</div></div>${inv.length?`<div class="bfr">${inv.map(n=>`<div class="bfc">👤 ${n}</div>`).join('')}</div>`:''}</div>${up?`<div class="bcard-cancel-btn"><button onclick="cancelBooking(${b.id})">🗑️ Buchung stornieren</button></div>`:''}</div>`;
+    const up=new Date(b.dt)>=now;const ca=!!b.cancelled;const inv=(b.friends||[]).map(id=>allF.find(f=>f.id===id)?.name).filter(Boolean);
+    const statusCls=ca?'s-c':up?'s-up':'s-p';const statusTxt=ca?'Storniert':up?'Bevorstehend':'Vergangen';
+    const cardCls=ca?'cancelled':up?'':'past';
+    return`<div class="bcard-wrap" id="bw-${b.id}"><div class="bcard ${cardCls}"><div class="bch"><div style="display:flex;align-items:center;gap:9px"><span style="font-size:20px">${VTYPES[b.vtype]?.icon||'📍'}</span><div class="bct">${b.vname}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="bcs ${statusCls}">${statusTxt}</div>${up&&!ca?`<button class="bcard-dots" onclick="event.stopPropagation();toggleBookCancel(${b.id})">⋯</button>`:''}</div></div><div class="bcd"><div class="bdr">🏙️ ${b.city}</div><div class="bdr">🕐 ${fmtDT(b.dt)}</div><div class="bdr">⏱ ${b.dur} Min.</div></div>${inv.length?`<div class="bfr">${inv.map(n=>`<div class="bfc">👤 ${n}</div>`).join('')}</div>`:''}</div>${up&&!ca?`<div class="bcard-cancel-btn"><button onclick="cancelBooking(${b.id})">🗑️ Buchung stornieren</button></div>`:''}</div>`;
   }).join('');
 }
 
@@ -1182,7 +1182,7 @@ function botReply(raw){
 
   // ── BUCHUNG STORNIEREN FLOW ──
   if(bot.step==='cancel_pick'){
-    const now=new Date();const upcoming=S.bookings.filter(b=>new Date(b.dt)>=now);
+    const now=new Date();const upcoming=S.bookings.filter(b=>new Date(b.dt)>=now&&!b.cancelled);
     const num=parseInt(t);
     if(!isNaN(num)&&num>=1&&num<=upcoming.length){
       const bk=upcoming[num-1];bot.cancelBid=bk.id;bot.step='cancel_confirm';
@@ -1193,16 +1193,17 @@ function botReply(raw){
   if(bot.step==='cancel_confirm'){
     if(t.includes('ja')||t.includes('ok')||t.includes('klar')){
       const bid=bot.cancelBid;const bk=S.bookings.find(b=>b.id===bid);
+      const notified=(bk?.friends?.length||0)+(bk?.groups?.length||0);
       if(bk){
         const cancelTxt=`❌ Absage!\nDie Buchung wurde storniert:\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
         (bk.friends||[]).forEach(fid=>{if(String(fid).startsWith('demo_')){if(!S.msgs[fid])S.msgs[fid]=[];S.msgs[fid].push({f:'me',t:cancelTxt,ts:nowTime(),st:Date.now()});}else{const c=getRealChat(fid);c.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveRealChat(fid,c);}});
         (bk.groups||[]).forEach(gid=>{const g=getGroups().find(x=>x.id===gid);if(!g)return;const gc=getGroupChat(gid);gc.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveGroupChat(gid,gc);});
-        saveMsgs();
+        bk.cancelled=true;saveMsgs();
       }
-      S.bookings=S.bookings.filter(b=>b.id!==bid);
-      const all=JSON.parse(localStorage.getItem('sb_books')||'[]').filter(b=>b.id!==bid);localStorage.setItem('sb_books',JSON.stringify(all));
+      const all=JSON.parse(localStorage.getItem('sb_books')||'[]');
+      const idx=all.findIndex(b=>b.id===bid);if(idx>-1){all[idx].cancelled=true;localStorage.setItem('sb_books',JSON.stringify(all));}
       renderBuch();updateHome();updateBadges();botReset();
-      return`✅ Buchung storniert${bk&&(bk.friends?.length||bk.groups?.length)?' und alle eingeladenen Personen informiert':''}.`;
+      return`✅ Buchung storniert${notified?' und Absage an alle Eingeladenen gesendet':''}.`;
     }else{botReset();return'Stornierung abgebrochen.';}
   }
 
@@ -1220,7 +1221,7 @@ function botReply(raw){
   }
   if(t.includes('stornieren')||t.includes('absagen')||t.includes('buchung löschen')||t.includes('buchung abbrechen')){
     botReset();
-    const now=new Date();const upcoming=S.bookings.filter(b=>new Date(b.dt)>=now);
+    const now=new Date();const upcoming=S.bookings.filter(b=>new Date(b.dt)>=now&&!b.cancelled);
     if(!upcoming.length)return'Du hast keine bevorstehenden Buchungen zum Stornieren.';
     const list=upcoming.map((b,i)=>`${i+1}. ${b.vname} · ${fmtDT(b.dt)}`).join('\n');
     bot.step='cancel_pick';return`Welche Buchung soll storniert werden?\n\n${list}`;
