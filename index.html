@@ -873,7 +873,7 @@ function doBook(){
   S.bookings.push(bk);const all=JSON.parse(localStorage.getItem('sb_books')||'[]');all.push(bk);localStorage.setItem('sb_books',JSON.stringify(all));
   const invTxt=`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
   bkS.friends.forEach(fid=>{
-    if(String(fid).startsWith('demo_')){if(!S.msgs[fid])S.msgs[fid]=[];S.msgs[fid].push({f:'me',t:invTxt,ts:nowTime(),st:Date.now()});setTimeout(()=>{S.msgs[fid].push({f:fid,t:'Super! Ich bin dabei! 🙌',ts:nowTime(),st:Date.now()});saveMsgs();},2500);}
+    if(String(fid).startsWith('demo_')){if(!S.msgs[fid])S.msgs[fid]=[];S.msgs[fid].push({f:'me',t:invTxt,ts:nowTime(),st:Date.now()});}
     else{const c=getRealChat(fid);c.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveRealChat(fid,c);}
   });
   bkS.groups.forEach(gid=>{
@@ -937,7 +937,6 @@ function sendChat(){
   else{
     const msg={f:'me',t,ts:nowTime(),st:now,rd:true};if(!S.msgs[S.curChat])S.msgs[S.curChat]=[];S.msgs[S.curChat].push(msg);saveMsgs();renderMsgs(S.msgs[S.curChat]);
     const fr=DEMO_FRIENDS.find(f=>f.id===S.curChat);
-    if(fr?.status==='online'){const rep=['Super Idee! 👍','Ja, klingt gut!','Ich bin dabei! 💪','Wann genau?','Perfekt! Bis dann! 😊','Haha 😄','Lass uns das machen!'];setTimeout(()=>{if(S.curChat&&S.curChatType!=='group'&&S.curChatType!=='real'){S.msgs[S.curChat].push({f:S.curChat,t:rep[Math.floor(Math.random()*rep.length)],ts:nowTime(),st:Date.now()});renderMsgs(S.msgs[S.curChat]);saveMsgs();}},1500);}
   }
 }
 
@@ -1100,7 +1099,6 @@ function botReply(raw){
       if(String(picked.id).startsWith('demo_')){
         if(!S.msgs[picked.id])S.msgs[picked.id]=[];
         S.msgs[picked.id].push({f:'me',t:invTxt,ts:nowTime(),st:Date.now()});
-        setTimeout(()=>{S.msgs[picked.id].push({f:picked.id,t:'Super! Ich bin dabei! 🙌',ts:nowTime(),st:Date.now()});saveMsgs();updateBadges();},2500);
       }else{const c=getRealChat(picked.id);c.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveRealChat(picked.id,c);}
       saveMsgs();updateBadges();
       const remaining=allF.filter(f=>!(bk.friends||[]).includes(f.id));
