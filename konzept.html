@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlatzFrei — Backend-Konzept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --creme:#F4F0E6;--white:#fff;--green:#9CB79A;--green-d:#5C7A62;--green-dd:#4E6A55;
+  --sand:#E7DFCD;--sand-2:#efe9da;--ink:#2A2E27;--ink-soft:#54584f;--ink-faint:#8b8f84;
+  --line:#e6dccb;--maxw:920px;--shadow-s:0 6px 18px rgba(42,46,39,.07);
+  --pk:#5C7A62;--fk:#b07a3a;
+  --font-head:'Marcellus',serif;--font-body:'Mulish',sans-serif;--mono:'SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-body);color:var(--ink);line-height:1.66;background:
+  radial-gradient(1000px 500px at 50% -8%,#fbfaf5,transparent),linear-gradient(180deg,#fff,#f6f2e8);}
+h1,h2,h3,h4{font-family:var(--font-head);font-weight:400;line-height:1.18;}
+a{color:var(--green-d);}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 26px;}
+code{font-family:var(--mono);font-size:.86em;background:var(--sand-2);padding:1px 6px;border-radius:5px;color:var(--green-dd);}
+
+/* Kopf */
+.top{text-align:center;padding:64px 0 14px;}
+.badge{display:inline-flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:7px 16px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--green-d);box-shadow:var(--shadow-s);}
+.badge .dot{width:18px;height:18px;border-radius:6px;background:linear-gradient(160deg,var(--green),var(--green-d));}
+.top h1{font-size:clamp(32px,5vw,48px);margin:20px 0 8px;}
+.top .sub{color:var(--ink-soft);font-size:17px;max-width:34em;margin:0 auto;}
+
+/* Sektion */
+section{padding:34px 0;border-top:1px solid var(--line);margin-top:34px;}
+section:first-of-type{border-top:0;}
+.eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--green-d);}
+h2{font-size:27px;margin:8px 0 6px;}
+section>.wrap>p{color:var(--ink-soft);margin:10px 0;}
+.lead-p{font-size:17px;color:var(--ink);}
+
+.note{background:var(--creme);border:1px solid var(--line);border-left:4px solid var(--green-d);
+  border-radius:12px;padding:16px 18px;margin:18px 0;font-size:14.5px;}
+.note b{font-family:var(--font-head);font-weight:400;}
+
+/* Architektur-Diagramm */
+.arch{display:flex;flex-direction:column;align-items:center;gap:0;margin:26px 0 8px;}
+.layer{width:100%;max-width:560px;background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:18px 20px;box-shadow:var(--shadow-s);text-align:center;}
+.layer .lt{font-family:var(--font-head);font-size:18px;}
+.layer .ls{font-size:13px;color:var(--ink-soft);margin-top:3px;}
+.layer.client{background:linear-gradient(160deg,#fff,#f3efe4);}
+.layer.api{border-color:var(--green);}
+.layer.db{background:linear-gradient(160deg,var(--green-d),var(--green-dd));color:#fff;border-color:transparent;}
+.layer.db .ls{color:rgba(255,255,255,.85);}
+.arrow{height:34px;display:flex;align-items:center;justify-content:center;color:var(--green-d);font-size:13px;gap:8px;}
+.arrow svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;}
+.dual{display:flex;gap:14px;width:100%;max-width:560px;}
+.dual .layer{flex:1;max-width:none;}
+.sidecol{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.chipbox{background:#fff;border:1px dashed var(--line);border-radius:12px;padding:12px 16px;font-size:13px;
+  color:var(--ink-soft);text-align:center;min-width:150px;}
+.chipbox b{display:block;font-family:var(--font-head);font-weight:400;color:var(--ink);font-size:14.5px;margin-bottom:2px;}
+
+/* ER-Modell */
+.erd{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:24px 0;}
+.entity{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-s);}
+.entity h4{background:var(--creme);padding:11px 16px;font-size:16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;}
+.entity h4 .ic{width:18px;height:18px;fill:none;stroke:var(--green-d);stroke-width:1.6;}
+.entity table{width:100%;border-collapse:collapse;font-size:13.5px;}
+.entity td{padding:7px 16px;border-top:1px solid #f1ebdd;}
+.entity tr td:first-child{font-family:var(--mono);font-size:12.5px;color:var(--ink);white-space:nowrap;}
+.entity tr td:last-child{color:var(--ink-faint);text-align:right;font-size:12px;}
+.key{font-size:9.5px;font-weight:700;letter-spacing:.06em;padding:1px 6px;border-radius:5px;vertical-align:middle;margin-right:6px;}
+.key.pk{background:#e4ede4;color:var(--pk);}
+.key.fk{background:#f3e6d4;color:var(--fk);}
+.rel{background:var(--creme);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-top:6px;}
+.rel ul{margin:8px 0 0 18px;font-size:14px;color:var(--ink-soft);}
+.rel li{margin:4px 0;}
+.rel b{color:var(--ink);font-family:var(--font-head);font-weight:400;}
+
+/* Tabellen */
+.tbl{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;background:#fff;
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.tbl th{background:var(--creme);text-align:left;padding:11px 14px;font-family:var(--font-head);font-weight:400;font-size:14px;}
+.tbl td{padding:10px 14px;border-top:1px solid #f1ebdd;vertical-align:top;color:var(--ink-soft);}
+.tbl td:first-child,.tbl th:first-child{white-space:nowrap;}
+.tbl code{font-size:12.5px;}
+.method{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;}
+.method.get{background:#e4ede4;color:var(--pk);}
+.method.post{background:#f3e6d4;color:var(--fk);}
+.method.del{background:#fbece9;color:#b4534b;}
+.method.patch{background:#ebe4f5;color:#6b4fa0;}
+
+/* Konzept-Karten */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px;}
+.kcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow-s);}
+.kcard .kic{width:42px;height:42px;border-radius:12px;background:var(--creme);color:var(--green-d);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.kcard .kic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;}
+.kcard h3{font-size:18px;margin-bottom:7px;}
+.kcard p{font-size:14px;color:var(--ink-soft);}
+
+.foot{text-align:center;color:#8a8472;font-size:13px;padding:40px 0 50px;}
+
+@media(max-width:720px){.erd,.cards{grid-template-columns:1fr;}.dual{flex-direction:column;}}
+
+/* Druck / PDF */
+@media print{
+  body{background:#fff;}
+  .printbtn{display:none;}
+  section{break-inside:avoid;border-top:1px solid #ddd;}
+  .entity,.kcard,.layer{box-shadow:none;}
+  a{color:var(--ink);text-decoration:none;}
+}
+.printbtn{position:fixed;right:18px;bottom:18px;background:var(--green-d);color:#fff;border:0;border-radius:999px;
+  padding:12px 20px;font-family:var(--font-head);font-size:14px;cursor:pointer;box-shadow:0 10px 24px rgba(92,122,98,.3);z-index:30;}
+.printbtn:hover{background:var(--green-dd);}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="badge"><span class="dot"></span>PlatzFrei · Backend-Konzept</span>
+  <div class="wrap">
+    <h1>Das System hinter der App</h1>
+    <p class="sub">Wie PlatzFrei als echtes, serverbasiertes Produkt aufgebaut wäre — Architektur, Datenmodell und die wichtigsten Konzepte.</p>
+  </div>
+</div>
+
+<!-- 1 Ausgangslage -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">1 · Ausgangslage</p>
+    <h2>Prototyp vs. echtes System</h2>
+    <p class="lead-p">Der vorliegende Prototyp läuft vollständig <b>im Browser</b>: Konten, Buchungen, Freundschaften, Gruppen und Nachrichten liegen im <code>localStorage</code> des jeweiligen Geräts. Das genügt, um alle Abläufe erlebbar zu machen — Daten werden jedoch nicht geteilt und gehen beim Löschen des Browser-Caches verloren.</p>
+    <p>Ein echtes Produkt verlagert die Daten auf einen <b>Server mit zentraler Datenbank</b>. Erst dadurch sehen alle Nutzer dieselben Belegungen in Echtzeit, Konten gelten geräteübergreifend, Gruppen-Chats synchronisieren sich live und Buchungen sind verlässlich gegen Doppelbelegung gesichert.</p>
+    <div class="note"><b>Kernidee:</b> Der App-Aufbau (Screens, Abläufe, Funktionen) bleibt identisch. Ausgetauscht wird nur die <i>Datenquelle</i> — vom lokalen Speicher hin zu einer API mit zentraler Datenbank.</div>
+  </div>
+</section>
+
+<!-- 2 Architektur -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">2 · Systemarchitektur</p>
+    <h2>Wie die Teile zusammenspielen</h2>
+    <p>Drei Schichten: die <b>Clients</b> (App & Website), das <b>Backend</b> (API-Server mit der Logik) und die <b>Datenbank</b>. Die Clients sprechen über HTTPS mit der API; nur die API darf in die Datenbank schreiben. Gruppen-Chat und Live-Belegung laufen zusätzlich über einen Echtzeit-Kanal.</p>
+
+    <div class="arch">
+      <div class="dual">
+        <div class="layer client"><div class="lt">📱 App (Smartphone)</div><div class="ls">Buchen · Gruppen · Chat · Freunde · Profil · SportBot</div></div>
+        <div class="layer client"><div class="lt">🌐 Website / Landingpage</div><div class="ls">Information & Bewerbung</div></div>
+      </div>
+      <div class="arrow"><svg viewBox="0 0 24 24"><path d="M12 4v16M6 14l6 6 6-6"/></svg> HTTPS · REST-API (JSON) + WebSocket</div>
+      <div class="layer api"><div class="lt">⚙️ Backend — API-Server</div><div class="ls">Auth · Buchungslogik · Gruppen & Chat · Absage-Benachrichtigungen · Validierung</div></div>
+      <div class="arrow"><svg viewBox="0 0 24 24"><path d="M12 4v16M6 14l6 6 6-6"/></svg> sichere DB-Verbindung</div>
+      <div class="layer db"><div class="lt">🗄️ Datenbank</div><div class="ls">Nutzer · Standorte · Buchungen · Freundschaften · Gruppen · Nachrichten</div></div>
+    </div>
+
+    <div class="sidecol">
+      <div class="chipbox"><b>Auth-Dienst</b>Login per Token (JWT), Passwort-Hashing</div>
+      <div class="chipbox"><b>Echtzeit-Kanal</b>WebSocket — Belegungen & Chat live</div>
+      <div class="chipbox"><b>Push-Dienst</b>Absage-Nachrichten an Freunde & Gruppen</div>
+      <div class="chipbox"><b>Dateispeicher</b>Profilbilder im Objektspeicher</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 Datenmodell -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">3 · Datenmodell (ER-Modell)</p>
+    <h2>Die Tabellen & ihre Beziehungen</h2>
+    <p>Sieben zentrale Entitäten. <span class="key pk">PK</span> = Primärschlüssel (eindeutige ID), <span class="key fk">FK</span> = Fremdschlüssel (Verweis auf eine andere Tabelle).</p>
+
+    <div class="erd">
+      <div class="entity">
+        <h4><svg viewBox="0 0 24 24" class="ic"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/></svg> nutzer</h4>
+        <table>
+          <tr><td><span class="key pk">PK</span>id</td><td>UUID</td></tr>
+          <tr><td>name</td><td>Text</td></tr>
+          <tr><td>benutzername</td><td>Text · unique</td></tr>
+          <tr><td>email</td><td>Text · unique</td></tr>
+          <tr><td>passwort_hash</td><td>Text</td></tr>
+          <tr><td>profilbild_url</td><td>Text · null</td></tr>
+          <tr><td>erstellt_am</td><td>Zeitstempel</td></tr>
+        </table>
+      </div>
+      <div class="entity">
+        <h4><svg viewBox="0 0 24 24" class="ic"><path d="M12 21s-6.5-5.6-6.5-10.4A6.5 6.5 0 0 1 12 4a6.5 6.5 0 0 1 6.5 6.6C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></svg> standort</h4>
+        <table>
+          <tr><td><span class="key pk">PK</span>id</td><td>UUID</td></tr>
+          <tr><td>stadt</td><td>Text</td></tr>
+          <tr><td>name</td><td>Text</td></tr>
+          <tr><td>typ</td><td>fussball · tennis · badminton · halle</td></tr>
+          <tr><td>adresse</td><td>Text</td></tr>
+        </table>
+      </div>
+      <div class="entity">
+        <h4><svg viewBox="0 0 24 24" class="ic"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg> buchung</h4>
+        <table>
+          <tr><td><span class="key pk">PK</span>id</td><td>UUID</td></tr>
+          <tr><td><span class="key fk">FK</span>nutzer_id</td><td>→ nutzer</td></tr>
+          <tr><td><span class="key fk">FK</span>standort_id</td><td>→ standort</td></tr>
+          <tr><td>datum</td><td>Datum</td></tr>
+          <tr><td>start</td><td>Uhrzeit</td></tr>
+          <tr><td>dauer_min</td><td>Zahl</td></tr>
+          <tr><td>storniert</td><td>Boolean · default false</td></tr>
+          <tr><td>erstellt_am</td><td>Zeitstempel</td></tr>
+        </table>
+      </div>
+      <div class="entity">
+        <h4><svg viewBox="0 0 24 24" class="ic"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16.5 6.3a3.2 3.2 0 0 1 0 5.9"/></svg> freundschaft</h4>
+        <table>
+          <tr><td><span class="key pk">PK</span>id</td><td>UUID</td></tr>
+          <tr><td><span class="key fk">FK</span>von_id</td><td>→ nutzer (Anfragender)</td></tr>
+          <tr><td><span class="key fk">FK</span>an_id</td><td>→ nutzer (Empfänger)</td></tr>
+          <tr><td>status</td><td>offen · bestätigt · abgelehnt</td></tr>
+          <tr><td>erstellt_am</td><td>Zeitstempel</td></tr>
+        </table>
+      </div>
+      <div class="entity">
+        <h4><svg viewBox="0 0 24 24" class="ic"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> gruppe</h4>
+        <table>
+          <tr><td><span class="key pk">PK</span>id</td><td>UUID</td></tr>
+          <tr><td>name</td><td>Text</td></tr>
+          <tr><td><span class="key fk">FK</span>ersteller_id</td><td>→ nutzer</td></tr>
+          <tr><td>erstellt_am</td><td>Zeitstempel</td></tr>
+        </table>
+      </div>
+      <div class="entity">
+        <h4><svg viewBox="0 0 24 24" class="ic"><path d="M20 12a7.5 7.5 0 0 1-10.9 6.7L4 20l1.3-4.2A7.5 7.5 0 1 1 20 12z"/></svg> nachricht</h4>
+        <table>
+          <tr><td><span class="key pk">PK</span>id</td><td>UUID</td></tr>
+          <tr><td><span class="key fk">FK</span>von_id</td><td>→ nutzer</td></tr>
+          <tr><td><span class="key fk">FK</span>an_nutzer_id</td><td>→ nutzer · null (1:1-Chat)</td></tr>
+          <tr><td><span class="key fk">FK</span>an_gruppe_id</td><td>→ gruppe · null (Gruppenchat)</td></tr>
+          <tr><td>text</td><td>Text</td></tr>
+          <tr><td>gesendet_am</td><td>Zeitstempel</td></tr>
+        </table>
+      </div>
+      <div class="entity">
+        <h4><svg viewBox="0 0 24 24" class="ic"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> buchung_einladung</h4>
+        <table>
+          <tr><td><span class="key pk">PK</span>id</td><td>UUID</td></tr>
+          <tr><td><span class="key fk">FK</span>buchung_id</td><td>→ buchung</td></tr>
+          <tr><td><span class="key fk">FK</span>nutzer_id</td><td>→ nutzer · null</td></tr>
+          <tr><td><span class="key fk">FK</span>gruppe_id</td><td>→ gruppe · null</td></tr>
+          <tr><td>absage_gesendet</td><td>Boolean · default false</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="rel">
+      <b>Beziehungen</b>
+      <ul>
+        <li><b>nutzer 1 : n buchung</b> — ein Nutzer hat viele Buchungen</li>
+        <li><b>standort 1 : n buchung</b> — ein Platz hat viele Buchungen</li>
+        <li><b>nutzer n : m nutzer</b> — Freundschaften (über <code>freundschaft</code>)</li>
+        <li><b>nutzer n : m gruppe</b> — Mitgliedschaften (über Zwischentabelle <code>gruppe_mitglied</code>)</li>
+        <li><b>nachricht → nutzer oder gruppe</b> — entweder 1:1-Chat oder Gruppen-Chat (einer der FKs ist gesetzt)</li>
+        <li><b>buchung_einladung → nutzer oder gruppe</b> — wen der Buchende eingeladen hat (für Absage-Nachrichten)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 4 API -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">4 · Schnittstelle (REST-API)</p>
+    <h2>Die wichtigsten Endpunkte</h2>
+    <p>Die App ruft diese Endpunkte auf, statt — wie im Prototyp — in den lokalen Speicher zu schreiben.</p>
+    <table class="tbl">
+      <tr><th>Methode</th><th>Pfad</th><th>Zweck</th></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/auth/register</code></td><td>Konto anlegen</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/auth/login</code></td><td>Anmelden, Token erhalten</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/nutzer/suche?q=…</code></td><td>Andere Nutzer finden (Freunde hinzufügen)</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/standorte</code></td><td>Alle Standorte laden</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/standorte/:id/verfuegbarkeit?datum=…</code></td><td>Freie Zeiten für einen Tag</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/buchungen</code></td><td>Platz buchen inkl. Freunde & Gruppen einladen</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/buchungen/meine</code></td><td>Eigene Buchungen abrufen</td></tr>
+      <tr><td><span class="method del">DELETE</span></td><td><code>/buchungen/:id</code></td><td>Buchung stornieren + Absage-Nachricht versenden</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/freunde</code></td><td>Freundesliste</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/freunde/:id/anfrage</code></td><td>Freundschaftsanfrage senden</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/freunde/:id/annehmen</code></td><td>Anfrage bestätigen</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/gruppen</code></td><td>Eigene Gruppen laden</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/gruppen</code></td><td>Neue Gruppe erstellen</td></tr>
+      <tr><td><span class="method del">DELETE</span></td><td><code>/gruppen/:id</code></td><td>Gruppe löschen</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/nachrichten/:freundId</code></td><td>1:1-Chatverlauf laden</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/nachrichten/:freundId</code></td><td>Nachricht an Freund senden</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/gruppen/:id/nachrichten</code></td><td>Gruppen-Chatverlauf laden</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/gruppen/:id/nachrichten</code></td><td>Nachricht in Gruppe senden</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/profil/bild</code></td><td>Profilbild hochladen</td></tr>
+      <tr><td><span class="method patch">PATCH</span></td><td><code>/profil</code></td><td>Name, Benutzername, E-Mail aktualisieren</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 5 Kernkonzepte -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">5 · Schlüssel-Konzepte</p>
+    <h2>Worauf es technisch ankommt</h2>
+    <div class="cards">
+      <div class="kcard">
+        <div class="kic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.5L19 7"/></svg></div>
+        <h3>Keine Doppelbuchung</h3>
+        <p>Vor dem Speichern prüft der Server in einer <b>Transaktion</b>, ob sich die Zeit mit einer bestehenden Buchung überschneidet. Zusätzlich verhindert eine <b>Datenbank-Regel</b> (Ausschluss überlappender Zeiträume je Standort) Doppelbelegung auch bei gleichzeitigen Anfragen.</p>
+      </div>
+      <div class="kcard">
+        <div class="kic"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3>Sicherheit & Login</h3>
+        <p>Passwörter werden nie im Klartext gespeichert, sondern <b>gehasht</b> (z. B. bcrypt). Nach dem Login bekommt die App ein <b>Token (JWT)</b>, das sie bei jeder Anfrage mitschickt. Alles läuft über HTTPS — DSGVO-konform. Die Nutzersuche gibt keine Passwörter oder E-Mails zurück.</p>
+      </div>
+      <div class="kcard">
+        <div class="kic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.5V12l3 1.8"/></svg></div>
+        <h3>Echtzeit-Belegung & Chat</h3>
+        <p>Über einen <b>WebSocket</b> meldet der Server neue Buchungen und Gruppen-Nachrichten sofort an alle offenen Apps. Ein gebuchter Slot verschwindet in Echtzeit auf allen Geräten — ebenso erscheinen Gruppen-Chats live ohne Neuladen.</p>
+      </div>
+      <div class="kcard">
+        <div class="kic"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+        <h3>Absage-Benachrichtigung</h3>
+        <p>Storniert ein Nutzer eine Buchung, sendet der Server automatisch eine <b>Absage-Nachricht</b> an alle eingeladenen Freunde (1:1-Chat) und Gruppen (Gruppen-Chat). Die <code>buchung_einladung</code>-Tabelle stellt sicher, dass keine Absage doppelt gesendet wird.</p>
+      </div>
+      <div class="kcard">
+        <div class="kic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Gruppen & Gruppeneinladungen</h3>
+        <p>Gruppen haben eigene Chat-Verläufe in der Datenbank. Bei einer Buchung können ganze Gruppen eingeladen werden — der Server schickt die Einladungs-Nachricht automatisch in den jeweiligen Gruppen-Chat, ohne dass der Nutzer jeden einzeln anschreiben muss.</p>
+      </div>
+      <div class="kcard">
+        <div class="kic"><svg viewBox="0 0 24 24"><path d="M5 8h2.5l1.3-2h6.4L16.5 8H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><circle cx="12" cy="13.5" r="3.2"/></svg></div>
+        <h3>Profilbilder</h3>
+        <p>Bilder landen in einem <b>Objektspeicher</b> (statt direkt in der Datenbank); gespeichert wird nur die Adresse (<code>profilbild_url</code>). Das hält die Datenbank schlank. Im Prototyp werden Bilder als Base64 im localStorage gespeichert — das skaliert nicht für viele Nutzer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 Tech-Stack -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">6 · Technologie-Vorschlag</p>
+    <h2>Eine mögliche Umsetzung</h2>
+    <p>Bewusst als Vorschlag — die Bausteine sind austauschbar. Wichtig ist die Rollenverteilung, nicht das einzelne Produkt.</p>
+    <table class="tbl">
+      <tr><th>Baustein</th><th>Vorschlag</th><th>Warum</th></tr>
+      <tr><td>Frontend</td><td>Bestehendes HTML/CSS/JS (später ggf. React)</td><td>Prototyp kann direkt weiterverwendet werden</td></tr>
+      <tr><td>Backend</td><td>Node.js + Express</td><td>Schlank, weit verbreitet, gleiche Sprache wie das Frontend</td></tr>
+      <tr><td>Datenbank</td><td>PostgreSQL</td><td>Verlässlich, kann überlappende Zeiträume ausschließen</td></tr>
+      <tr><td>Login</td><td>JWT + bcrypt</td><td>Standard für sichere, zustandslose Authentifizierung</td></tr>
+      <tr><td>Echtzeit</td><td>WebSocket (z. B. Socket.IO)</td><td>Live-Aktualisierung von Belegung und Gruppen-Chat</td></tr>
+      <tr><td>Datei-Speicher</td><td>AWS S3 / Cloudflare R2</td><td>Profilbilder skalierbar außerhalb der Datenbank</td></tr>
+      <tr><td>Hosting</td><td>Render / Railway + managed PostgreSQL</td><td>Einfach zu betreiben, günstig für Studienprojekte</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7 Mapping -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">7 · Der Weg dahin</p>
+    <h2>Vom Prototyp zum echten Backend</h2>
+    <p>Was im Prototyp lokal passiert, wandert 1:1 auf den Server — die App-Logik bleibt gleich.</p>
+    <table class="tbl">
+      <tr><th>Im Prototyp (jetzt)</th><th>Im echten System</th></tr>
+      <tr><td><code>localStorage "sb_users"</code></td><td>Tabelle <code>nutzer</code> in der Datenbank</td></tr>
+      <tr><td><code>localStorage "sb_books"</code></td><td>Tabelle <code>buchung</code></td></tr>
+      <tr><td><code>localStorage "sb_groups"</code></td><td>Tabellen <code>gruppe</code> + <code>gruppe_mitglied</code></td></tr>
+      <tr><td><code>localStorage "sb_gc_[id]"</code></td><td>Tabelle <code>nachricht</code> (gefiltert nach gruppe_id)</td></tr>
+      <tr><td><code>localStorage "sb_rc_…"</code></td><td>Tabelle <code>nachricht</code> (gefiltert nach nutzer-Paar)</td></tr>
+      <tr><td><code>localStorage "sb_freq"</code></td><td>Tabelle <code>freundschaft</code></td></tr>
+      <tr><td>Konto-Check im Browser</td><td><code>POST /auth/login</code> mit Passwort-Hash-Prüfung</td></tr>
+      <tr><td><code>isBusy()</code> im Browser</td><td>Verfügbarkeitsprüfung auf dem Server (in Transaktion)</td></tr>
+      <tr><td>Absage-Nachricht per <code>cancelBooking()</code></td><td><code>DELETE /buchungen/:id</code> — Server benachrichtigt alle Eingeladenen automatisch</td></tr>
+      <tr><td>Nutzersuche nur lokal registrierte Konten</td><td><code>GET /nutzer/suche?q=…</code> durchsucht alle Nutzer geräteübergreifend</td></tr>
+      <tr><td>Daten nur auf einem Gerät</td><td>Zentral — alle sehen denselben Stand in Echtzeit</td></tr>
+      <tr><td>Passwort im Klartext</td><td>Gehasht & verschlüsselt übertragen (HTTPS)</td></tr>
+    </table>
+    <div class="note"><b>Fazit:</b> Der Prototyp zeigt das vollständige <i>Verhalten</i> — Buchen, Stornieren, Gruppen, Chat, Freunde, Profil — dieses Konzept zeigt das <i>Fundament</i> dahinter. Zusammen ergibt sich ein vollständiges Bild von PlatzFrei als marktfähigem Produkt.</div>
+  </div>
+</section>
+
+<p class="foot">PlatzFrei · Backend-Konzept · Studienprojekt · Stand Juni 2026</p>
+
+<button class="printbtn" onclick="window.print()">⤓ Als PDF speichern</button>
+</body>
+</html>
