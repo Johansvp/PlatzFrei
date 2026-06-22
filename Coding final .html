@@ -403,7 +403,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
   <!-- BUCHUNGEN -->
   <div id="page-buchungen" class="page">
-    <div class="ph"><h1>Buchungen</h1><p>Alle deine Reservierungen</p></div>
+    <div class="ph" style="padding-bottom:0">
+      <h1>Buchungen</h1>
+      <div class="ftabs" style="margin-top:14px">
+        <button class="ftab active" id="btab-aktuell" onclick="buchTab('aktuell',this)">📅 Aktuell</button>
+        <button class="ftab" id="btab-vergangen" onclick="buchTab('vergangen',this)">🕐 Vergangen</button>
+        <button class="ftab" id="btab-storniert" onclick="buchTab('storniert',this)">❌ Storniert</button>
+      </div>
+    </div>
     <div class="bc" id="buch-list"></div>
   </div>
 
@@ -709,6 +716,7 @@ function cancelBooking(bid){
   }
   const all=JSON.parse(localStorage.getItem('sb_books')||'[]');
   const idx=all.findIndex(b=>b.id===bid);if(idx>-1){all[idx].cancelled=true;localStorage.setItem('sb_books',JSON.stringify(all));}
+  buchFilter='storniert';document.querySelectorAll('#page-buchungen .ftab').forEach((x,i)=>{x.classList.toggle('active',i===2);});
   renderBuch();updateHome();updateBadges();toast('Buchung storniert.');
 }
 function openGroupChat(gid){
@@ -891,11 +899,27 @@ function showConf(bk){
 function closeConf(){document.getElementById('conf-ovl').classList.remove('active');}
 
 // ═══ BUCHUNGEN ═══
+let buchFilter='aktuell';
+function buchTab(tab,el){
+  buchFilter=tab;
+  document.querySelectorAll('#page-buchungen .ftab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderBuch();
+}
 function renderBuch(){
   const cont=document.getElementById('buch-list');
-  if(!S.bookings.length){cont.innerHTML=`<div class="empty"><div class="empty-i">📅</div><div class="empty-t">Keine Buchungen</div><div class="empty-s">Gehe zu Standorte und buche deinen ersten Platz!</div></div>`;return;}
   const now=new Date();const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
-  cont.innerHTML=[...S.bookings].sort((a,b)=>new Date(b.dt)-new Date(a.dt)).map(b=>{
+  const sorted=[...S.bookings].sort((a,b)=>new Date(b.dt)-new Date(a.dt));
+  const filtered=sorted.filter(b=>{
+    const up=new Date(b.dt)>=now;const ca=!!b.cancelled;
+    if(buchFilter==='aktuell')return up&&!ca;
+    if(buchFilter==='vergangen')return !up&&!ca;
+    if(buchFilter==='storniert')return ca;
+    return true;
+  });
+  const emptyMsgs={aktuell:'Keine bevorstehenden Buchungen.',vergangen:'Keine vergangenen Buchungen.',storniert:'Keine stornierten Buchungen.'};
+  if(!filtered.length){cont.innerHTML=`<div class="empty"><div class="empty-i">📅</div><div class="empty-t">${emptyMsgs[buchFilter]||'Keine Buchungen'}</div>${buchFilter==='aktuell'?'<div class="empty-s">Gehe zu Standorte und buche deinen ersten Platz!</div>':''}</div>`;return;}
+  cont.innerHTML=filtered.map(b=>{
     const up=new Date(b.dt)>=now;const ca=!!b.cancelled;const inv=(b.friends||[]).map(id=>allF.find(f=>f.id===id)?.name).filter(Boolean);
     const statusCls=ca?'s-c':up?'s-up':'s-p';const statusTxt=ca?'Storniert':up?'Bevorstehend':'Vergangen';
     const cardCls=ca?'cancelled':up?'':'past';
@@ -1202,6 +1226,7 @@ function botReply(raw){
       }
       const all=JSON.parse(localStorage.getItem('sb_books')||'[]');
       const idx=all.findIndex(b=>b.id===bid);if(idx>-1){all[idx].cancelled=true;localStorage.setItem('sb_books',JSON.stringify(all));}
+      buchFilter='storniert';document.querySelectorAll('#page-buchungen .ftab').forEach((x,i)=>{x.classList.toggle('active',i===2);});
       renderBuch();updateHome();updateBadges();botReset();
       return`✅ Buchung storniert${notified?' und Absage an alle Eingeladenen gesendet':''}.`;
     }else{botReset();return'Stornierung abgebrochen.';}
