@@ -687,6 +687,23 @@ function toggleBookCancel(bid){
 }
 function cancelBooking(bid){
   if(!confirm('Buchung wirklich stornieren?'))return;
+  const bk=S.bookings.find(b=>b.id===bid);
+  if(bk){
+    const cancelTxt=`❌ Absage!\nDie Buchung wurde storniert:\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
+    (bk.friends||[]).forEach(fid=>{
+      if(String(fid).startsWith('demo_')){
+        if(!S.msgs[fid])S.msgs[fid]=[];
+        S.msgs[fid].push({f:'me',t:cancelTxt,ts:nowTime(),st:Date.now()});
+      }else{
+        const c=getRealChat(fid);c.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveRealChat(fid,c);
+      }
+    });
+    (bk.groups||[]).forEach(gid=>{
+      const g=getGroups().find(x=>x.id===gid);if(!g)return;
+      const gc=getGroupChat(gid);gc.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveGroupChat(gid,gc);
+    });
+    saveMsgs();
+  }
   S.bookings=S.bookings.filter(b=>b.id!==bid);
   const all=JSON.parse(localStorage.getItem('sb_books')||'[]').filter(b=>b.id!==bid);
   localStorage.setItem('sb_books',JSON.stringify(all));
