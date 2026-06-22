@@ -1027,11 +1027,13 @@ function showBotChips(){
   let chips=[];
   if(!bot.step){chips=[{l:'📅 Buchen',v:'buchen'},{l:'👥 Einladen',v:'einladen'},{l:'🫂 Gruppe',v:'gruppe erstellen'},{l:'❌ Stornieren',v:'stornieren'}];}
   else if(bot.step==='post_book'){
+    const bk=S.bookings.find(b=>b.id===bot.newBkId);
     const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
+    const uninvited=allF.filter(f=>!(bk?.friends||[]).includes(f.id));
+    uninvited.slice(0,4).forEach((f,i)=>chips.push({l:f.name,v:String(i+1)}));
     const myG=getGroups().filter(g=>g.members.includes(S.user.id));
-    if(allF.length)chips.push({l:'👥 Freunde einladen',v:'freunde einladen'});
-    if(myG.length)chips.push({l:'🫂 In Gruppe',v:'gruppe'});
-    chips.push({l:'✅ Fertig',v:'nein danke'});
+    if(myG.length)chips.push({l:'🫂 Gruppe',v:'gruppe'});
+    chips.push({l:'✅ Fertig',v:'fertig'});
   }
   else if(bot.step==='post_invite_pick'||bot.step==='invite_pick'){
     const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
@@ -1083,23 +1085,10 @@ function botReply(raw){
 
   // ── NACH DER BUCHUNG: Einladen / Gruppe ──
   if(bot.step==='post_book'){
-    if(t.includes('nein')||t.includes('danke')||t.includes('skip')){botReset();return'Alles klar! Viel Spaß beim Sport! 💪⚽';}
-    if(t.includes('freund')||t.includes('einladen')){
-      const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
-      if(!allF.length){botReset();return'Du hast noch keine Freunde in der App.';}
-      const list=allF.map((f,i)=>`${i+1}. ${f.name}`).join('\n');
-      bot.step='post_invite_pick';return`Wen möchtest du einladen?\n\n${list}`;
-    }
-    if(t.includes('gruppe')||t.includes('group')||t.includes('teilen')){
-      const myGroups=getGroups().filter(g=>g.members.includes(S.user.id));
-      if(!myGroups.length){bot.step='post_book';return`Du hast noch keine Gruppen.\n\n${postBookPrompt()}`;}
-      const list=myGroups.map((g,i)=>`${i+1}. ${g.name}`).join('\n');
-      bot.step='post_group_pick';return`In welche Gruppe soll die Buchung geteilt werden?\n\n${list}`;
-    }
-    return postBookPrompt();
-  }
-  if(bot.step==='post_invite_pick'){
+    if(t.includes('nein')||t.includes('fertig')||t.includes('danke')||t.includes('skip')){botReset();return'Alles klar! Viel Spaß beim Sport! 💪⚽';}
     const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
+    const myGroups=getGroups().filter(g=>g.members.includes(S.user.id));
+    // Direktauswahl per Nummer oder Name
     const num=parseInt(t);let picked=null;
     if(!isNaN(num)&&num>=1&&num<=allF.length)picked=allF[num-1];
     else picked=allF.find(f=>t.includes(f.name.toLowerCase().split(' ')[0]));
@@ -1107,13 +1096,27 @@ function botReply(raw){
       const bk=S.bookings.find(b=>b.id===bot.newBkId);
       if(bk&&!bk.friends.includes(picked.id))bk.friends.push(picked.id);
       const all=JSON.parse(localStorage.getItem('sb_books')||'[]');const idx=all.findIndex(b=>b.id===bot.newBkId);if(idx>-1){all[idx]=bk;localStorage.setItem('sb_books',JSON.stringify(all));}
-      const msg=`Hey ${picked.name}! Ich habe einen Platz gebucht:\n📍 ${bk?.vname||''}\n🕐 ${bk?fmtDT(bk.dt):''}\n⏱ ${bk?.dur||''} Min.\n\nKommst du mit? 🏟️`;
-      if(String(picked.id).startsWith('demo_')){if(!S.msgs[picked.id])S.msgs[picked.id]=[];S.msgs[picked.id].push({f:'me',t:msg,ts:nowTime(),st:Date.now()});saveMsgs();}
-      else{const c=getRealChat(picked.id);c.push({f:S.user.id,senderName:S.user.name,t:msg,ts:nowTime(),st:Date.now()});saveRealChat(picked.id,c);}
-      updateBadges();bot.step='post_book';
-      return`✅ ${picked.name} eingeladen!\n\n${postBookPrompt()}`;
+      const invTxt=`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
+      if(String(picked.id).startsWith('demo_')){
+        if(!S.msgs[picked.id])S.msgs[picked.id]=[];
+        S.msgs[picked.id].push({f:'me',t:invTxt,ts:nowTime(),st:Date.now()});
+        setTimeout(()=>{S.msgs[picked.id].push({f:picked.id,t:'Super! Ich bin dabei! 🙌',ts:nowTime(),st:Date.now()});saveMsgs();updateBadges();},2500);
+      }else{const c=getRealChat(picked.id);c.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveRealChat(picked.id,c);}
+      saveMsgs();updateBadges();
+      const remaining=allF.filter(f=>!(bk.friends||[]).includes(f.id));
+      if(remaining.length){return`✅ ${picked.name} eingeladen!\n\nNoch jemanden einladen?`;}
+      botReset();return`✅ ${picked.name} eingeladen! Viel Spaß beim Sport! 💪`;
     }
-    return'Bitte Nummer oder Namen tippen.';
+    // Gruppe teilen
+    let grpPicked=null;
+    if(!isNaN(num)&&num>=1&&num<=myGroups.length)grpPicked=myGroups[num-1];
+    else if(t.includes('gruppe')||t.includes('teilen'))grpPicked=null;
+    if(t.includes('gruppe')||t.includes('teilen')){
+      if(!myGroups.length)return`Du hast noch keine Gruppen.\n\n${postBookPrompt()}`;
+      const list=myGroups.map((g,i)=>`${i+1}. ${g.name}`).join('\n');
+      bot.step='post_group_pick';return`In welche Gruppe?\n\n${list}`;
+    }
+    return postBookPrompt();
   }
   if(bot.step==='post_group_pick'){
     const myGroups=getGroups().filter(g=>g.members.includes(S.user.id));
@@ -1124,8 +1127,8 @@ function botReply(raw){
       const bk=S.bookings.find(b=>b.id===bot.newBkId);
       if(bk&&!bk.groups.includes(picked.id))bk.groups.push(picked.id);
       const all=JSON.parse(localStorage.getItem('sb_books')||'[]');const idx=all.findIndex(b=>b.id===bot.newBkId);if(idx>-1){all[idx]=bk;localStorage.setItem('sb_books',JSON.stringify(all));}
-      const msg=`📅 Neue Buchung!\n📍 ${bk?.vname||''}\n🕐 ${bk?fmtDT(bk.dt):''}\n⏱ ${bk?.dur||''} Min.\n\nWer ist dabei? 🙌`;
-      const gc=getGroupChat(picked.id);gc.push({f:S.user.id,senderName:S.user.name,t:msg,ts:nowTime(),st:Date.now()});saveGroupChat(picked.id,gc);
+      const invTxt=`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
+      const gc=getGroupChat(picked.id);gc.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveGroupChat(picked.id,gc);
       updateBadges();bot.step='post_book';
       return`✅ Buchung in "${picked.name}" geteilt!\n\n${postBookPrompt()}`;
     }
