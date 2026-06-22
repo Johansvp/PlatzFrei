@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platzfrei — Die smarte Buchungslösung für Sportvereine</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo">Platzfrei</a>
+      <button class="nav-toggle" aria-label="Menü" aria-expanded="false" onclick="var n=document.getElementById('mainnav');n.classList.toggle('open');this.setAttribute('aria-expanded', n.classList.contains('open'))">☰</button>
+      <nav class="nav" id="mainnav" aria-label="Hauptnavigation">
+        <a href="index.html">Start</a>
+        <a href="app.html">Die App</a>
+        <a href="kontakt.html">Kontakt</a>
+        <a href="kontakt.html" class="nav-cta">Benachrichtigt werden</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" style="background-image:linear-gradient(180deg,rgba(35,46,33,.30),rgba(35,46,33,.68)),url('assets/hero.jpg');">
+      <div class="container">
+        <div class="hero-inner">
+          <p class="kicker">Bald verfügbar</p>
+          <h1>Die smarte Buchungslösung<br>für Sportvereine.</h1>
+          <p class="lead">Sportanlagen zentral verwalten, freie Zeiten in Echtzeit sehen, Doppelbuchungen vermeiden — die App, die dem Verein den Orga-Stress abnimmt.</p>
+
+          <div class="countdown" data-deadline="2026-07-01T00:00:00">
+            <p class="cd-label">App kommt am 01.07.2026</p>
+            <div class="cd-grid">
+              <div class="cd-box"><span class="cd-num" data-unit="days">–</span><span class="cd-unit">Tage</span></div>
+              <div class="cd-box"><span class="cd-num" data-unit="hours">–</span><span class="cd-unit">Stunden</span></div>
+              <div class="cd-box"><span class="cd-num" data-unit="minutes">–</span><span class="cd-unit">Minuten</span></div>
+              <div class="cd-box"><span class="cd-num" data-unit="seconds">–</span><span class="cd-unit">Sekunden</span></div>
+            </div>
+            <p class="cd-done" hidden>Die App ist da!</p>
+          </div>
+
+          <a href="kontakt.html" class="btn">Benachrichtigt werden &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section intro">
+      <div class="container">
+        <h2>Schluss mit dem Orga-Chaos.</h2>
+        <p>In großen Vereinen mit vielen Mannschaften, Trainern und Sportarten wird die Planung schnell unübersichtlich. Platzfrei macht die Verwaltung und Buchung von Sportanlagen einfach — damit mehr Zeit für das Wesentliche bleibt: den Sport.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <p class="label">Was die App kann</p>
+        <div class="features">
+          <article class="fcard">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+            <h3>Echtzeit-Verfügbarkeit</h3>
+            <p>Freie Zeiten auf einen Blick — Doppelbuchungen gehören der Vergangenheit an.</p>
+          </article>
+          <article class="fcard">
+            <div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg></div>
+            <h3>Zentrale Buchung</h3>
+            <p>Plätze, Hallen und Trainingsflächen an einer Stelle reservieren und anpassen.</p>
+          </article>
+          <article class="fcard">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M16 8h4v4"/></svg></div>
+            <h3>Bessere Auslastung</h3>
+            <p>Weniger Abstimmungsaufwand, optimale Nutzung der vorhandenen Anlagen.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="section formband" id="kontakt">
+      <div class="container">
+        <div class="formwrap">
+          <h2>Bleib informiert</h2>
+          <p class="form-sub">Schreib uns oder lass dich zum Launch benachrichtigen — wir melden uns.</p>
+
+          <form class="kontakt-form" novalidate>
+            <input type="hidden" name="access_key" value="2be75f46-3754-42d2-a000-bc701c94355f">
+            <input type="hidden" name="subject" value="Neue Nachricht über die Platzfrei-Website">
+            <input type="checkbox" name="botcheck" tabindex="-1" style="display:none" aria-hidden="true">
+
+            <div class="grid2">
+              <div class="field"><label for="name">Name *</label>
+                <input id="name" name="name" type="text" placeholder="Vor- und Nachname">
+                <span class="err"></span></div>
+              <div class="field"><label for="email">E-Mail *</label>
+                <input id="email" name="email" type="email" placeholder="name@mail.de">
+                <span class="err"></span></div>
+            </div>
+            <div class="field"><label for="verein">Verein / Organisation</label>
+              <input id="verein" name="verein" type="text" placeholder="optional">
+              <span class="err"></span></div>
+            <div class="field"><label for="nachricht">Nachricht *</label>
+              <textarea id="nachricht" name="nachricht" placeholder="Wie können wir helfen?"></textarea>
+              <span class="err"></span></div>
+
+            <label class="check"><input type="checkbox" name="datenschutz" value="ja">
+              <span>Ich habe die <a href="rechtliches.html#datenschutz">Datenschutzhinweise</a> gelesen und bin mit der Verarbeitung meiner Angaben einverstanden.</span></label>
+
+            <button type="submit" class="submit">Nachricht senden</button>
+            <p class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-top"><a href="index.html" class="logo">Platzfrei</a></div>
+      <nav class="foot-links" aria-label="Rechtliche Hinweise">
+        <a href="rechtliches.html#impressum">Impressum</a>
+        <a href="rechtliches.html#agb">AGB</a>
+        <a href="rechtliches.html#datenschutz">Datenschutz</a>
+        <a href="rechtliches.html#nutzungsbedingungen">Nutzungsbedingungen</a>
+        <a href="rechtliches.html#privatsphaere">Privatsphäre</a>
+        <a href="kontakt.html">Kontakt</a>
+        <a href="rechtliches.html#barrierefreiheit">Barrierefreiheit</a>
+        <a href="rechtliches.html#abo-kuendigen">Abo kündigen</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="js/countdown.js"></script>
+  <script src="js/validation.js"></script>
+  <script src="js/form.js"></script>
+</body>
+</html>

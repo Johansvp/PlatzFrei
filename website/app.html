@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Die App — Platzfrei</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo">Platzfrei</a>
+      <button class="nav-toggle" aria-label="Menü" aria-expanded="false" onclick="var n=document.getElementById('mainnav');n.classList.toggle('open');this.setAttribute('aria-expanded', n.classList.contains('open'))">☰</button>
+      <nav class="nav" id="mainnav" aria-label="Hauptnavigation">
+        <a href="index.html">Start</a>
+        <a href="app.html">Die App</a>
+        <a href="kontakt.html">Kontakt</a>
+        <a href="kontakt.html" class="nav-cta">Benachrichtigt werden</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="pagehead">
+      <div class="container">
+        <h1>Die App</h1>
+        <p class="sub">Bald verfügbar: die smarte Buchungslösung für Sportvereine.</p>
+      </div>
+    </section>
+
+    <figure class="app-photo">
+      <img src="assets/app.jpg" alt="Moderne, lichtdurchflutete Sporthalle mit hellem Holzboden">
+    </figure>
+
+    <section class="section">
+      <div class="container prose">
+        <p class="lead-p">Die Organisation von Sportanlagen kann schnell unübersichtlich werden — gerade in großen Vereinen mit vielen Mannschaften, Trainern und unterschiedlichen Sportangeboten.</p>
+        <p>Genau dafür entwickeln wir eine moderne, benutzerfreundliche App, die die Verwaltung und Buchung von Sportstätten deutlich vereinfacht. Trainer, Mitarbeitende und Vereinsverantwortliche können Fußballplätze, Tennisplätze, Sporthallen und weitere Trainingsflächen zentral verwalten und reservieren.</p>
+        <p>Freie Zeiten werden in Echtzeit angezeigt, wodurch Doppelbuchungen vermieden und Abstimmungsaufwände reduziert werden. Alle Buchungen sind jederzeit übersichtlich einsehbar und lassen sich flexibel anpassen.</p>
+        <p>Unser Ziel: den organisatorischen Aufwand im Vereinsalltag minimieren und gleichzeitig für eine optimale Auslastung der Anlagen sorgen. So bleibt mehr Zeit für das Wesentliche — den Sport.</p>
+        <p>Die App befindet sich aktuell in der Entwicklung und ist in Kürze verfügbar. Bleib gespannt!</p>
+      </div>
+    </section>
+
+    <section class="section app-cd">
+      <div class="container">
+        <div class="countdown on-light" data-deadline="2026-07-01T00:00:00">
+          <p class="cd-label">App kommt am 01.07.2026</p>
+          <div class="cd-grid">
+            <div class="cd-box"><span class="cd-num" data-unit="days">–</span><span class="cd-unit">Tage</span></div>
+            <div class="cd-box"><span class="cd-num" data-unit="hours">–</span><span class="cd-unit">Stunden</span></div>
+            <div class="cd-box"><span class="cd-num" data-unit="minutes">–</span><span class="cd-unit">Minuten</span></div>
+            <div class="cd-box"><span class="cd-num" data-unit="seconds">–</span><span class="cd-unit">Sekunden</span></div>
+          </div>
+          <p class="cd-done" hidden>Die App ist da!</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-top"><a href="index.html" class="logo">Platzfrei</a></div>
+      <nav class="foot-links" aria-label="Rechtliche Hinweise">
+        <a href="rechtliches.html#impressum">Impressum</a>
+        <a href="rechtliches.html#agb">AGB</a>
+        <a href="rechtliches.html#datenschutz">Datenschutz</a>
+        <a href="rechtliches.html#nutzungsbedingungen">Nutzungsbedingungen</a>
+        <a href="rechtliches.html#privatsphaere">Privatsphäre</a>
+        <a href="kontakt.html">Kontakt</a>
+        <a href="rechtliches.html#barrierefreiheit">Barrierefreiheit</a>
+        <a href="rechtliches.html#abo-kuendigen">Abo kündigen</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/countdown.js"></script>
+</body>
+</html>

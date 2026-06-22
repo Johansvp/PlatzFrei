@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontakt — Platzfrei</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo">Platzfrei</a>
+      <button class="nav-toggle" aria-label="Menü" aria-expanded="false" onclick="var n=document.getElementById('mainnav');n.classList.toggle('open');this.setAttribute('aria-expanded', n.classList.contains('open'))">☰</button>
+      <nav class="nav" id="mainnav" aria-label="Hauptnavigation">
+        <a href="index.html">Start</a>
+        <a href="app.html">Die App</a>
+        <a href="kontakt.html">Kontakt</a>
+        <a href="kontakt.html" class="nav-cta">Benachrichtigt werden</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="pagehead">
+      <div class="container">
+        <h1>Kontakt</h1>
+        <p class="sub">Fragen zur App oder zum Launch? Schreib uns — wir antworten in der Regel innerhalb von 24 Stunden.</p>
+      </div>
+    </section>
+
+    <section class="section formband" id="kontakt">
+      <div class="container">
+        <div class="formwrap">
+          <h2>Schreib uns</h2>
+          <p class="form-sub">Pflichtfelder mit *.</p>
+
+          <form class="kontakt-form" novalidate>
+            <input type="hidden" name="access_key" value="2be75f46-3754-42d2-a000-bc701c94355f">
+            <input type="hidden" name="subject" value="Neue Nachricht über die Platzfrei-Website">
+            <input type="checkbox" name="botcheck" tabindex="-1" style="display:none" aria-hidden="true">
+
+            <div class="grid2">
+              <div class="field"><label for="name">Name *</label>
+                <input id="name" name="name" type="text" placeholder="Vor- und Nachname">
+                <span class="err"></span></div>
+              <div class="field"><label for="email">E-Mail *</label>
+                <input id="email" name="email" type="email" placeholder="name@mail.de">
+                <span class="err"></span></div>
+            </div>
+            <div class="field"><label for="verein">Verein / Organisation</label>
+              <input id="verein" name="verein" type="text" placeholder="optional">
+              <span class="err"></span></div>
+            <div class="field"><label for="nachricht">Nachricht *</label>
+              <textarea id="nachricht" name="nachricht" placeholder="Wie können wir helfen?"></textarea>
+              <span class="err"></span></div>
+
+            <label class="check"><input type="checkbox" name="datenschutz" value="ja">
+              <span>Ich habe die <a href="rechtliches.html#datenschutz">Datenschutzhinweise</a> gelesen und bin mit der Verarbeitung meiner Angaben einverstanden.</span></label>
+
+            <button type="submit" class="submit">Nachricht senden</button>
+            <p class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contactstrip">
+      <div class="container">
+        <div><b>Schreib uns</b>johan.fritzen08@gmail.com</div>
+        <div><b>Erreichbar</b>Mo–Fr · 9–18 Uhr</div>
+        <div><b>Region</b>Köln &amp; Umgebung</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-top"><a href="index.html" class="logo">Platzfrei</a></div>
+      <nav class="foot-links" aria-label="Rechtliche Hinweise">
+        <a href="rechtliches.html#impressum">Impressum</a>
+        <a href="rechtliches.html#agb">AGB</a>
+        <a href="rechtliches.html#datenschutz">Datenschutz</a>
+        <a href="rechtliches.html#nutzungsbedingungen">Nutzungsbedingungen</a>
+        <a href="rechtliches.html#privatsphaere">Privatsphäre</a>
+        <a href="kontakt.html">Kontakt</a>
+        <a href="rechtliches.html#barrierefreiheit">Barrierefreiheit</a>
+        <a href="rechtliches.html#abo-kuendigen">Abo kündigen</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/validation.js"></script>
+  <script src="js/form.js"></script>
+</body>
+</html>
