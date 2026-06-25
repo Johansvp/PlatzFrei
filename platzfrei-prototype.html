@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlatzFrei – Wireframes & Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c0:#F7F8FA;--c1:#DDE3EA;--c2:#8896A6;--c3:#46566B;--c4:#1E2A38;
+  --bot:#C8531A;--line:#DDE3EA;--white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Mulish',sans-serif;background:#eef0f3;color:var(--c4);min-height:100vh;}
+h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
+
+/* ── TAB NAV ── */
+.tab-bar{background:var(--c4);display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 24px;position:sticky;top:0;z-index:100;}
+.tab-bar h1{font-family:'Marcellus',serif;font-size:20px;color:#fff;margin-right:24px;}
+.tab-bar h1 span{color:var(--bot);}
+.tab-btn{border:none;cursor:pointer;font-family:'Mulish',sans-serif;font-size:14px;font-weight:600;
+  border-radius:8px;padding:9px 22px;transition:all .2s;letter-spacing:.04em;}
+.tab-btn.active{background:var(--bot);color:#fff;}
+.tab-btn:not(.active){background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);}
+.tab-btn:not(.active):hover{background:rgba(255,255,255,.18);}
+
+/* ── SECTIONS ── */
+.section{display:none;padding:48px 32px;}
+.section.active{display:block;}
+.section-title{text-align:center;margin-bottom:8px;font-size:28px;color:var(--c4);}
+.section-sub{text-align:center;color:var(--c2);font-size:14px;margin-bottom:40px;}
+.badge{display:inline-block;background:var(--c1);color:var(--c3);font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:12px;}
+
+/* ── WIREFRAME SECTION ── */
+.wf-flow{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding-bottom:20px;justify-content:center;flex-wrap:wrap;gap:20px;}
+.wf-item{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.wf-label{font-size:12px;font-weight:700;color:var(--c3);text-transform:uppercase;letter-spacing:.08em;text-align:center;}
+.wf-screen-num{width:22px;height:22px;border-radius:50%;background:var(--c3);color:#fff;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;}
+.wf-arrow{display:flex;align-items:center;padding-top:80px;color:var(--c2);font-size:22px;padding-left:4px;padding-right:4px;}
+
+/* Phone wireframe frame */
+.phone-wf{width:160px;height:290px;border:2.5px solid #333;border-radius:22px;background:#fff;
+  display:flex;flex-direction:column;overflow:hidden;position:relative;flex-shrink:0;}
+.phone-wf .notch{height:14px;background:#333;margin:0 auto;width:50px;border-radius:0 0 8px 8px;}
+.wf-body{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:6px;}
+.wf-block{background:#e8e8e8;border-radius:4px;}
+.wf-block.tall{flex:1;}
+.wf-block.short{height:14px;}
+.wf-block.medium{height:22px;}
+.wf-block.dark{background:#555;}
+.wf-block.accent{background:#bbb;}
+.wf-block.half{width:50%;}
+.wf-block.third{width:33%;}
+.wf-circle{width:40px;height:40px;border-radius:50%;background:#e8e8e8;margin:0 auto;}
+.wf-row{display:flex;gap:5px;align-items:center;}
+.wf-row .wf-block{flex:1;}
+.wf-nav-wf{height:28px;background:#f0f0f0;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-around;padding:0 6px;}
+.wf-nav-dot{width:8px;height:8px;border-radius:50%;background:#bbb;}
+.wf-nav-dot.active{background:#555;}
+.wf-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.wf-card-mini{background:#e8e8e8;border-radius:5px;padding:6px 5px;display:flex;flex-direction:column;gap:3px;}
+.wf-tag{display:inline-block;background:#d0d0d0;border-radius:3px;height:8px;width:60%;}
+.wf-status-bar{height:8px;background:#ddd;border-radius:0;}
+.wf-icon-row{display:flex;gap:4px;}
+.wf-icon{width:14px;height:14px;border-radius:3px;background:#ccc;}
+
+/* ── MOCKUP SECTION ── */
+.mockup-center{display:flex;justify-content:center;align-items:flex-start;gap:48px;flex-wrap:wrap;}
+.phone-shell{width:320px;background:#0d0d0d;border-radius:44px;padding:10px;
+  box-shadow:0 40px 80px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.08);flex-shrink:0;}
+.phone-screen-wrap{border-radius:34px;overflow:hidden;position:relative;height:620px;background:var(--c0);}
+
+/* Screens */
+.app-screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;}
+.app-screen.active{display:flex;}
+
+/* Status bar */
+.status-bar{height:44px;background:var(--c4);display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;flex-shrink:0;}
+.status-bar .time{color:#fff;font-size:13px;font-weight:700;}
+.status-icons{display:flex;gap:5px;align-items:center;}
+.status-icons span{color:#fff;font-size:11px;}
+
+/* Top nav in app */
+.app-nav{background:var(--c4);padding:10px 18px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.app-nav .back{background:rgba(255,255,255,.12);border:none;color:#fff;width:32px;height:32px;border-radius:10px;
+  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.app-nav .title{font-family:'Marcellus',serif;color:#fff;font-size:17px;}
+
+/* Bottom nav */
+.bottom-nav{height:64px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;
+  justify-content:space-around;flex-shrink:0;}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 14px;border-radius:10px;
+  border:none;background:none;}
+.bnav-item svg{width:22px;height:22px;stroke:var(--c2);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+.bnav-item span{font-size:10px;color:var(--c2);font-weight:600;}
+.bnav-item.active svg{stroke:var(--bot);}
+.bnav-item.active span{color:var(--bot);}
+
+/* Screen: Splash */
+.splash-bg{flex:1;background:linear-gradient(160deg,var(--c3),var(--c4));display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;padding:32px;}
+.splash-logo{width:80px;height:80px;border-radius:24px;background:rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;}
+.splash-logo svg{width:44px;height:44px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.splash-h{font-family:'Marcellus',serif;font-size:36px;color:#fff;text-align:center;}
+.splash-sub{font-size:14px;color:rgba(255,255,255,.6);text-align:center;line-height:1.5;}
+.btn-primary{background:var(--bot);color:#fff;border:none;border-radius:14px;padding:14px 28px;
+  font-family:'Mulish',sans-serif;font-size:15px;font-weight:700;cursor:pointer;width:100%;transition:opacity .15s;}
+.btn-primary:hover{opacity:.88;}
+.btn-secondary{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);
+  border-radius:14px;padding:13px 28px;font-family:'Mulish',sans-serif;font-size:15px;font-weight:600;cursor:pointer;width:100%;}
+
+/* Screen: Login */
+.screen-pad{flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:16px;}
+.input-group{display:flex;flex-direction:column;gap:6px;}
+.input-group label{font-size:12px;font-weight:700;color:var(--c3);letter-spacing:.06em;text-transform:uppercase;}
+.app-input{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  font-family:'Mulish',sans-serif;font-size:14px;color:var(--c4);outline:none;width:100%;}
+.divider{display:flex;align-items:center;gap:10px;color:var(--c2);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
+.link-btn{background:none;border:none;color:var(--bot);font-family:'Mulish',sans-serif;font-size:13px;
+  font-weight:700;cursor:pointer;text-align:center;padding:4px;}
+.screen-logo-sm{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;}
+.screen-logo-sm .mark-sm{width:38px;height:38px;border-radius:11px;background:var(--c4);
+  display:flex;align-items:center;justify-content:center;}
+.screen-logo-sm .mark-sm svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.screen-logo-sm span{font-family:'Marcellus',serif;font-size:22px;color:var(--c4);}
+.form-title{font-family:'Marcellus',serif;font-size:22px;color:var(--c4);text-align:center;}
+.form-sub{font-size:13px;color:var(--c2);text-align:center;}
+
+/* Screen: Home */
+.home-header{background:var(--c4);padding:16px 18px 20px;flex-shrink:0;}
+.home-header h2{font-family:'Marcellus',serif;color:#fff;font-size:22px;}
+.home-header p{color:rgba(255,255,255,.6);font-size:13px;margin-top:2px;}
+.search-bar{margin-top:12px;background:rgba(255,255,255,.12);border-radius:12px;
+  display:flex;align-items:center;gap:8px;padding:10px 14px;}
+.search-bar svg{width:16px;height:16px;fill:none;stroke:rgba(255,255,255,.5);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.search-bar span{color:rgba(255,255,255,.4);font-size:13px;}
+.filter-row{display:flex;gap:8px;padding:14px 16px 4px;overflow-x:auto;}
+.filter-chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;
+  font-size:12px;font-weight:600;color:var(--c3);white-space:nowrap;cursor:pointer;flex-shrink:0;}
+.filter-chip.active{background:var(--c4);color:#fff;border-color:var(--c4);}
+.cards-list{padding:8px 16px 16px;display:flex;flex-direction:column;gap:12px;}
+.place-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;
+  box-shadow:0 4px 12px rgba(30,42,56,.06);}
+.place-img{height:100px;background:linear-gradient(135deg,#46566B,#1E2A38);display:flex;align-items:center;justify-content:center;position:relative;}
+.place-img svg{width:32px;height:32px;fill:none;stroke:rgba(255,255,255,.4);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.place-badge{position:absolute;top:8px;right:8px;background:var(--bot);color:#fff;font-size:10px;font-weight:700;
+  padding:3px 8px;border-radius:999px;}
+.place-info{padding:12px 14px;}
+.place-info h4{font-family:'Marcellus',serif;font-size:16px;color:var(--c4);}
+.place-meta{display:flex;align-items:center;gap:12px;margin-top:4px;}
+.place-meta span{font-size:12px;color:var(--c2);display:flex;align-items:center;gap:3px;}
+.place-meta svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.place-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.place-price{font-size:15px;font-weight:700;color:var(--c4);}
+.place-price span{font-size:11px;color:var(--c2);font-weight:400;}
+.chip-avail{background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;}
+
+/* Screen: Buchung */
+.detail-img{height:140px;background:linear-gradient(135deg,var(--c3),var(--c4));display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
+.detail-img svg{width:50px;height:50px;fill:none;stroke:rgba(255,255,255,.35);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;}
+.detail-body{padding:18px;display:flex;flex-direction:column;gap:16px;flex:1;}
+.detail-title{font-family:'Marcellus',serif;font-size:22px;color:var(--c4);}
+.detail-row{display:flex;align-items:center;gap:6px;color:var(--c2);font-size:13px;}
+.detail-row svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.section-label{font-size:11px;font-weight:700;color:var(--c3);letter-spacing:.1em;text-transform:uppercase;}
+.date-row{display:flex;gap:8px;overflow-x:auto;}
+.date-chip{display:flex;flex-direction:column;align-items:center;background:#fff;border:1px solid var(--line);
+  border-radius:10px;padding:8px 12px;cursor:pointer;flex-shrink:0;}
+.date-chip.active{background:var(--c4);border-color:var(--c4);}
+.date-chip .day{font-size:10px;color:var(--c2);text-transform:uppercase;letter-spacing:.06em;}
+.date-chip .num{font-family:'Marcellus',serif;font-size:18px;color:var(--c4);}
+.date-chip.active .day,.date-chip.active .num{color:#fff;}
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.time-chip{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 6px;text-align:center;
+  font-size:13px;font-weight:600;color:var(--c3);cursor:pointer;}
+.time-chip.active{background:var(--bot);border-color:var(--bot);color:#fff;}
+.time-chip.taken{background:var(--c1);color:var(--c2);cursor:not-allowed;}
+
+/* Screen: Bestätigung */
+.confirm-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;gap:16px;}
+.confirm-icon{width:72px;height:72px;border-radius:50%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;}
+.confirm-icon svg{width:36px;height:36px;fill:none;stroke:#2e7d32;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.confirm-title{font-family:'Marcellus',serif;font-size:24px;color:var(--c4);text-align:center;}
+.confirm-sub{font-size:13px;color:var(--c2);text-align:center;line-height:1.6;}
+.booking-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;width:100%;display:flex;flex-direction:column;gap:10px;}
+.booking-row{display:flex;align-items:center;justify-content:space-between;}
+.booking-row .key{font-size:12px;color:var(--c2);}
+.booking-row .val{font-size:13px;font-weight:700;color:var(--c4);}
+.invite-btn{background:var(--c4);color:#fff;border:none;border-radius:14px;padding:13px 20px;
+  font-family:'Mulish',sans-serif;font-size:14px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;}
+.invite-btn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* Screen: Freunde */
+.friends-list{padding:0 16px;display:flex;flex-direction:column;gap:10px;}
+.friend-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+  display:flex;align-items:center;gap:12px;}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--c3);display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:14px;font-weight:700;font-family:'Marcellus',serif;flex-shrink:0;}
+.friend-name{font-size:14px;font-weight:700;color:var(--c4);}
+.friend-sub{font-size:12px;color:var(--c2);}
+.invite-toggle{margin-left:auto;width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;}
+.invite-toggle.on{background:#e8f5e9;color:#2e7d32;}
+.invite-toggle.off{background:var(--c1);color:var(--c2);}
+
+/* Screen: Profil */
+.profil-header{background:var(--c4);padding:24px 18px 28px;display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;}
+.profil-avatar{width:72px;height:72px;border-radius:50%;background:var(--bot);display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:26px;font-family:'Marcellus',serif;}
+.profil-name{font-family:'Marcellus',serif;font-size:20px;color:#fff;}
+.profil-email{font-size:12px;color:rgba(255,255,255,.55);}
+.profil-body{padding:16px;display:flex;flex-direction:column;gap:10px;flex:1;}
+.menu-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;}
+.menu-item svg{width:20px;height:20px;fill:none;stroke:var(--c3);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.menu-item .menu-label{font-size:14px;font-weight:600;color:var(--c4);}
+.menu-item .menu-sub{font-size:12px;color:var(--c2);}
+.menu-item .arrow{margin-left:auto;color:var(--c2);font-size:16px;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:4px;}
+.stat-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;}
+.stat-num{font-family:'Marcellus',serif;font-size:22px;color:var(--c4);}
+.stat-lbl{font-size:10px;color:var(--c2);margin-top:2px;}
+
+/* ── SIDEBAR (flow map) ── */
+.mockup-sidebar{width:220px;flex-shrink:0;}
+.flow-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.flow-card h3{font-size:14px;font-weight:700;color:var(--c4);margin-bottom:14px;letter-spacing:.04em;}
+.flow-step{display:flex;align-items:center;gap:10px;cursor:pointer;padding:7px 10px;border-radius:10px;transition:background .15s;}
+.flow-step:hover{background:var(--c0);}
+.flow-step.current{background:var(--c4);}
+.flow-step.current .step-num{background:var(--bot);color:#fff;}
+.flow-step.current .step-name{color:#fff;}
+.step-num{width:24px;height:24px;border-radius:7px;background:var(--c1);color:var(--c3);
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-name{font-size:13px;color:var(--c3);font-weight:600;}
+.flow-line{width:2px;height:10px;background:var(--c1);margin:2px 0 2px 19px;}
+.info-card{background:#fff;border-radius:16px;padding:16px;margin-top:14px;box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.info-card h3{font-size:13px;font-weight:700;color:var(--c4);margin-bottom:8px;}
+.info-card p{font-size:12px;color:var(--c2);line-height:1.6;}
+.design-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.color-dot{width:22px;height:22px;border-radius:50%;}
+.font-tag{font-size:11px;color:var(--c3);background:var(--c1);border-radius:5px;padding:2px 6px;}
+
+/* ── WIREFRAME LEGEND ── */
+.wf-legend{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:32px;
+  display:flex;gap:24px;flex-wrap:wrap;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.05);}
+.wf-legend h3{font-size:13px;font-weight:700;color:var(--c4);margin-right:8px;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--c3);}
+.legend-box{width:18px;height:14px;border-radius:3px;}
+
+.arrow-label{font-size:10px;color:var(--c2);text-align:center;margin-top:2px;}
+</style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <h1>Platz<span>Frei</span></h1>
+  <button class="tab-btn active" onclick="showTab('wireframe')">① Wireframes</button>
+  <button class="tab-btn" onclick="showTab('mockup')">② Mockup & Clickdummy</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 1 — WIREFRAMES
+═══════════════════════════════════════════════ -->
+<div id="tab-wireframe" class="section active">
+  <div style="text-align:center;margin-bottom:6px;"><span class="badge">Wireframes · Low-Fidelity</span></div>
+  <h2 class="section-title">PlatzFrei – Screen-Flow</h2>
+  <p class="section-sub">6 vernetzte Bildschirme · Graue Blöcke = Platzhalter für Inhalte & Bilder</p>
+
+  <div class="wf-legend">
+    <h3>Legende</h3>
+    <div class="legend-item"><div class="legend-box" style="background:#555;"></div>Primäre Aktion / Nav</div>
+    <div class="legend-item"><div class="legend-box" style="background:#e8e8e8;"></div>Inhalt / Text</div>
+    <div class="legend-item"><div class="legend-box" style="background:#bbb;"></div>Bild / Media</div>
+    <div class="legend-item"><div class="legend-box" style="background:#d0d0d0;border:1px dashed #aaa;"></div>Interaktives Element</div>
+    <div style="margin-left:auto;font-size:12px;color:var(--c2);">→ Pfeile zeigen Navigationsfluss</div>
+  </div>
+
+  <div class="wf-flow">
+
+    <!-- Screen 1: Splash -->
+    <div class="wf-item">
+      <div class="wf-screen-num">1</div>
+      <div class="phone-wf">
+        <div class="notch"></div>
+        <div style="flex:1;background:#333;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;">
+          <div class="wf-circle" style="background:#555;width:52px;height:52px;"></div>
+          <div class="wf-block short" style="width:80px;background:#666;"></div>
+          <div class="wf-block short" style="width:110px;background:#555;height:8px;"></div>
+          <div class="wf-block short" style="width:90px;background:#555;height:8px;"></div>
+          <div style="margin-top:16px;width:100%;display:flex;flex-direction:column;gap:8px;">
+            <div class="wf-block medium" style="background:#C8531A;border-radius:8px;"></div>
+            <div class="wf-block medium" style="background:#555;border-radius:8px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="wf-label">Splash /<br>Onboarding</div>
+    </div>
+
+    <div class="wf-arrow">→</div>
+
+    <!-- Screen 2: Login -->
+    <div class="wf-item">
+      <div class="wf-screen-num">2</div>
+      <div class="phone-wf">
+        <div class="notch"></div>
+        <div class="wf-body">
+          <div style="display:flex;justify-content:center;margin-bottom:4px;">
+            <div class="wf-block" style="width:36px;height:36px;border-radius:8px;background:#555;"></div>
+          </div>
+          <div class="wf-block short" style="width:70px;margin:0 auto;"></div>
+          <div style="height:10px;"></div>
+          <div class="wf-block short" style="width:50px;"></div>
+          <div class="wf-block medium"></div>
+          <div class="wf-block short" style="width:50px;"></div>
+          <div class="wf-block medium"></div>
+          <div style="height:4px;"></div>
+          <div class="wf-block medium dark" style="border-radius:8px;"></div>
+          <div style="display:flex;justify-content:center;margin-top:6px;">
+            <div class="wf-block short" style="width:90px;background:#bbb;"></div>
+          </div>
+          <div class="wf-block short" style="width:100%;height:1px;background:#ddd;margin-top:4px;"></div>
+          <div class="wf-block short" style="width:50px;margin:0 auto;background:#aaa;"></div>
+          <div class="wf-block medium" style="background:#ccc;border-radius:8px;"></div>
+        </div>
+      </div>
+      <div class="wf-label">Login /<br>Registrierung</div>
+    </div>
+
+    <div class="wf-arrow">→</div>
+
+    <!-- Screen 3: Home -->
+    <div class="wf-item">
+      <div class="wf-screen-num">3</div>
+      <div class="phone-wf">
+        <div class="notch"></div>
+        <div style="background:#333;padding:8px 8px 10px;">
+          <div class="wf-block short" style="width:80px;background:#666;margin-bottom:6px;"></div>
+          <div class="wf-block short" style="width:110px;background:#555;height:7px;"></div>
+          <div class="wf-block medium" style="background:#444;border-radius:6px;margin-top:8px;"></div>
+        </div>
+        <div class="wf-body">
+          <div class="wf-row">
+            <div class="wf-block short" style="border-radius:999px;background:#ccc;height:16px;"></div>
+            <div class="wf-block short" style="border-radius:999px;background:#ddd;height:16px;"></div>
+            <div class="wf-block short" style="border-radius:999px;background:#ddd;height:16px;"></div>
+          </div>
+          <div class="wf-card-mini" style="height:70px;">
+            <div class="wf-block accent" style="height:35px;border-radius:3px;"></div>
+            <div class="wf-tag"></div>
+            <div class="wf-tag" style="width:40%;"></div>
+          </div>
+          <div class="wf-card-mini" style="height:70px;">
+            <div class="wf-block" style="height:35px;border-radius:3px;"></div>
+            <div class="wf-tag"></div>
+            <div class="wf-tag" style="width:40%;"></div>
+          </div>
+        </div>
+        <div class="wf-nav-wf">
+          <div class="wf-nav-dot active"></div>
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot"></div>
+        </div>
+      </div>
+      <div class="wf-label">Home /<br>Plätze entdecken</div>
+    </div>
+
+    <div class="wf-arrow">→</div>
+
+    <!-- Screen 4: Buchung -->
+    <div class="wf-item">
+      <div class="wf-screen-num">4</div>
+      <div class="phone-wf">
+        <div class="notch"></div>
+        <div style="background:#555;height:70px;display:flex;align-items:center;justify-content:center;">
+          <div class="wf-block accent" style="width:80%;height:50px;"></div>
+        </div>
+        <div class="wf-body">
+          <div class="wf-block short" style="width:100px;background:#666;"></div>
+          <div class="wf-block short" style="width:75px;height:7px;"></div>
+          <div style="height:4px;"></div>
+          <div class="wf-block short" style="width:50px;background:#aaa;"></div>
+          <div class="wf-row">
+            <div class="wf-block" style="height:32px;border-radius:6px;background:#ccc;"></div>
+            <div class="wf-block" style="height:32px;border-radius:6px;background:#555;"></div>
+            <div class="wf-block" style="height:32px;border-radius:6px;background:#ddd;"></div>
+          </div>
+          <div class="wf-block short" style="width:50px;background:#aaa;"></div>
+          <div class="wf-grid">
+            <div class="wf-block" style="height:22px;border-radius:5px;"></div>
+            <div class="wf-block" style="height:22px;border-radius:5px;background:#C8531A;"></div>
+            <div class="wf-block" style="height:22px;border-radius:5px;background:#ccc;"></div>
+            <div class="wf-block" style="height:22px;border-radius:5px;"></div>
+          </div>
+          <div class="wf-block medium dark" style="border-radius:8px;margin-top:4px;"></div>
+        </div>
+        <div class="wf-nav-wf">
+          <div class="wf-nav-dot active"></div>
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot"></div>
+        </div>
+      </div>
+      <div class="wf-label">Platz buchen /<br>Zeitslot wählen</div>
+    </div>
+
+    <div class="wf-arrow">→</div>
+
+    <!-- Screen 5: Bestätigung -->
+    <div class="wf-item">
+      <div class="wf-screen-num">5</div>
+      <div class="phone-wf">
+        <div class="notch"></div>
+        <div class="wf-body" style="align-items:center;justify-content:center;padding-top:20px;">
+          <div class="wf-circle" style="background:#c8e6c9;border:2px dashed #aaa;width:50px;height:50px;"></div>
+          <div class="wf-block short" style="width:90px;background:#555;margin-top:8px;"></div>
+          <div class="wf-block short" style="width:110px;height:7px;"></div>
+          <div style="height:8px;"></div>
+          <div style="width:100%;border:1.5px dashed #ccc;border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:5px;">
+            <div class="wf-row"><div class="wf-block short" style="width:50%;"></div><div class="wf-block short" style="width:35%;background:#888;"></div></div>
+            <div class="wf-row"><div class="wf-block short" style="width:40%;"></div><div class="wf-block short" style="width:45%;background:#888;"></div></div>
+            <div class="wf-row"><div class="wf-block short" style="width:45%;"></div><div class="wf-block short" style="width:30%;background:#888;"></div></div>
+          </div>
+          <div style="height:8px;"></div>
+          <div class="wf-block medium dark" style="border-radius:8px;width:100%;"></div>
+          <div class="wf-block medium" style="border-radius:8px;width:100%;background:#ccc;"></div>
+        </div>
+        <div class="wf-nav-wf">
+          <div class="wf-nav-dot active"></div>
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot"></div>
+        </div>
+      </div>
+      <div class="wf-label">Bestätigung /<br>Freunde einladen</div>
+    </div>
+
+    <div class="wf-arrow">→</div>
+
+    <!-- Screen 6: Profil -->
+    <div class="wf-item">
+      <div class="wf-screen-num">6</div>
+      <div class="phone-wf">
+        <div class="notch"></div>
+        <div style="background:#333;padding:12px 8px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="wf-circle" style="width:44px;height:44px;background:#C8531A;"></div>
+          <div class="wf-block short" style="width:70px;background:#666;"></div>
+          <div class="wf-block short" style="width:90px;height:7px;background:#555;"></div>
+        </div>
+        <div class="wf-body">
+          <div class="wf-grid" style="grid-template-columns:1fr 1fr 1fr;">
+            <div class="wf-block" style="height:40px;border-radius:7px;display:flex;align-items:center;justify-content:center;"></div>
+            <div class="wf-block" style="height:40px;border-radius:7px;"></div>
+            <div class="wf-block" style="height:40px;border-radius:7px;"></div>
+          </div>
+          <div class="wf-block medium" style="border-radius:8px;"></div>
+          <div class="wf-block medium" style="border-radius:8px;"></div>
+          <div class="wf-block medium" style="border-radius:8px;"></div>
+          <div class="wf-block medium" style="border-radius:8px;background:#ccc;"></div>
+        </div>
+        <div class="wf-nav-wf">
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot"></div>
+          <div class="wf-nav-dot active"></div>
+        </div>
+      </div>
+      <div class="wf-label">Profil /<br>Meine Buchungen</div>
+    </div>
+
+  </div><!-- /wf-flow -->
+
+  <!-- Flow description -->
+  <div style="max-width:860px;margin:32px auto 0;background:#fff;border-radius:16px;padding:24px 28px;
+    box-shadow:0 4px 16px rgba(0,0,0,.06);display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <h3 style="font-size:15px;margin-bottom:12px;color:var(--c4);">Navigationsfluss</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--c3);">
+        <div>① Splash → ② Login / Registrierung</div>
+        <div>② Login → ③ Home (bei Erfolg)</div>
+        <div>③ Home → ④ Platz buchen (Karte antippen)</div>
+        <div>④ Buchung → ⑤ Bestätigung (Bestätigen-Button)</div>
+        <div>⑤ Bestätigung → ③ Home <em>oder</em> Freunde einladen</div>
+        <div>Bottom Nav → ③ Home / ⑥ Profil (jederzeit)</div>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size:15px;margin-bottom:12px;color:var(--c4);">Verwendete Designelemente</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--c3);">
+        <div>Schrift: <strong>Marcellus</strong> (Überschriften) + <strong>Mulish</strong> (Text)</div>
+        <div>Primärfarbe: <span style="color:var(--c4);font-weight:700;">#1E2A38</span> (Dunkelblau)</div>
+        <div>Akzentfarbe: <span style="color:var(--bot);font-weight:700;">#C8531A</span> (Terrakotta)</div>
+        <div>Hintergrund: <span style="font-weight:700;">#F7F8FA</span> (Hellgrau)</div>
+        <div>Border: <span style="font-weight:700;">#DDE3EA</span> (Bläulich)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 2 — MOCKUP + CLICKDUMMY
+═══════════════════════════════════════════════ -->
+<div id="tab-mockup" class="section">
+  <div style="text-align:center;margin-bottom:6px;"><span class="badge">Mockup & Clickdummy · High-Fidelity</span></div>
+  <h2 class="section-title">PlatzFrei – Interaktiver Prototyp</h2>
+  <p class="section-sub">Tippe auf Buttons, Karten und die Navigationsleiste — alle Screens sind klickbar verbunden</p>
+
+  <div class="mockup-center">
+
+    <!-- LEFT: Flow Map -->
+    <div class="mockup-sidebar">
+      <div class="flow-card">
+        <h3>SCREEN-FLOW</h3>
+        <div class="flow-step current" id="step-s1" onclick="goTo('s1')">
+          <div class="step-num">1</div><div class="step-name">Splash</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step" id="step-s2" onclick="goTo('s2')">
+          <div class="step-num">2</div><div class="step-name">Login</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step" id="step-s3" onclick="goTo('s3')">
+          <div class="step-num">3</div><div class="step-name">Home</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step" id="step-s4" onclick="goTo('s4')">
+          <div class="step-num">4</div><div class="step-name">Platz buchen</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step" id="step-s5" onclick="goTo('s5')">
+          <div class="step-num">5</div><div class="step-name">Bestätigung</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step" id="step-s6" onclick="goTo('s6')">
+          <div class="step-num">6</div><div class="step-name">Freunde einladen</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step" id="step-s7" onclick="goTo('s7')">
+          <div class="step-num">7</div><div class="step-name">Profil</div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>DESIGN SYSTEM</h3>
+        <p>Schriften</p>
+        <div style="display:flex;gap:5px;margin:6px 0 10px;flex-wrap:wrap;">
+          <span class="font-tag" style="font-family:'Marcellus',serif;">Marcellus</span>
+          <span class="font-tag">Mulish</span>
+        </div>
+        <p>Farben</p>
+        <div class="design-row">
+          <div class="color-dot" style="background:#1E2A38;" title="#1E2A38"></div>
+          <div class="color-dot" style="background:#46566B;" title="#46566B"></div>
+          <div class="color-dot" style="background:#8896A6;" title="#8896A6"></div>
+          <div class="color-dot" style="background:#C8531A;" title="#C8531A"></div>
+          <div class="color-dot" style="background:#DDE3EA;border:1px solid #ccc;" title="#DDE3EA"></div>
+          <div class="color-dot" style="background:#F7F8FA;border:1px solid #ccc;" title="#F7F8FA"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: Phone Mockup -->
+    <div class="phone-shell">
+      <div class="phone-screen-wrap">
+
+        <!-- S1: SPLASH -->
+        <div class="app-screen active" id="s1">
+          <div class="splash-bg">
+            <div class="splash-logo">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            </div>
+            <div>
+              <div class="splash-h">PlatzFrei</div>
+              <div class="splash-sub">Die smarte Buchungslösung<br>für Sportanlagen</div>
+            </div>
+            <div style="width:100%;display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+              <button class="btn-primary" onclick="goTo('s2')">Jetzt loslegen</button>
+              <button class="btn-secondary" onclick="goTo('s2')">Ich habe schon ein Konto</button>
+            </div>
+            <div style="font-size:11px;color:rgba(255,255,255,.3);text-align:center;margin-top:8px;">
+              Durch Fortfahren stimmst du unseren<br>Nutzungsbedingungen zu.
+            </div>
+          </div>
+        </div>
+
+        <!-- S2: LOGIN -->
+        <div class="app-screen" id="s2">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
+          </div>
+          <div class="screen-pad">
+            <div class="screen-logo-sm">
+              <div class="mark-sm"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+              <span>PlatzFrei</span>
+            </div>
+            <div class="form-title">Willkommen zurück</div>
+            <div class="form-sub">Melde dich an, um Plätze zu buchen</div>
+            <div style="height:8px;"></div>
+            <div class="input-group">
+              <label>E-Mail</label>
+              <input class="app-input" type="email" placeholder="deine@email.de" value="max.mustermann@email.de">
+            </div>
+            <div class="input-group">
+              <label>Passwort</label>
+              <input class="app-input" type="password" placeholder="••••••••" value="password">
+            </div>
+            <div style="text-align:right;"><button class="link-btn">Passwort vergessen?</button></div>
+            <button class="btn-primary" style="background:var(--c4);" onclick="goTo('s3')">Anmelden</button>
+            <div class="divider">oder</div>
+            <button class="btn-primary" onclick="goTo('s3')">Neu registrieren</button>
+            <div style="flex:1;"></div>
+          </div>
+        </div>
+
+        <!-- S3: HOME -->
+        <div class="app-screen" id="s3">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
+          </div>
+          <div class="home-header">
+            <h2>Guten Morgen, Johan!</h2>
+            <p>Was spielst du heute?</p>
+            <div class="search-bar">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span>Sportanlage suchen…</span>
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-chip active">Alle</div>
+            <div class="filter-chip">Tennis</div>
+            <div class="filter-chip">Fußball</div>
+            <div class="filter-chip">Badminton</div>
+          </div>
+          <div class="cards-list">
+            <div class="place-card" onclick="goTo('s4')">
+              <div class="place-img">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                <div class="place-badge">Verfügbar</div>
+              </div>
+              <div class="place-info">
+                <h4>Tennisanlage Westpark</h4>
+                <div class="place-meta">
+                  <span><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>1.2 km entfernt</span>
+                  <span>★ 4.8</span>
+                </div>
+                <div class="place-footer">
+                  <div class="chip-avail">3 Plätze frei</div>
+                </div>
+              </div>
+            </div>
+            <div class="place-card" onclick="goTo('s4')">
+              <div class="place-img" style="background:linear-gradient(135deg,#2e4a2e,#1E2A38);">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="21"/><ellipse cx="12" cy="12" rx="5" ry="9"/></svg>
+                <div class="place-badge">Verfügbar</div>
+              </div>
+              <div class="place-info">
+                <h4>Fußballplatz Südpark</h4>
+                <div class="place-meta">
+                  <span><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>0.8 km entfernt</span>
+                  <span>★ 4.6</span>
+                </div>
+                <div class="place-footer">
+                  <div class="chip-avail">1 Platz frei</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="bottom-nav">
+            <button class="bnav-item active" onclick="goTo('s3')">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Home</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s3')">
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
+              <span>Buchungen</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s6')">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Freunde</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s7')">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Profil</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- S4: BUCHUNG -->
+        <div class="app-screen" id="s4">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
+          </div>
+          <div class="app-nav">
+            <button class="back" onclick="goTo('s3')">←</button>
+            <div class="title">Platz buchen</div>
+          </div>
+          <div class="detail-img">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          </div>
+          <div class="detail-body">
+            <div>
+              <div class="detail-title">Tennisanlage Westpark</div>
+              <div class="detail-row">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                Westparkstraße 12, München · 1.2 km
+              </div>
+            </div>
+            <div>
+              <div class="section-label">Datum wählen</div>
+              <div class="date-row" style="margin-top:8px;">
+                <div class="date-chip"><div class="day">Mo</div><div class="num">25</div></div>
+                <div class="date-chip active"><div class="day">Di</div><div class="num">26</div></div>
+                <div class="date-chip"><div class="day">Mi</div><div class="num">27</div></div>
+                <div class="date-chip"><div class="day">Do</div><div class="num">28</div></div>
+                <div class="date-chip"><div class="day">Fr</div><div class="num">29</div></div>
+              </div>
+            </div>
+            <div>
+              <div class="section-label">Uhrzeit wählen</div>
+              <div class="time-grid" style="margin-top:8px;">
+                <div class="time-chip taken">08:00</div>
+                <div class="time-chip taken">09:00</div>
+                <div class="time-chip">10:00</div>
+                <div class="time-chip active">11:00</div>
+                <div class="time-chip">12:00</div>
+                <div class="time-chip">13:00</div>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="goTo('s5')">Jetzt buchen</button>
+          </div>
+        </div>
+
+        <!-- S5: BESTÄTIGUNG -->
+        <div class="app-screen" id="s5">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
+          </div>
+          <div class="confirm-center">
+            <div class="confirm-icon">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="confirm-title">Buchung bestätigt!</div>
+            <div class="confirm-sub">Dein Platz ist reserviert. Wir haben dir eine Bestätigung per E-Mail geschickt.</div>
+            <div class="booking-card">
+              <div class="booking-row">
+                <span class="key">Anlage</span>
+                <span class="val">Tennisanlage Westpark</span>
+              </div>
+              <div style="height:1px;background:var(--line);"></div>
+              <div class="booking-row">
+                <span class="key">Datum</span>
+                <span class="val">Di, 26. Jun 2026</span>
+              </div>
+              <div class="booking-row">
+                <span class="key">Uhrzeit</span>
+                <span class="val">11:00 – 12:00 Uhr</span>
+              </div>
+              <div class="booking-row">
+                <span class="key">Platz</span>
+                <span class="val">Platz 3</span>
+              </div>
+              <div style="height:1px;background:var(--line);"></div>
+            </div>
+            <button class="invite-btn" onclick="goTo('s6')">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Freunde einladen
+            </button>
+            <button class="link-btn" onclick="goTo('s3')">Zurück zur Startseite</button>
+          </div>
+        </div>
+
+        <!-- S6: FREUNDE -->
+        <div class="app-screen" id="s6">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
+          </div>
+          <div class="app-nav">
+            <button class="back" onclick="goTo('s5')">←</button>
+            <div class="title">Freunde einladen</div>
+          </div>
+          <div style="padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:12px;">
+            <div style="background:var(--c0);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--c3);">
+              <strong>Di, 26. Jun · 11:00 Uhr</strong><br>
+              <span style="color:var(--c2);">Tennisanlage Westpark · Platz 3</span>
+            </div>
+            <div class="friends-list">
+              <div class="friend-item">
+                <div class="avatar">L</div>
+                <div><div class="friend-name">Lisa Müller</div><div class="friend-sub">@lisa.m</div></div>
+                <button class="invite-toggle on">✓</button>
+              </div>
+              <div class="friend-item">
+                <div class="avatar" style="background:var(--bot);">T</div>
+                <div><div class="friend-name">Tom Schneider</div><div class="friend-sub">@tomschn</div></div>
+                <button class="invite-toggle on">✓</button>
+              </div>
+              <div class="friend-item">
+                <div class="avatar" style="background:#46566B;">A</div>
+                <div><div class="friend-name">Anna Koch</div><div class="friend-sub">@anna.k</div></div>
+                <button class="invite-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off');this.textContent=this.classList.contains('on')?'✓':'+'">+</button>
+              </div>
+              <div class="friend-item">
+                <div class="avatar" style="background:#8896A6;">J</div>
+                <div><div class="friend-name">Jonas Weber</div><div class="friend-sub">@j.weber</div></div>
+                <button class="invite-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off');this.textContent=this.classList.contains('on')?'✓':'+'">+</button>
+              </div>
+            </div>
+            <div style="margin-top:auto;">
+              <button class="btn-primary" onclick="goTo('s3')">Einladungen senden (2)</button>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <button class="bnav-item" onclick="goTo('s3')">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Home</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s3')">
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
+              <span>Buchungen</span>
+            </button>
+            <button class="bnav-item active">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Freunde</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s7')">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Profil</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- S7: PROFIL -->
+        <div class="app-screen" id="s7">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
+          </div>
+          <div class="profil-header">
+            <div class="profil-avatar">M</div>
+            <div class="profil-name">Max Mustermann</div>
+            <div class="profil-email">max.mustermann@email.de</div>
+          </div>
+          <div class="profil-body">
+            <div class="stats-row">
+              <div class="stat-box"><div class="stat-num">14</div><div class="stat-lbl">Buchungen</div></div>
+              <div class="stat-box"><div class="stat-num">6</div><div class="stat-lbl">Freunde</div></div>
+              <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">Gruppen</div></div>
+            </div>
+            <div class="menu-item">
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg>
+              <div><div class="menu-label">Meine Buchungen</div><div class="menu-sub">14 aktive Buchungen</div></div>
+              <span class="arrow">›</span>
+            </div>
+            <div class="menu-item">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <div><div class="menu-label">Freunde & Gruppen</div><div class="menu-sub">6 Freunde · 3 Gruppen</div></div>
+              <span class="arrow">›</span>
+            </div>
+            <div class="menu-item">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div><div class="menu-label">Konto bearbeiten</div><div class="menu-sub">Name, E-Mail, Passwort</div></div>
+              <span class="arrow">›</span>
+            </div>
+            <div class="menu-item" style="border-color:#fde0d6;">
+              <svg viewBox="0 0 24 24" style="stroke:var(--bot);"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              <div><div class="menu-label" style="color:var(--bot);">Abmelden</div></div>
+              <span class="arrow" style="color:var(--bot);">›</span>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <button class="bnav-item" onclick="goTo('s3')">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Home</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s3')">
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
+              <span>Buchungen</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s6')">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Freunde</span>
+            </button>
+            <button class="bnav-item active">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Profil</span>
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /phone-screen-wrap -->
+    </div><!-- /phone-shell -->
+
+    <!-- RIGHT: Info -->
+    <div class="mockup-sidebar">
+      <div class="flow-card">
+        <h3>AKTUELLER SCREEN</h3>
+        <div id="screen-desc" style="font-size:13px;color:var(--c3);line-height:1.6;">
+          Splash-Screen — App-Start, Weiterleitung zu Login oder Registrierung.
+        </div>
+        <div style="height:12px;"></div>
+        <h3>INTERAKTIONEN</h3>
+        <div id="screen-actions" style="font-size:12px;color:var(--c2);line-height:1.8;">
+          • "Jetzt loslegen" → Login<br>
+          • "Ich habe schon ein Konto" → Login
+        </div>
+      </div>
+      <div class="info-card" style="margin-top:14px;">
+        <h3>HINWEIS</h3>
+        <p>Alle Screens sind im Clickdummy miteinander verbunden. Nutze den Flow-Navigator links oder klicke direkt in der App.</p>
+      </div>
+    </div>
+
+  </div><!-- /mockup-center -->
+</div>
+
+<script>
+const screenMeta = {
+  s1:{label:'Splash / Onboarding',desc:'Splash-Screen — App-Start, Weiterleitung zu Login oder Registrierung.',actions:'• "Jetzt loslegen" → Login\n• "Ich habe schon ein Konto" → Login'},
+  s2:{label:'Login / Registrierung',desc:'Login-Formular mit E-Mail und Passwort. Auch Registrierung möglich.',actions:'• "Anmelden" → Home\n• "Neu registrieren" → Home'},
+  s3:{label:'Home – Plätze entdecken',desc:'Übersicht verfügbarer Sportanlagen mit Filter und Suche.',actions:'• Karte antippen → Buchung\n• Bottom Nav → andere Screens'},
+  s4:{label:'Platz buchen',desc:'Detailansicht einer Anlage mit Datumsauswahl und Zeitslots.',actions:'• Datum / Uhrzeit wählen\n• "Jetzt buchen" → Bestätigung\n• ← → Home'},
+  s5:{label:'Buchungsbestätigung',desc:'Erfolgsmeldung mit Buchungsdetails nach abgeschlossener Reservierung.',actions:'• "Freunde einladen" → Freunde\n• "Zurück zur Startseite" → Home'},
+  s6:{label:'Freunde einladen',desc:'Kontaktliste zum Einladen von Freunden zur aktuellen Buchung.',actions:'• Freunde aus- / abwählen\n• "Einladungen senden" → Home\n• ← → Bestätigung'},
+  s7:{label:'Profil',desc:'Nutzerprofil mit Statistiken, Buchungsübersicht und Einstellungen.',actions:'• Bottom Nav → Home / Freunde\n• Menüpunkte → Unterseiten'},
+};
+
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function goTo(id){
+  document.querySelectorAll('.app-screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.flow-step').forEach(s=>s.classList.remove('current'));
+  document.getElementById(id).classList.add('active');
+  const step = document.getElementById('step-'+id);
+  if(step) step.classList.add('current');
+  const m = screenMeta[id];
+  if(m){
+    document.getElementById('screen-desc').textContent = m.desc;
+    document.getElementById('screen-actions').innerHTML = m.actions.replace(/\n/g,'<br>');
+  }
+}
+</script>
+</body>
+</html>
