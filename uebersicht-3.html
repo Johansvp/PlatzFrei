@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlatzFrei Übersicht</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --c0:#F7F8FA;--c1:#DDE3EA;--c2:#8896A6;--c3:#46566B;--c4:#1E2A38;
+      --bot:#C8531A;--line:#DDE3EA;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Mulish',sans-serif;color:var(--c3);line-height:1.6;
+      background:var(--c0);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 18px;}
+    h1,h2,h3{font-family:'Marcellus',serif;font-weight:400;line-height:1.15;}
+    .wrap{max-width:760px;width:100%;}
+
+    .head{text-align:center;margin-bottom:36px;}
+    .mark{width:72px;height:72px;border-radius:20px;margin:0 auto 18px;
+      background:linear-gradient(160deg,var(--c3),var(--c4));display:flex;align-items:center;justify-content:center;
+      box-shadow:0 12px 30px rgba(30,42,56,.22);}
+    .mark svg{width:38px;height:38px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+    .head h1{font-size:40px;letter-spacing:.02em;color:var(--c4);}
+    .head .sub{color:var(--c2);font-size:16px;margin-top:8px;}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    .card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--line);
+      border-radius:18px;padding:26px;box-shadow:0 6px 18px rgba(30,42,56,.07);transition:transform .15s,box-shadow .15s;}
+    .card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(30,42,56,.13);}
+    .card .ic{width:42px;height:42px;border-radius:12px;background:var(--c4);
+      display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+    .card .ic svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+    .card h3{font-size:21px;margin-bottom:6px;color:var(--c4);}
+    .card p{font-size:14px;color:var(--c2);}
+    .card .go{margin-top:14px;font-family:'Marcellus',serif;color:var(--bot);font-size:15px;}
+
+    .soon{opacity:.55;pointer-events:none;}
+    .soon .tag{display:inline-block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--c2);background:var(--c1);border:1px solid var(--line);border-radius:999px;padding:3px 10px;margin-top:12px;}
+
+    .foot{text-align:center;color:var(--c2);font-size:12.5px;margin-top:30px;}
+    @media(max-width:560px){.grid{grid-template-columns:1fr;}.head h1{font-size:32px;}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div class="mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      </div>
+      <h1>PlatzFrei</h1>
+      <p class="sub">Die smarte Buchungslösung für Sportanlagen. Projektübersicht.</p>
+    </div>
+
+    <div class="grid">
+      <a class="card" href="https://johansvp.github.io/PlatzFrei/">
+        <div class="ic">
+          <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg>
+        </div>
+        <h3>App Prototyp</h3>
+        <p>Die klickbare Smartphone-App: anmelden, Platz buchen, Freunde einladen, Gruppen, Chat und Profil.</p>
+        <div class="go">App öffnen →</div>
+      </a>
+
+      <a class="card" href="https://johansvp.github.io/PlatzFrei/website/">
+        <div class="ic">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>
+        </div>
+        <h3>Website</h3>
+        <p>Die Marketing-Website mit Hero, Features, Kontakt und Rechtlichem.</p>
+        <div class="go">Website öffnen →</div>
+      </a>
+
+      <a class="card" href="https://johansvp.github.io/PlatzFrei/landingpage/">
+        <div class="ic">
+          <svg viewBox="0 0 24 24"><path d="M4 11l8-6.5L20 11"/><path d="M6 9.6V20h12V9.6"/></svg>
+        </div>
+        <h3>Landingpage</h3>
+        <p>Das Werbemittel für PlatzFrei, das Nutzer direkt zur App führt.</p>
+        <div class="go">Landingpage öffnen →</div>
+      </a>
+
+      <a class="card" href="https://johansvp.github.io/PlatzFrei/konzept.html">
+        <div class="ic">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>
+        </div>
+        <h3>Backend Konzept</h3>
+        <p>Datenmodell, Architektur und API des echten Systems dahinter.</p>
+        <div class="go">Konzept öffnen →</div>
+      </a>
+    </div>
+
+    <p class="foot">Klickbarer Prototyp · Daten werden lokal im Browser gespeichert (Demo)</p>
+  </div>
+</body>
+</html>
