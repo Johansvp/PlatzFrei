@@ -517,33 +517,33 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
     <!-- LEFT: Flow Map -->
     <div class="mockup-sidebar">
       <div class="flow-card">
-        <h3>SCREEN-FLOW</h3>
-        <div class="flow-step current" id="step-s1" onclick="goTo('s1')">
-          <div class="step-num">1</div><div class="step-name">Splash</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-step" id="step-s2" onclick="goTo('s2')">
-          <div class="step-num">2</div><div class="step-name">Login</div>
+        <h3>BUCHUNGS-FLOW</h3>
+        <div class="flow-step current" id="step-s2" onclick="goTo('s2')">
+          <div class="step-num">1</div><div class="step-name">Anmeldung</div>
         </div>
         <div class="flow-line"></div>
         <div class="flow-step" id="step-s3" onclick="goTo('s3')">
-          <div class="step-num">3</div><div class="step-name">Home</div>
+          <div class="step-num">2</div><div class="step-name">Home</div>
         </div>
         <div class="flow-line"></div>
         <div class="flow-step" id="step-s4" onclick="goTo('s4')">
-          <div class="step-num">4</div><div class="step-name">Platz buchen</div>
+          <div class="step-num">3</div><div class="step-name">Platz buchen</div>
         </div>
         <div class="flow-line"></div>
         <div class="flow-step" id="step-s5" onclick="goTo('s5')">
-          <div class="step-num">5</div><div class="step-name">Bestätigung</div>
+          <div class="step-num">4</div><div class="step-name">Bestätigung</div>
         </div>
         <div class="flow-line"></div>
         <div class="flow-step" id="step-s6" onclick="goTo('s6')">
-          <div class="step-num">6</div><div class="step-name">Freunde einladen</div>
+          <div class="step-num">5</div><div class="step-name">Freunde einladen</div>
         </div>
         <div class="flow-line"></div>
         <div class="flow-step" id="step-s7" onclick="goTo('s7')">
-          <div class="step-num">7</div><div class="step-name">Profil</div>
+          <div class="step-num">6</div><div class="step-name">Profil</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-step" id="step-s1" onclick="goTo('s1')" style="opacity:.5;">
+          <div class="step-num">↩</div><div class="step-name">Splash / Intro</div>
         </div>
       </div>
 
@@ -571,7 +571,7 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
       <div class="phone-screen-wrap">
 
         <!-- S1: SPLASH -->
-        <div class="app-screen active" id="s1">
+        <div class="app-screen" id="s1">
           <div class="splash-bg">
             <div class="splash-logo">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
@@ -591,7 +591,7 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
         </div>
 
         <!-- S2: LOGIN -->
-        <div class="app-screen" id="s2">
+        <div class="app-screen active" id="s2">
           <div class="status-bar">
             <span class="time">9:41</span>
             <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
@@ -908,13 +908,13 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
       <div class="flow-card">
         <h3>AKTUELLER SCREEN</h3>
         <div id="screen-desc" style="font-size:13px;color:var(--c3);line-height:1.6;">
-          Splash-Screen — App-Start, Weiterleitung zu Login oder Registrierung.
+          ① Anmeldung — E-Mail und Passwort eingeben oder neu registrieren.
         </div>
         <div style="height:12px;"></div>
         <h3>INTERAKTIONEN</h3>
         <div id="screen-actions" style="font-size:12px;color:var(--c2);line-height:1.8;">
-          • "Jetzt loslegen" → Login<br>
-          • "Ich habe schon ein Konto" → Login
+          • "Anmelden" → Home<br>
+          • "Neu registrieren" → Home
         </div>
       </div>
       <div class="info-card" style="margin-top:14px;">
