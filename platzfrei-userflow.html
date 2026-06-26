@@ -6,417 +6,738 @@
 <title>PlatzFrei – User Flow</title>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --c0:#F7F8FA;--c1:#DDE3EA;--c2:#8896A6;--c3:#46566B;--c4:#1E2A38;--bot:#C8531A;
-}
+:root{--c0:#F7F8FA;--c1:#DDE3EA;--c2:#8896A6;--c3:#46566B;--c4:#1E2A38;--bot:#C8531A;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Mulish',sans-serif;background:#e8eaed;min-height:100vh;}
-
-.hdr{background:var(--c4);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;}
-.hdr h1{font-family:'Marcellus',serif;color:#fff;font-size:20px;}
+body{font-family:'Mulish',sans-serif;background:#d8dce2;min-height:100vh;}
+.hdr{background:var(--c4);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:999;}
+.hdr h1{font-family:'Marcellus',serif;color:#fff;font-size:19px;}
 .hdr h1 span{color:var(--bot);}
-.hdr p{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px;}
+.hdr-right{display:flex;align-items:center;gap:16px;}
 .hdr-badge{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:11px;font-weight:600;padding:5px 14px;border-radius:999px;}
+.legend{display:flex;gap:14px;align-items:center;}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.6);}
+.leg-line{width:24px;height:2px;}
 
-/* Scrollable canvas */
-.canvas{overflow:auto;padding:48px 60px 80px;}
-.diagram{position:relative;width:1060px;height:920px;}
+/* Canvas */
+.canvas{overflow:auto;padding:60px 60px 100px;}
+.diagram{position:relative;width:1900px;height:840px;}
 
-/* Phone wrapper – scaled down */
-.phone-wrap{position:absolute;width:176px;height:352px;}
-.phone-wrap .scale-inner{
-  width:320px;height:640px;
-  transform:scale(0.55);
-  transform-origin:top left;
-}
-.phone-shell{background:#0d0d0d;border-radius:44px;padding:10px;
-  box-shadow:0 20px 50px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.08);}
-.phone-screen{border-radius:34px;overflow:hidden;height:620px;background:var(--c0);display:flex;flex-direction:column;}
+/* Phone */
+.pw{position:absolute;}
+.pw .si{width:320px;height:620px;transform:scale(0.5);transform-origin:top left;}
+.pw .frame{position:relative;width:160px;height:310px;}
+.pw .shell{background:#111;border-radius:34px;padding:7px;
+  box-shadow:0 16px 40px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.08);}
+.pw .screen{border-radius:28px;overflow:hidden;height:606px;background:var(--c0);display:flex;flex-direction:column;}
+.pw-label{position:absolute;bottom:-26px;left:0;right:0;text-align:center;
+  font-size:10px;font-weight:700;color:var(--c4);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+.pw-num{position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  width:24px;height:24px;border-radius:50%;background:var(--c4);color:#fff;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:5;}
 
-/* Screen label */
-.phone-label{position:absolute;bottom:-28px;left:0;right:0;text-align:center;
-  font-size:11px;font-weight:700;color:var(--c4);letter-spacing:.04em;text-transform:uppercase;}
-.step-circle{position:absolute;top:-14px;left:50%;transform:translateX(-50%);
-  width:26px;height:26px;border-radius:50%;background:var(--c4);color:#fff;
-  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:10;}
-
-/* ── SCREEN STYLES (copied & scaled) ── */
-.sb{height:34px;background:var(--c4);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;}
+/* Shared screen elements */
+.sb{height:32px;background:var(--c4);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;}
 .sb .t{color:#fff;font-size:12px;font-weight:700;}
-.sb .ic{color:rgba(255,255,255,.7);font-size:10px;}
+.sb .ic{color:rgba(255,255,255,.6);font-size:10px;}
 .anav{background:var(--c4);padding:8px 14px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.anav .bk{background:rgba(255,255,255,.12);color:#fff;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.anav .bk{background:rgba(255,255,255,.12);color:#fff;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
 .anav .tt{font-family:'Marcellus',serif;color:#fff;font-size:14px;}
-.bnav{height:56px;background:#fff;border-top:1px solid var(--c1);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;margin-top:auto;}
+.bnav{height:54px;background:#fff;border-top:1px solid var(--c1);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;margin-top:auto;}
 .bni{display:flex;flex-direction:column;align-items:center;gap:2px;}
 .bni svg{width:20px;height:20px;fill:none;stroke:var(--c2);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
 .bni span{font-size:9px;color:var(--c2);}
 .bni.on svg{stroke:var(--bot);}
 .bni.on span{color:var(--bot);font-weight:700;}
-.scr{flex:1;overflow:hidden;}
+
+/* Reusable atoms */
+.btn{border-radius:13px;padding:14px;text-align:center;font-size:15px;font-weight:700;}
+.inp{background:#fff;border:1.5px solid var(--c1);border-radius:12px;padding:13px 16px;font-size:14px;color:var(--c3);}
+.lbl{font-size:11px;font-weight:700;color:var(--c3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.card{background:#fff;border:1px solid var(--c1);border-radius:16px;overflow:hidden;}
+
+/* Group headers */
+.group-label{position:absolute;top:-36px;left:0;font-size:10px;font-weight:700;color:var(--c2);
+  text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;}
+.group-box{position:absolute;border:1.5px dashed #b0b8c4;border-radius:16px;background:rgba(255,255,255,.15);}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div>
-    <h1>Platz<span>Frei</span> — User Flow</h1>
-    <p>Alle Screens verbunden nach Navigationsfluss · Linien zeigen Klickverbindungen</p>
+  <h1>Platz<span>Frei</span> &nbsp;—&nbsp; User Flow</h1>
+  <div class="hdr-right">
+    <div class="legend">
+      <div class="leg"><div class="leg-line" style="background:#1E2A38;height:2.5px;"></div>Hauptfluss</div>
+      <div class="leg"><div class="leg-line" style="background:#C8531A;height:2px;border-top:2px dashed #C8531A;"></div>Rücknavigation / Alternativ</div>
+      <div class="leg"><div class="leg-line" style="background:#2e7d32;height:2px;"></div>Automatisch (System)</div>
+      <div class="leg"><div class="leg-line" style="background:#8896A6;height:1.5px;stroke-dasharray:4;border-top:1.5px dashed #8896A6;"></div>Bottom Nav</div>
+    </div>
+    <span class="hdr-badge">Alle App-Screens · Links → Rechts</span>
   </div>
-  <span class="hdr-badge">Wireframe · Clickdummy · Flow</span>
 </div>
 
 <div class="canvas">
 <div class="diagram">
 
-<!-- ══════════════ SVG ARROWS ══════════════ -->
-<svg style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;" xmlns="http://www.w3.org/2000/svg">
+<!-- GROUP BACKGROUNDS -->
+<div class="group-box" style="left:20px;top:50px;width:185px;height:720px;"></div>
+<span class="group-label" style="left:20px;top:14px;">ONBOARDING</span>
+
+<div class="group-box" style="left:225px;top:50px;width:185px;height:720px;"></div>
+<span class="group-label" style="left:225px;top:14px;">ANMELDUNG</span>
+
+<div class="group-box" style="left:430px;top:50px;width:185px;height:400px;"></div>
+<span class="group-label" style="left:430px;top:14px;">HOME</span>
+
+<div class="group-box" style="left:635px;top:50px;width:185px;height:720px;"></div>
+<span class="group-label" style="left:635px;top:14px;">BUCHUNG</span>
+
+<div class="group-box" style="left:840px;top:50px;width:185px;height:720px;"></div>
+<span class="group-label" style="left:840px;top:14px;">BESTÄTIGUNG</span>
+
+<div class="group-box" style="left:1045px;top:50px;width:185px;height:720px;"></div>
+<span class="group-label" style="left:1045px;top:14px;">EINLADUNG</span>
+
+<div class="group-box" style="left:1250px;top:50px;width:185px;height:720px;"></div>
+<span class="group-label" style="left:1250px;top:14px;">HOMESCREEN-UPDATE</span>
+
+<div class="group-box" style="left:1455px;top:50px;width:185px;height:720px;"></div>
+<span class="group-label" style="left:1455px;top:14px;">STORNIERUNG</span>
+
+<div class="group-box" style="left:1660px;top:50px;width:210px;height:720px;"></div>
+<span class="group-label" style="left:1660px;top:14px;">PROFIL</span>
+
+<!-- SVG ARROWS -->
+<svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- solid arrow (Hauptfluss) -->
-    <marker id="ah" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-      <polygon points="0 0, 9 3.5, 0 7" fill="#1E2A38"/>
-    </marker>
-    <!-- dashed arrow (Rücknavigation) -->
-    <marker id="ab" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-      <polygon points="0 0, 9 3.5, 0 7" fill="#8896A6"/>
-    </marker>
-    <!-- orange arrow (Bottom Nav) -->
-    <marker id="ao" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-      <polygon points="0 0, 9 3.5, 0 7" fill="#C8531A"/>
-    </marker>
+    <marker id="mA" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#1E2A38"/></marker>
+    <marker id="mB" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#C8531A"/></marker>
+    <marker id="mC" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#2e7d32"/></marker>
+    <marker id="mD" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#8896A6"/></marker>
   </defs>
 
-  <!-- ① Login → ② Home  (Anmelden / Registrieren) -->
-  <line x1="196" y1="176" x2="248" y2="176" stroke="#1E2A38" stroke-width="2.2" marker-end="url(#ah)"/>
-  <rect x="196" y="162" width="52" height="16" rx="4" fill="white"/>
-  <text x="222" y="173" font-size="9" fill="#1E2A38" font-family="Mulish" font-weight="700" text-anchor="middle">Anmelden</text>
+  <!-- Splash → Login -->
+  <path d="M 180 205 C 210 205 215 195 225 195" stroke="#1E2A38" stroke-width="2" fill="none" marker-end="url(#mA)"/>
+  <text x="197" y="189" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Anmelden</text>
 
-  <!-- ② Home → ③ Buchung  (Karte tippen) -->
-  <line x1="432" y1="176" x2="484" y2="176" stroke="#1E2A38" stroke-width="2.2" marker-end="url(#ah)"/>
-  <rect x="432" y="162" width="52" height="16" rx="4" fill="white"/>
-  <text x="458" y="173" font-size="9" fill="#1E2A38" font-family="Mulish" font-weight="700" text-anchor="middle">Platz wählen</text>
+  <!-- Splash → Registrieren -->
+  <path d="M 180 490 C 210 490 215 610 225 610" stroke="#1E2A38" stroke-width="2" fill="none" marker-end="url(#mA)"/>
+  <text x="183" y="558" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Registrieren</text>
 
-  <!-- ③ Buchung → ④ Bestätigung  (Jetzt buchen) -->
-  <line x1="668" y1="176" x2="720" y2="176" stroke="#1E2A38" stroke-width="2.2" marker-end="url(#ah)"/>
-  <rect x="668" y="162" width="52" height="16" rx="4" fill="white"/>
-  <text x="694" y="173" font-size="9" fill="#1E2A38" font-family="Mulish" font-weight="700" text-anchor="middle">Buchen</text>
+  <!-- Login → Home -->
+  <path d="M 385 195 C 410 195 415 295 430 295" stroke="#1E2A38" stroke-width="2.2" fill="none" marker-end="url(#mA)"/>
+  <text x="396" y="242" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Anmelden</text>
 
-  <!-- ④ Bestätigung → ⑤ Freunde einladen  (Button) -->
-  <path d="M 816 432 L 816 510 L 668 510 L 668 480" stroke="#1E2A38" stroke-width="2.2" fill="none" marker-end="url(#ah)"/>
-  <rect x="725" y="500" width="70" height="16" rx="4" fill="white"/>
-  <text x="760" y="511" font-size="9" fill="#1E2A38" font-family="Mulish" font-weight="700" text-anchor="middle">Freunde einladen</text>
+  <!-- Register → Home -->
+  <path d="M 385 610 C 410 610 415 345 430 345" stroke="#1E2A38" stroke-width="2.2" fill="none" marker-end="url(#mA)"/>
+  <text x="388" y="475" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Registrieren</text>
 
-  <!-- ⑤ Freunde → ② Home  (Einladungen senden → Startseite) -->
-  <path d="M 492 676 L 370 676 L 370 446 L 344 446 L 344 432" stroke="#8896A6" stroke-width="1.8" fill="none" stroke-dasharray="6,3" marker-end="url(#ab)"/>
-  <rect x="370" y="660" width="80" height="16" rx="4" fill="white"/>
-  <text x="410" y="671" font-size="9" fill="#8896A6" font-family="Mulish" font-weight="600" text-anchor="middle">Senden → Home</text>
+  <!-- Home → Platz buchen -->
+  <path d="M 590 245 C 615 245 620 195 635 195" stroke="#1E2A38" stroke-width="2.2" fill="none" marker-end="url(#mA)"/>
+  <text x="594" y="216" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Platz tippen</text>
 
-  <!-- ④ Bestätigung → ② Home  (Zurück zur Startseite) -->
-  <path d="M 816 80 L 816 44 L 344 44 L 344 80" stroke="#8896A6" stroke-width="1.8" fill="none" stroke-dasharray="6,3" marker-end="url(#ab)"/>
-  <rect x="520" y="34" width="80" height="16" rx="4" fill="white"/>
-  <text x="560" y="45" font-size="9" fill="#8896A6" font-family="Mulish" font-weight="600" text-anchor="middle">Zurück zur Startseite</text>
+  <!-- Home → Profil (Bottom Nav) -->
+  <path d="M 590 380 C 1660 380 1700 155 1720 155" stroke="#8896A6" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#mD)"/>
+  <text x="1100" y="372" font-size="8" fill="#8896A6" font-family="Mulish">Bottom Nav → Profil</text>
 
-  <!-- ③ Buchung → ② Home  (← Zurück-Button) -->
-  <path d="M 492 110 L 492 66 L 432 66" stroke="#8896A6" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#ab)"/>
-  <rect x="438" y="57" width="36" height="14" rx="3" fill="white"/>
-  <text x="456" y="67" font-size="8" fill="#8896A6" font-family="Mulish" text-anchor="middle">← Zurück</text>
+  <!-- Platz buchen → Bestätigung -->
+  <path d="M 795 195 C 820 195 825 195 840 195" stroke="#1E2A38" stroke-width="2.2" fill="none" marker-end="url(#mA)"/>
+  <text x="800" y="188" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Buchen</text>
 
-  <!-- Bottom Nav: ② Home ↔ ⑥ Profil -->
-  <path d="M 344 432 L 344 480" stroke="#C8531A" stroke-width="1.8" fill="none" stroke-dasharray="5,3" marker-end="url(#ao)"/>
-  <rect x="326" y="447" width="36" height="14" rx="3" fill="white"/>
-  <text x="344" y="457" font-size="8" fill="#C8531A" font-family="Mulish" font-weight="700" text-anchor="middle">Profil</text>
+  <!-- Platz buchen → Home (← zurück) -->
+  <path d="M 635 160 C 625 140 600 140 590 155" stroke="#C8531A" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mB)"/>
+  <text x="599" y="135" font-size="8" fill="#C8531A" font-family="Mulish">← Zurück</text>
 
-  <!-- Bottom Nav: ⑥ Profil → ② Home -->
-  <path d="M 308 480 L 308 432" stroke="#C8531A" stroke-width="1.8" fill="none" stroke-dasharray="5,3" marker-end="url(#ao)"/>
-  <text x="293" y="457" font-size="8" fill="#C8531A" font-family="Mulish" font-weight="700" text-anchor="middle">Home</text>
+  <!-- Bestätigung → Freunde einladen (down) -->
+  <path d="M 920 390 C 920 420 920 450 920 470" stroke="#1E2A38" stroke-width="2.2" fill="none" marker-end="url(#mA)"/>
+  <text x="924" y="433" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Freunde einladen</text>
 
-  <!-- Bottom Nav: ⑤ Freunde ↔ ⑥ Profil -->
-  <line x1="492" y1="676" x2="432" y2="676" stroke="#C8531A" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ao)"/>
-  <rect x="432" y="666" width="60" height="14" rx="3" fill="white"/>
-  <text x="462" y="676" font-size="8" fill="#C8531A" font-family="Mulish" font-weight="700" text-anchor="middle">→ Profil</text>
+  <!-- Bestätigung → Home+Buchung (auto: Buchung erscheint auf Home) -->
+  <path d="M 1000 245 C 1025 245 1030 195 1045 195" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#mC)"/>
+  <text x="1004" y="216" font-size="8" fill="#2e7d32" font-family="Mulish" font-weight="700">Buchung → Home</text>
 
-  <!-- Bottom Nav: ⑤ Freunde → ② Home (via bnav) -->
-  <path d="M 580 480 L 580 456 L 520 456 L 520 432" stroke="#C8531A" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#ao)"/>
+  <!-- Freunde einladen → Benachrichtigung Freunde (auto) -->
+  <path d="M 1000 620 C 1025 620 1030 630 1045 630" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#mC)"/>
+  <text x="1000" y="614" font-size="8" fill="#2e7d32" font-family="Mulish" font-weight="700">Auto-Benachrichtigung</text>
 
-  <!-- LEGENDE -->
-  <rect x="20" y="840" width="300" height="58" rx="10" fill="white" stroke="#DDE3EA" stroke-width="1"/>
-  <text x="34" y="858" font-size="10" fill="#46566B" font-family="Mulish" font-weight="700">LEGENDE</text>
-  <line x1="34" y1="868" x2="64" y2="868" stroke="#1E2A38" stroke-width="2.2" marker-end="url(#ah)"/>
-  <text x="70" y="872" font-size="10" fill="#1E2A38" font-family="Mulish">Hauptnavigation (vorwärts)</text>
-  <line x1="34" y1="886" x2="64" y2="886" stroke="#8896A6" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ab)"/>
-  <text x="70" y="890" font-size="10" fill="#8896A6" font-family="Mulish">Rücknavigation</text>
-  <line x1="200" y1="868" x2="230" y2="868" stroke="#C8531A" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ao)"/>
-  <text x="236" y="872" font-size="10" fill="#C8531A" font-family="Mulish">Bottom Navigation</text>
+  <!-- Freunde einladen → Home (Einladungen senden → zurück) -->
+  <path d="M 1045 560 C 1036 540 610 540 600 390" stroke="#C8531A" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mB)"/>
+  <text x="790" y="535" font-size="8" fill="#C8531A" font-family="Mulish">Senden → Home</text>
+
+  <!-- Home+Buchung → Stornierung -->
+  <path d="M 1405 245 C 1430 245 1435 295 1455 295" stroke="#1E2A38" stroke-width="2" fill="none" marker-end="url(#mA)"/>
+  <text x="1408" y="263" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Stornieren</text>
+
+  <!-- Benachrichtigung Freunde → Stornierungsbenachrichtigung (via stornierung) -->
+  <path d="M 1405 630 C 1430 630 1435 630 1455 630" stroke="#8896A6" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mD)"/>
+
+  <!-- Stornierung → Storno-Benachrichtigung an Freunde (auto) -->
+  <path d="M 1610 340 C 1635 340 1640 380 1660 380" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#mC)"/>
+  <text x="1610" y="358" font-size="8" fill="#2e7d32" font-family="Mulish" font-weight="700">Auto-Storno-Benach.</text>
+
+  <!-- Stornierung → Home (bestätigt storniert) -->
+  <path d="M 1535 185 C 1535 120 600 120 590 200" stroke="#C8531A" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mB)"/>
+  <text x="1040" y="115" font-size="8" fill="#C8531A" font-family="Mulish">Storniert → zurück zu Home</text>
+
+  <!-- Profil → Stornierung (via Meine Buchungen) -->
+  <path d="M 1660 295 C 1640 295 1630 295 1610 295" stroke="#8896A6" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mD)"/>
+  <text x="1618" y="288" font-size="7" fill="#8896A6" font-family="Mulish">Buchung stornieren</text>
+
+  <!-- Bottom Nav Home→Freunde -->
+  <path d="M 510 380 C 510 760 1080 760 1080 700" stroke="#8896A6" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#mD)"/>
+  <text x="750" y="774" font-size="7.5" fill="#8896A6" font-family="Mulish">Bottom Nav → Freunde</text>
 </svg>
 
-<!-- ══════════════ SCREENS ══════════════ -->
-
-<!-- ① LOGIN  x=20 y=80 -->
-<div class="phone-wrap" style="left:20px;top:80px;">
-  <div class="step-circle">1</div>
-  <div class="scale-inner">
-    <div class="phone-shell">
-      <div class="phone-screen">
-        <div class="sb"><span class="t">9:41</span><span class="ic">●●● WiFi ⚡</span></div>
-        <div class="scr" style="display:flex;flex-direction:column;padding:28px 22px;gap:16px;background:var(--c0);">
-          <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:4px;">
-            <div style="width:42px;height:42px;border-radius:13px;background:var(--c4);display:flex;align-items:center;justify-content:center;">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+<!-- ══════ SCREEN 1: SPLASH  left=20 top=90 ══════ -->
+<div class="pw" style="left:20px;top:90px;">
+  <div class="pw-num">S</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen" style="background:linear-gradient(160deg,var(--c3),var(--c4));">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;">
+            <div style="width:76px;height:76px;border-radius:22px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
             </div>
-            <span style="font-family:'Marcellus',serif;font-size:26px;color:var(--c4);">PlatzFrei</span>
+            <div style="text-align:center;">
+              <div style="font-family:'Marcellus',serif;font-size:38px;color:#fff;">PlatzFrei</div>
+              <div style="font-size:14px;color:rgba(255,255,255,.55);margin-top:6px;line-height:1.5;">Die smarte Buchungslösung<br>für Sportanlagen</div>
+            </div>
+            <div style="width:100%;display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+              <div class="btn" style="background:var(--bot);color:#fff;">Jetzt loslegen</div>
+              <div class="btn" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);">Ich habe ein Konto</div>
+            </div>
           </div>
-          <div style="font-family:'Marcellus',serif;font-size:22px;color:var(--c4);text-align:center;">Willkommen zurück</div>
-          <div style="font-size:14px;color:var(--c2);text-align:center;">Melde dich an, um Plätze zu buchen</div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <div style="font-size:11px;font-weight:700;color:var(--c3);text-transform:uppercase;letter-spacing:.06em;">E-Mail</div>
-            <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:13px 16px;font-size:15px;color:var(--c4);">max.mustermann@email.de</div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <div style="font-size:11px;font-weight:700;color:var(--c3);text-transform:uppercase;letter-spacing:.06em;">Passwort</div>
-            <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:13px 16px;font-size:15px;color:var(--c4);">••••••••</div>
-          </div>
-          <div style="background:var(--c4);border-radius:14px;padding:14px;text-align:center;color:#fff;font-size:16px;font-weight:700;margin-top:4px;">Anmelden</div>
-          <div style="display:flex;align-items:center;gap:10px;color:var(--c2);font-size:13px;"><div style="flex:1;height:1px;background:var(--c1);"></div>oder<div style="flex:1;height:1px;background:var(--c1);"></div></div>
-          <div style="background:var(--bot);border-radius:14px;padding:14px;text-align:center;color:#fff;font-size:16px;font-weight:700;">Neu registrieren</div>
         </div>
       </div>
     </div>
   </div>
-  <div class="phone-label">Anmeldung</div>
+  <div class="pw-label">Splash / Welcome</div>
 </div>
 
-<!-- ② HOME  x=256 y=80 -->
-<div class="phone-wrap" style="left:256px;top:80px;">
-  <div class="step-circle">2</div>
-  <div class="scale-inner">
-    <div class="phone-shell">
-      <div class="phone-screen">
-        <div class="sb"><span class="t">9:41</span><span class="ic">●●● WiFi ⚡</span></div>
-        <div style="background:var(--c4);padding:14px 18px 18px;flex-shrink:0;">
-          <div style="font-family:'Marcellus',serif;color:#fff;font-size:22px;">Guten Morgen, Johan!</div>
-          <div style="color:rgba(255,255,255,.55);font-size:14px;margin-top:2px;">Was spielst du heute?</div>
-          <div style="margin-top:10px;background:rgba(255,255,255,.12);border-radius:12px;display:flex;align-items:center;gap:8px;padding:10px 14px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <span style="color:rgba(255,255,255,.35);font-size:14px;">Sportanlage suchen…</span>
+<!-- ══════ SCREEN 2: LOGIN  left=225 top=90 ══════ -->
+<div class="pw" style="left:225px;top:90px;">
+  <div class="pw-num">1</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div style="flex:1;padding:26px 22px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px;">
+              <div style="width:38px;height:38px;border-radius:11px;background:var(--c4);display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+              <span style="font-family:'Marcellus',serif;font-size:24px;color:var(--c4);">PlatzFrei</span>
+            </div>
+            <div style="font-family:'Marcellus',serif;font-size:22px;color:var(--c4);text-align:center;">Willkommen zurück</div>
+            <div style="font-size:13px;color:var(--c2);text-align:center;">Melde dich an, um Plätze zu buchen</div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">
+              <div class="lbl">E-Mail</div>
+              <div class="inp">max.mustermann@email.de</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div class="lbl">Passwort</div>
+              <div class="inp">••••••••</div>
+            </div>
+            <div style="text-align:right;font-size:12px;color:var(--bot);font-weight:700;margin-top:-4px;">Passwort vergessen?</div>
+            <div class="btn" style="background:var(--c4);color:#fff;margin-top:4px;">Anmelden</div>
+            <div style="display:flex;align-items:center;gap:10px;color:var(--c2);font-size:12px;"><div style="flex:1;height:1px;background:var(--c1);"></div>oder<div style="flex:1;height:1px;background:var(--c1);"></div></div>
+            <div style="font-size:13px;color:var(--bot);font-weight:700;text-align:center;">Noch kein Konto? Registrieren</div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;padding:10px 14px 6px;overflow:hidden;flex-shrink:0;">
-          <div style="background:var(--c4);border-radius:999px;padding:5px 14px;font-size:12px;font-weight:700;color:#fff;">Alle</div>
-          <div style="background:#fff;border:1px solid var(--c1);border-radius:999px;padding:5px 14px;font-size:12px;color:var(--c3);">Tennis</div>
-          <div style="background:#fff;border:1px solid var(--c1);border-radius:999px;padding:5px 14px;font-size:12px;color:var(--c3);">Fußball</div>
-        </div>
-        <div style="padding:6px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;flex:1;">
-          <div style="background:#fff;border:1px solid var(--c1);border-radius:16px;overflow:hidden;">
-            <div style="height:90px;background:linear-gradient(135deg,#46566B,#1E2A38);display:flex;align-items:center;justify-content:center;position:relative;">
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
-              <div style="position:absolute;top:8px;right:8px;background:var(--bot);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;">Verfügbar</div>
+      </div>
+    </div>
+  </div>
+  <div class="pw-label">Login</div>
+</div>
+
+<!-- ══════ SCREEN 3: REGISTER  left=225 top=460 ══════ -->
+<div class="pw" style="left:225px;top:460px;">
+  <div class="pw-num" style="background:var(--c3);">R</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div style="flex:1;padding:20px 22px;display:flex;flex-direction:column;gap:12px;">
+            <div style="font-family:'Marcellus',serif;font-size:22px;color:var(--c4);text-align:center;">Konto erstellen</div>
+            <div style="font-size:13px;color:var(--c2);text-align:center;">Kostenlos registrieren</div>
+            <div style="display:flex;gap:10px;">
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px;"><div class="lbl">Vorname</div><div class="inp">Max</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px;"><div class="lbl">Nachname</div><div class="inp">Muster</div></div>
             </div>
-            <div style="padding:12px 14px;">
-              <div style="font-family:'Marcellus',serif;font-size:17px;color:var(--c4);">Tennisanlage Westpark</div>
-              <div style="display:flex;gap:12px;margin-top:4px;">
-                <span style="font-size:12px;color:var(--c2);">📍 1.2 km</span><span style="font-size:12px;color:var(--c2);">★ 4.8</span>
+            <div style="display:flex;flex-direction:column;gap:4px;"><div class="lbl">E-Mail</div><div class="inp">max@email.de</div></div>
+            <div style="display:flex;flex-direction:column;gap:4px;"><div class="lbl">Passwort</div><div class="inp">••••••••</div></div>
+            <div style="display:flex;flex-direction:column;gap:4px;"><div class="lbl">Passwort wiederholen</div><div class="inp">••••••••</div></div>
+            <div class="btn" style="background:var(--bot);color:#fff;margin-top:4px;">Konto erstellen</div>
+            <div style="font-size:12px;color:var(--c2);text-align:center;">Bereits ein Konto? <span style="color:var(--bot);font-weight:700;">Anmelden</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pw-label">Registrierung</div>
+</div>
+
+<!-- ══════ SCREEN 4: HOME  left=430 top=90 ══════ -->
+<div class="pw" style="left:430px;top:90px;">
+  <div class="pw-num">2</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div style="background:var(--c4);padding:14px 18px 16px;flex-shrink:0;">
+            <div style="font-family:'Marcellus',serif;color:#fff;font-size:20px;">Guten Morgen, Johan!</div>
+            <div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:2px;">Was spielst du heute?</div>
+            <div style="margin-top:10px;background:rgba(255,255,255,.12);border-radius:11px;display:flex;align-items:center;gap:8px;padding:10px 14px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span style="color:rgba(255,255,255,.35);font-size:13px;">Sportanlage suchen…</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:7px;padding:9px 14px 4px;flex-shrink:0;">
+            <div style="background:var(--c4);border-radius:999px;padding:5px 13px;font-size:11px;font-weight:700;color:#fff;">Alle</div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:999px;padding:5px 13px;font-size:11px;color:var(--c3);">Tennis</div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:999px;padding:5px 13px;font-size:11px;color:var(--c3);">Fußball</div>
+          </div>
+          <div style="padding:6px 14px;display:flex;flex-direction:column;gap:9px;overflow:hidden;flex:1;">
+            <div class="card">
+              <div style="height:80px;background:linear-gradient(135deg,#46566B,#1E2A38);display:flex;align-items:center;justify-content:center;position:relative;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                <div style="position:absolute;top:7px;right:7px;background:var(--bot);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;">Verfügbar</div>
               </div>
-              <div style="margin-top:8px;display:flex;justify-content:flex-end;">
-                <div style="background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;">3 Plätze frei</div>
+              <div style="padding:10px 12px;">
+                <div style="font-family:'Marcellus',serif;font-size:16px;color:var(--c4);">Tennisanlage Westpark</div>
+                <div style="display:flex;justify-content:space-between;margin-top:6px;align-items:center;">
+                  <span style="font-size:11px;color:var(--c2);">📍 1.2 km &nbsp;★ 4.8</span>
+                  <div style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;">3 frei</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div style="height:72px;background:linear-gradient(135deg,#2e4a2e,#1E2A38);display:flex;align-items:center;justify-content:center;position:relative;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="21"/><ellipse cx="12" cy="12" rx="5" ry="9"/></svg>
+                <div style="position:absolute;top:7px;right:7px;background:var(--bot);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;">Verfügbar</div>
+              </div>
+              <div style="padding:10px 12px;">
+                <div style="font-family:'Marcellus',serif;font-size:16px;color:var(--c4);">Fußballplatz Südpark</div>
+                <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+                  <div style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;">1 frei</div>
+                </div>
               </div>
             </div>
           </div>
-          <div style="background:#fff;border:1px solid var(--c1);border-radius:16px;overflow:hidden;">
-            <div style="height:80px;background:linear-gradient(135deg,#2e4a2e,#1E2A38);display:flex;align-items:center;justify-content:center;position:relative;">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="21"/><ellipse cx="12" cy="12" rx="5" ry="9"/></svg>
-              <div style="position:absolute;top:8px;right:8px;background:var(--bot);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;">Verfügbar</div>
+          <div class="bnav">
+            <div class="bni on"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pw-label">Home</div>
+</div>
+
+<!-- ══════ SCREEN 5: PLATZ BUCHEN  left=635 top=90 ══════ -->
+<div class="pw" style="left:635px;top:90px;">
+  <div class="pw-num">3</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div class="anav"><div class="bk">←</div><div class="tt">Platz buchen</div></div>
+          <div style="height:120px;background:linear-gradient(135deg,var(--c3),var(--c4));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          </div>
+          <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:hidden;">
+            <div style="font-family:'Marcellus',serif;font-size:20px;color:var(--c4);">Tennisanlage Westpark</div>
+            <div style="font-size:12px;color:var(--c2);">📍 Westparkstraße 12 · 1.2 km</div>
+            <div>
+              <div class="lbl">Datum wählen</div>
+              <div style="display:flex;gap:7px;margin-top:6px;">
+                <div style="background:#fff;border:1px solid var(--c1);border-radius:9px;padding:7px 9px;text-align:center;"><div style="font-size:9px;color:var(--c2);">MO</div><div style="font-family:'Marcellus',serif;font-size:16px;color:var(--c4);">25</div></div>
+                <div style="background:var(--c4);border-radius:9px;padding:7px 9px;text-align:center;"><div style="font-size:9px;color:rgba(255,255,255,.6);">DI</div><div style="font-family:'Marcellus',serif;font-size:16px;color:#fff;">26</div></div>
+                <div style="background:#fff;border:1px solid var(--c1);border-radius:9px;padding:7px 9px;text-align:center;"><div style="font-size:9px;color:var(--c2);">MI</div><div style="font-family:'Marcellus',serif;font-size:16px;color:var(--c4);">27</div></div>
+                <div style="background:#fff;border:1px solid var(--c1);border-radius:9px;padding:7px 9px;text-align:center;"><div style="font-size:9px;color:var(--c2);">DO</div><div style="font-family:'Marcellus',serif;font-size:16px;color:var(--c4);">28</div></div>
+              </div>
             </div>
-            <div style="padding:10px 14px;">
-              <div style="font-family:'Marcellus',serif;font-size:17px;color:var(--c4);">Fußballplatz Südpark</div>
-              <div style="margin-top:6px;display:flex;justify-content:flex-end;">
-                <div style="background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;">1 Platz frei</div>
+            <div>
+              <div class="lbl">Uhrzeit wählen</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:6px;">
+                <div style="background:var(--c1);border-radius:9px;padding:9px;text-align:center;font-size:12px;color:var(--c2);">08:00</div>
+                <div style="background:var(--c1);border-radius:9px;padding:9px;text-align:center;font-size:12px;color:var(--c2);">09:00</div>
+                <div style="background:#fff;border:1px solid var(--c1);border-radius:9px;padding:9px;text-align:center;font-size:12px;color:var(--c3);">10:00</div>
+                <div style="background:var(--bot);border-radius:9px;padding:9px;text-align:center;font-size:12px;color:#fff;font-weight:700;">11:00</div>
+                <div style="background:#fff;border:1px solid var(--c1);border-radius:9px;padding:9px;text-align:center;font-size:12px;color:var(--c3);">12:00</div>
+                <div style="background:#fff;border:1px solid var(--c1);border-radius:9px;padding:9px;text-align:center;font-size:12px;color:var(--c3);">13:00</div>
+              </div>
+            </div>
+            <div class="btn" style="background:var(--bot);color:#fff;margin-top:auto;">Jetzt buchen</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pw-label">Platz buchen</div>
+</div>
+
+<!-- ══════ SCREEN 6: BESTÄTIGUNG  left=840 top=90 ══════ -->
+<div class="pw" style="left:840px;top:90px;">
+  <div class="pw-num">4</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 22px;gap:14px;">
+            <div style="width:68px;height:68px;border-radius:50%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div style="font-family:'Marcellus',serif;font-size:22px;color:var(--c4);text-align:center;">Buchung bestätigt!</div>
+            <div style="font-size:12px;color:var(--c2);text-align:center;line-height:1.5;">Dein Platz ist reserviert. Du erhältst eine Bestätigung per E-Mail.</div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:14px;padding:14px;width:100%;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Anlage</span><span style="font-size:12px;font-weight:700;color:var(--c4);">Westpark</span></div>
+              <div style="height:1px;background:var(--c1);"></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Datum</span><span style="font-size:12px;font-weight:700;color:var(--c4);">Di, 26. Jun</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Uhrzeit</span><span style="font-size:12px;font-weight:700;color:var(--c4);">11:00–12:00</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Platz</span><span style="font-size:12px;font-weight:700;color:var(--c4);">Platz 3</span></div>
+            </div>
+            <div class="btn" style="background:var(--c4);color:#fff;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Freunde einladen
+            </div>
+            <div style="color:var(--bot);font-size:13px;font-weight:700;text-align:center;">Zurück zur Startseite</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pw-label">Buchungsbestätigung</div>
+</div>
+
+<!-- ══════ SCREEN 7: FREUNDE EINLADEN  left=840 top=460 ══════ -->
+<div class="pw" style="left:840px;top:460px;">
+  <div class="pw-num">5</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div class="anav"><div class="bk">←</div><div class="tt">Freunde einladen</div></div>
+          <div style="padding:10px 14px;flex:1;display:flex;flex-direction:column;gap:9px;">
+            <div style="background:var(--c0);border:1px solid var(--c1);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--c3);">
+              <strong>Di, 26. Jun · 11:00 Uhr</strong><br><span style="color:var(--c2);">Westpark · Platz 3</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--c3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-family:'Marcellus',serif;flex-shrink:0;">L</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--c4);">Lisa Müller</div><div style="font-size:11px;color:var(--c2);">@lisa.m</div></div>
+                <div style="width:26px;height:26px;border-radius:7px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:13px;color:#2e7d32;">✓</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--bot);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-family:'Marcellus',serif;flex-shrink:0;">T</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--c4);">Tom Schneider</div><div style="font-size:11px;color:var(--c2);">@tomschn</div></div>
+                <div style="width:26px;height:26px;border-radius:7px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:13px;color:#2e7d32;">✓</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:#46566B;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-family:'Marcellus',serif;flex-shrink:0;">A</div>
+                <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--c4);">Anna Koch</div><div style="font-size:11px;color:var(--c2);">@anna.k</div></div>
+                <div style="width:26px;height:26px;border-radius:7px;background:var(--c1);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--c2);">+</div>
+              </div>
+            </div>
+            <div style="margin-top:auto;">
+              <div class="btn" style="background:var(--bot);color:#fff;">Einladungen senden (2)</div>
+            </div>
+          </div>
+          <div class="bnav">
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
+            <div class="bni on"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pw-label">Freunde einladen</div>
+</div>
+
+<!-- ══════ SCREEN 8: HOME + BUCHUNG  left=1045 top=90 ══════ -->
+<div class="pw" style="left:1045px;top:90px;">
+  <div class="pw-num" style="background:#2e7d32;">↻</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div style="background:var(--c4);padding:12px 16px 14px;flex-shrink:0;">
+            <div style="font-family:'Marcellus',serif;color:#fff;font-size:19px;">Guten Morgen, Johan!</div>
+            <div style="color:rgba(255,255,255,.55);font-size:12px;margin-top:1px;">Heute hast du eine Buchung</div>
+          </div>
+          <!-- Active booking banner -->
+          <div style="background:linear-gradient(135deg,#1a4a1a,#2e7d32);margin:10px 12px 0;border-radius:12px;padding:12px 14px;flex-shrink:0;">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.08em;">Deine Buchung heute</div>
+            <div style="font-family:'Marcellus',serif;font-size:16px;color:#fff;margin-top:3px;">Tennisanlage Westpark</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+              <span style="font-size:12px;color:rgba(255,255,255,.75);">Di, 26. Jun · 11:00–12:00 Uhr</span>
+              <span style="background:rgba(255,255,255,.2);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;">Platz 3</span>
+            </div>
+            <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.6);">👥 Lisa Müller, Tom Schneider eingeladen</div>
+          </div>
+          <div style="display:flex;gap:6px;padding:8px 12px 3px;flex-shrink:0;">
+            <div style="background:var(--c4);border-radius:999px;padding:4px 12px;font-size:10px;font-weight:700;color:#fff;">Alle</div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:999px;padding:4px 12px;font-size:10px;color:var(--c3);">Tennis</div>
+          </div>
+          <div style="padding:5px 12px;flex:1;overflow:hidden;">
+            <div class="card" style="margin-bottom:7px;">
+              <div style="height:65px;background:linear-gradient(135deg,#46566B,#1E2A38);display:flex;align-items:center;justify-content:center;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+              </div>
+              <div style="padding:8px 10px;">
+                <div style="font-family:'Marcellus',serif;font-size:14px;color:var(--c4);">Tennisanlage Westpark</div>
+                <div style="display:flex;justify-content:flex-end;margin-top:4px;"><div style="background:#e8f5e9;color:#2e7d32;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;">3 frei</div></div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="bnav">
-          <div class="bni on"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
-          <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
-          <div class="bni"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
-          <div class="bni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
+          <div class="bnav">
+            <div class="bni on"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="phone-label">Home</div>
+  <div class="pw-label">Home + aktive Buchung</div>
 </div>
 
-<!-- ③ BUCHUNG  x=492 y=80 -->
-<div class="phone-wrap" style="left:492px;top:80px;">
-  <div class="step-circle">3</div>
-  <div class="scale-inner">
-    <div class="phone-shell">
-      <div class="phone-screen">
-        <div class="sb"><span class="t">9:41</span><span class="ic">●●● WiFi ⚡</span></div>
-        <div class="anav"><div class="bk">←</div><div class="tt">Platz buchen</div></div>
-        <div style="height:130px;background:linear-gradient(135deg,var(--c3),var(--c4));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
-        </div>
-        <div style="padding:16px 18px;display:flex;flex-direction:column;gap:14px;flex:1;overflow:hidden;">
-          <div style="font-family:'Marcellus',serif;font-size:22px;color:var(--c4);">Tennisanlage Westpark</div>
-          <div style="display:flex;align-items:center;gap:6px;color:var(--c2);font-size:13px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-            Westparkstraße 12 · 1.2 km
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--c3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Datum wählen</div>
-            <div style="display:flex;gap:8px;">
-              <div style="background:#fff;border:1px solid var(--c1);border-radius:10px;padding:8px 10px;text-align:center;"><div style="font-size:10px;color:var(--c2);">MO</div><div style="font-family:'Marcellus',serif;font-size:18px;color:var(--c4);">25</div></div>
-              <div style="background:var(--c4);border-radius:10px;padding:8px 10px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,.6);">DI</div><div style="font-family:'Marcellus',serif;font-size:18px;color:#fff;">26</div></div>
-              <div style="background:#fff;border:1px solid var(--c1);border-radius:10px;padding:8px 10px;text-align:center;"><div style="font-size:10px;color:var(--c2);">MI</div><div style="font-family:'Marcellus',serif;font-size:18px;color:var(--c4);">27</div></div>
-              <div style="background:#fff;border:1px solid var(--c1);border-radius:10px;padding:8px 10px;text-align:center;"><div style="font-size:10px;color:var(--c2);">DO</div><div style="font-family:'Marcellus',serif;font-size:18px;color:var(--c4);">28</div></div>
+<!-- ══════ SCREEN 9: BENACHRICHTIGUNG FREUNDE  left=1045 top=460 ══════ -->
+<div class="pw" style="left:1045px;top:460px;">
+  <div class="pw-num" style="background:#2e7d32;">!</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div class="anav"><div class="bk">←</div><div class="tt">Benachrichtigungen</div></div>
+          <div style="padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:10px;font-weight:700;color:var(--c2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Neu</div>
+            <!-- Einladungsbenachrichtigung -->
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:13px;padding:13px 13px;display:flex;gap:11px;align-items:flex-start;">
+              <div style="width:40px;height:40px;border-radius:50%;background:var(--c4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:12px;font-weight:700;color:var(--c4);">Einladung von Max</div>
+                <div style="font-size:11px;color:var(--c2);margin-top:2px;line-height:1.4;">Max hat dich zur Buchung eingeladen:<br><strong style="color:var(--c4);">Westpark · Di 26. Jun · 11:00 Uhr</strong></div>
+                <div style="display:flex;gap:7px;margin-top:9px;">
+                  <div style="background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;">Annehmen</div>
+                  <div style="background:var(--c1);color:var(--c3);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;">Ablehnen</div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:10px;font-weight:700;color:var(--c2);text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">Früher</div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:13px;padding:13px;display:flex;gap:11px;align-items:flex-start;opacity:.6;">
+              <div style="width:40px;height:40px;border-radius:50%;background:var(--c3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:12px;font-weight:700;color:var(--c4);">Buchungsbestätigung</div>
+                <div style="font-size:11px;color:var(--c2);margin-top:2px;">Deine Buchung Westpark am 20. Jun wurde bestätigt.</div>
+              </div>
             </div>
           </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--c3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Uhrzeit wählen</div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-              <div style="background:var(--c1);border-radius:10px;padding:10px;text-align:center;font-size:13px;color:var(--c2);">08:00</div>
-              <div style="background:var(--c1);border-radius:10px;padding:10px;text-align:center;font-size:13px;color:var(--c2);">09:00</div>
-              <div style="background:#fff;border:1px solid var(--c1);border-radius:10px;padding:10px;text-align:center;font-size:13px;color:var(--c3);">10:00</div>
-              <div style="background:var(--bot);border-radius:10px;padding:10px;text-align:center;font-size:13px;color:#fff;font-weight:700;">11:00</div>
-              <div style="background:#fff;border:1px solid var(--c1);border-radius:10px;padding:10px;text-align:center;font-size:13px;color:var(--c3);">12:00</div>
-              <div style="background:#fff;border:1px solid var(--c1);border-radius:10px;padding:10px;text-align:center;font-size:13px;color:var(--c3);">13:00</div>
-            </div>
+          <div class="bnav">
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
+            <div class="bni on"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
           </div>
-          <div style="background:var(--bot);border-radius:14px;padding:14px;text-align:center;color:#fff;font-size:16px;font-weight:700;margin-top:auto;">Jetzt buchen</div>
         </div>
       </div>
     </div>
   </div>
-  <div class="phone-label">Platz buchen</div>
+  <div class="pw-label">Benachrichtigung Freunde</div>
 </div>
 
-<!-- ④ BESTÄTIGUNG  x=728 y=80 -->
-<div class="phone-wrap" style="left:728px;top:80px;">
-  <div class="step-circle">4</div>
-  <div class="scale-inner">
-    <div class="phone-shell">
-      <div class="phone-screen">
-        <div class="sb"><span class="t">9:41</span><span class="ic">●●● WiFi ⚡</span></div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;gap:16px;">
-          <div style="width:72px;height:72px;border-radius:50%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+<!-- ══════ SCREEN 10: STORNIERUNG  left=1250 top=90 ══════ -->
+<div class="pw" style="left:1250px;top:90px;">
+  <div class="pw-num" style="background:#a02020;">✕</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div class="anav"><div class="bk">←</div><div class="tt">Buchung stornieren</div></div>
+          <div style="flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:16px;">
+            <div style="width:62px;height:62px;border-radius:50%;background:#fde8e8;display:flex;align-items:center;justify-content:center;margin:0 auto;">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div style="font-family:'Marcellus',serif;font-size:20px;color:var(--c4);text-align:center;">Buchung stornieren?</div>
+            <div style="font-size:12px;color:var(--c2);text-align:center;line-height:1.5;">Diese Aktion kann nicht rückgängig gemacht werden. Eingeladene Freunde werden benachrichtigt.</div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:13px;padding:13px;display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Anlage</span><span style="font-size:12px;font-weight:700;color:var(--c4);">Westpark</span></div>
+              <div style="height:1px;background:var(--c1);"></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Datum</span><span style="font-size:12px;font-weight:700;color:var(--c4);">Di, 26. Jun</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Uhrzeit</span><span style="font-size:12px;font-weight:700;color:var(--c4);">11:00–12:00</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:9px;margin-top:auto;">
+              <div class="btn" style="background:#c0392b;color:#fff;">Ja, Buchung stornieren</div>
+              <div class="btn" style="background:var(--c1);color:var(--c3);">Abbrechen</div>
+            </div>
           </div>
-          <div style="font-family:'Marcellus',serif;font-size:24px;color:var(--c4);text-align:center;">Buchung bestätigt!</div>
-          <div style="font-size:13px;color:var(--c2);text-align:center;line-height:1.6;">Dein Platz ist reserviert. Wir haben dir eine Bestätigung per E-Mail geschickt.</div>
-          <div style="background:#fff;border:1px solid var(--c1);border-radius:16px;padding:16px;width:100%;display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--c2);">Anlage</span><span style="font-size:13px;font-weight:700;color:var(--c4);">Westpark</span></div>
-            <div style="height:1px;background:var(--c1);"></div>
-            <div style="display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--c2);">Datum</span><span style="font-size:13px;font-weight:700;color:var(--c4);">Di, 26. Jun</span></div>
-            <div style="display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--c2);">Uhrzeit</span><span style="font-size:13px;font-weight:700;color:var(--c4);">11:00–12:00</span></div>
-            <div style="display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--c2);">Platz</span><span style="font-size:13px;font-weight:700;color:var(--c4);">Platz 3</span></div>
-          </div>
-          <div style="background:var(--c4);border-radius:14px;padding:13px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-size:15px;font-weight:700;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Freunde einladen
-          </div>
-          <div style="color:var(--bot);font-size:14px;font-weight:700;text-align:center;">Zurück zur Startseite</div>
         </div>
       </div>
     </div>
   </div>
-  <div class="phone-label">Bestätigung</div>
+  <div class="pw-label">Stornierung</div>
 </div>
 
-<!-- ⑤ FREUNDE  x=492 y=500 -->
-<div class="phone-wrap" style="left:492px;top:500px;">
-  <div class="step-circle" style="background:var(--bot);">5</div>
-  <div class="scale-inner">
-    <div class="phone-shell">
-      <div class="phone-screen">
-        <div class="sb"><span class="t">9:41</span><span class="ic">●●● WiFi ⚡</span></div>
-        <div class="anav"><div class="bk">←</div><div class="tt">Freunde einladen</div></div>
-        <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:10px;">
-          <div style="background:var(--c0);border:1px solid var(--c1);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--c3);">
-            <strong>Di, 26. Jun · 11:00 Uhr</strong><br>
-            <span style="color:var(--c2);">Tennisanlage Westpark · Platz 3</span>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="background:#fff;border:1px solid var(--c1);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;">
-              <div style="width:38px;height:38px;border-radius:50%;background:var(--c3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-family:'Marcellus',serif;flex-shrink:0;">L</div>
-              <div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--c4);">Lisa Müller</div><div style="font-size:12px;color:var(--c2);">@lisa.m</div></div>
-              <div style="width:28px;height:28px;border-radius:8px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:14px;color:#2e7d32;">✓</div>
-            </div>
-            <div style="background:#fff;border:1px solid var(--c1);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;">
-              <div style="width:38px;height:38px;border-radius:50%;background:var(--bot);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-family:'Marcellus',serif;flex-shrink:0;">T</div>
-              <div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--c4);">Tom Schneider</div><div style="font-size:12px;color:var(--c2);">@tomschn</div></div>
-              <div style="width:28px;height:28px;border-radius:8px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:14px;color:#2e7d32;">✓</div>
-            </div>
-            <div style="background:#fff;border:1px solid var(--c1);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;">
-              <div style="width:38px;height:38px;border-radius:50%;background:#46566B;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-family:'Marcellus',serif;flex-shrink:0;">A</div>
-              <div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--c4);">Anna Koch</div><div style="font-size:12px;color:var(--c2);">@anna.k</div></div>
-              <div style="width:28px;height:28px;border-radius:8px;background:var(--c1);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--c2);">+</div>
+<!-- ══════ SCREEN 11: STORNO-BENACHRICHTIGUNG FREUNDE  left=1250 top=460 ══════ -->
+<div class="pw" style="left:1250px;top:460px;">
+  <div class="pw-num" style="background:#a02020;">!</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div class="anav"><div class="bk">←</div><div class="tt">Benachrichtigungen</div></div>
+          <div style="padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:10px;font-weight:700;color:var(--c2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Neu</div>
+            <div style="background:#fff;border:1.5px solid #f5c6c6;border-radius:13px;padding:13px;display:flex;gap:11px;align-items:flex-start;">
+              <div style="width:40px;height:40px;border-radius:50%;background:#fde8e8;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:12px;font-weight:700;color:#c0392b;">Buchung storniert</div>
+                <div style="font-size:11px;color:var(--c2);margin-top:2px;line-height:1.4;">Max hat die Buchung storniert:<br><strong style="color:var(--c4);">Westpark · Di 26. Jun · 11:00 Uhr</strong></div>
+                <div style="font-size:10px;color:var(--c2);margin-top:6px;">Die Einladung ist damit hinfällig.</div>
+              </div>
             </div>
           </div>
-          <div style="margin-top:auto;">
-            <div style="background:var(--bot);border-radius:14px;padding:14px;text-align:center;color:#fff;font-size:15px;font-weight:700;">Einladungen senden (2)</div>
+          <div class="bnav">
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
+            <div class="bni on"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
           </div>
-        </div>
-        <div class="bnav">
-          <div class="bni"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
-          <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
-          <div class="bni on"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
-          <div class="bni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
         </div>
       </div>
     </div>
   </div>
-  <div class="phone-label">Freunde einladen</div>
+  <div class="pw-label">Storno-Benachrichtigung Freunde</div>
 </div>
 
-<!-- ⑥ PROFIL  x=256 y=500 -->
-<div class="phone-wrap" style="left:256px;top:500px;">
-  <div class="step-circle" style="background:#3d2060;">6</div>
-  <div class="scale-inner">
-    <div class="phone-shell">
-      <div class="phone-screen">
-        <div class="sb"><span class="t">9:41</span><span class="ic">●●● WiFi ⚡</span></div>
-        <div style="background:var(--c4);padding:22px 18px 26px;display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;">
-          <div style="width:72px;height:72px;border-radius:50%;background:var(--bot);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-family:'Marcellus',serif;">M</div>
-          <div style="font-family:'Marcellus',serif;font-size:20px;color:#fff;">Max Mustermann</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.5);">max.mustermann@email.de</div>
-        </div>
-        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;flex:1;overflow:hidden;">
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-            <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-family:'Marcellus',serif;font-size:22px;color:var(--c4);">14</div><div style="font-size:10px;color:var(--c2);">Buchungen</div></div>
-            <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-family:'Marcellus',serif;font-size:22px;color:var(--c4);">6</div><div style="font-size:10px;color:var(--c2);">Freunde</div></div>
-            <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-family:'Marcellus',serif;font-size:22px;color:var(--c4);">3</div><div style="font-size:10px;color:var(--c2);">Gruppen</div></div>
+<!-- ══════ SCREEN 12: PROFIL  left=1455 top=90 ══════ -->
+<div class="pw" style="left:1455px;top:90px;">
+  <div class="pw-num" style="background:#3d2060;">6</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div style="background:var(--c4);padding:20px 16px 22px;display:flex;flex-direction:column;align-items:center;gap:7px;flex-shrink:0;">
+            <div style="width:66px;height:66px;border-radius:50%;background:var(--bot);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-family:'Marcellus',serif;">M</div>
+            <div style="font-family:'Marcellus',serif;font-size:18px;color:#fff;">Max Mustermann</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);">max.mustermann@email.de</div>
           </div>
-          <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:10px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--c4);">Meine Buchungen</div><div style="font-size:11px;color:var(--c2);">14 aktive Buchungen</div></div>
-            <span style="color:var(--c2);font-size:16px;">›</span>
+          <div style="padding:12px 14px;display:flex;flex-direction:column;gap:7px;flex:1;overflow:hidden;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:2px;">
+              <div style="background:#fff;border:1px solid var(--c1);border-radius:11px;padding:8px 4px;text-align:center;"><div style="font-family:'Marcellus',serif;font-size:20px;color:var(--c4);">14</div><div style="font-size:9px;color:var(--c2);">Buchungen</div></div>
+              <div style="background:#fff;border:1px solid var(--c1);border-radius:11px;padding:8px 4px;text-align:center;"><div style="font-family:'Marcellus',serif;font-size:20px;color:var(--c4);">6</div><div style="font-size:9px;color:var(--c2);">Freunde</div></div>
+              <div style="background:#fff;border:1px solid var(--c1);border-radius:11px;padding:8px 4px;text-align:center;"><div style="font-family:'Marcellus',serif;font-size:20px;color:var(--c4);">3</div><div style="font-size:9px;color:var(--c2);">Gruppen</div></div>
+            </div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:11px;padding:11px 12px;display:flex;align-items:center;gap:9px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--c4);">Meine Buchungen</div><div style="font-size:10px;color:var(--c2);">14 aktive Buchungen</div></div><span style="color:var(--c2);">›</span></div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:11px;padding:11px 12px;display:flex;align-items:center;gap:9px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--c4);">Freunde & Gruppen</div></div><span style="color:var(--c2);">›</span></div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:11px;padding:11px 12px;display:flex;align-items:center;gap:9px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--c4);">Konto bearbeiten</div></div><span style="color:var(--c2);">›</span></div>
+            <div style="background:#fff;border:1px solid #fde0d6;border-radius:11px;padding:11px 12px;display:flex;align-items:center;gap:9px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--bot)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><div style="flex:1;font-size:13px;font-weight:600;color:var(--bot);">Abmelden</div></div>
           </div>
-          <div style="background:#fff;border:1px solid var(--c1);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:10px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--c4);">Freunde & Gruppen</div></div>
-            <span style="color:var(--c2);font-size:16px;">›</span>
+          <div class="bnav">
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
+            <div class="bni on"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
           </div>
-          <div style="background:#fff;border:1px solid #fde0d6;border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:10px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--bot)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-            <div style="font-size:14px;font-weight:600;color:var(--bot);">Abmelden</div>
-          </div>
-        </div>
-        <div class="bnav">
-          <div class="bni"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
-          <div class="bni"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
-          <div class="bni"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
-          <div class="bni on"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
         </div>
       </div>
     </div>
   </div>
-  <div class="phone-label">Profil</div>
+  <div class="pw-label">Profil</div>
 </div>
 
-</div><!-- /diagram -->
-</div><!-- /canvas -->
+<!-- ══════ SCREEN 13: MEINE BUCHUNGEN  left=1660 top=90 ══════ -->
+<div class="pw" style="left:1660px;top:90px;">
+  <div class="pw-num" style="background:#3d2060;">7</div>
+  <div class="frame">
+    <div class="si">
+      <div class="shell">
+        <div class="screen">
+          <div class="sb"><span class="t">9:41</span><span class="ic">●●● ⚡</span></div>
+          <div class="anav"><div class="bk">←</div><div class="tt">Meine Buchungen</div></div>
+          <div style="padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:9px;overflow:hidden;">
+            <div style="font-size:10px;font-weight:700;color:var(--c2);text-transform:uppercase;letter-spacing:.08em;">Kommende</div>
+            <div style="background:#fff;border:1.5px solid #2e7d32;border-radius:13px;padding:13px;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div>
+                  <div style="font-family:'Marcellus',serif;font-size:15px;color:var(--c4);">Tennisanlage Westpark</div>
+                  <div style="font-size:11px;color:var(--c2);margin-top:3px;">Di, 26. Jun · 11:00–12:00</div>
+                  <div style="font-size:11px;color:var(--c2);">Platz 3 · 2 Freunde eingeladen</div>
+                </div>
+                <div style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;flex-shrink:0;">Bestätigt</div>
+              </div>
+              <div style="margin-top:10px;display:flex;gap:7px;">
+                <div style="flex:1;background:var(--c0);border:1px solid var(--c1);border-radius:8px;padding:7px;text-align:center;font-size:11px;font-weight:700;color:var(--c3);">Details</div>
+                <div style="flex:1;background:#fde8e8;border:1px solid #f5c6c6;border-radius:8px;padding:7px;text-align:center;font-size:11px;font-weight:700;color:#c0392b;">Stornieren</div>
+              </div>
+            </div>
+            <div style="font-size:10px;font-weight:700;color:var(--c2);text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">Vergangene</div>
+            <div style="background:#fff;border:1px solid var(--c1);border-radius:13px;padding:13px;opacity:.6;">
+              <div style="font-family:'Marcellus',serif;font-size:15px;color:var(--c4);">Fußballplatz Südpark</div>
+              <div style="font-size:11px;color:var(--c2);margin-top:3px;">Mi, 18. Jun · 16:00–17:00</div>
+              <div style="background:var(--c1);border-radius:999px;padding:2px 8px;font-size:9px;font-weight:700;color:var(--c2);display:inline-block;margin-top:5px;">Abgeschlossen</div>
+            </div>
+          </div>
+          <div class="bnav">
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="bni on"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Freunde</span></div>
+            <div class="bni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pw-label">Meine Buchungen</div>
+</div>
 
+<!-- Profil → Meine Buchungen arrow (local, inside group) -->
+<svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="mA2" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#1E2A38"/></marker>
+    <marker id="mB2" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#C8531A"/></marker>
+    <marker id="mC2" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#2e7d32"/></marker>
+  </defs>
+  <!-- Profil → Meine Buchungen -->
+  <path d="M 1615 245 C 1638 245 1642 245 1660 245" stroke="#1E2A38" stroke-width="2" fill="none" marker-end="url(#mA2)"/>
+  <text x="1620" y="238" font-size="8" fill="#1E2A38" font-family="Mulish" font-weight="700">Buchungen</text>
+
+  <!-- Meine Buchungen → Stornierung -->
+  <path d="M 1740 370 C 1740 420 1400 420 1400 370" stroke="#C8531A" stroke-width="1.8" fill="none" stroke-dasharray="5,3" marker-end="url(#mB2)"/>
+  <text x="1535" y="415" font-size="8" fill="#C8531A" font-family="Mulish">Stornieren</text>
+
+  <!-- Stornierung → Storno-Benach. Freunde -->
+  <path d="M 1330 350 C 1310 480 1310 520 1330 520" stroke="#2e7d32" stroke-width="2" fill="none" marker-end="url(#mC2)"/>
+  <text x="1280" y="434" font-size="8" fill="#2e7d32" font-family="Mulish" font-weight="700">Auto-Storno</text>
+
+  <!-- Stornierung → Home (zurück) -->
+  <path d="M 1270 155 C 1260 80 600 80 590 165" stroke="#C8531A" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mB2)"/>
+</svg>
+
+</div>
+</div>
 </body>
 </html>
