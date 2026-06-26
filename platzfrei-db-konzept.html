@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlatzFrei – Datenbankkonzept</title>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c0:#F7F8FA;--c1:#DDE3EA;--c2:#8896A6;--c3:#46566B;--c4:#1E2A38;--bot:#C8531A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Mulish',sans-serif;background:var(--c0);color:var(--c4);}
+h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
+
+/* Header */
+.hdr{background:var(--c4);padding:24px 48px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-logo{display:flex;align-items:center;gap:14px;}
+.hdr-icon{width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;}
+.hdr-icon svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.hdr h1{font-size:22px;color:#fff;}
+.hdr h1 span{color:var(--bot);}
+.hdr-badge{background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);font-size:12px;font-weight:600;
+  padding:6px 16px;border-radius:999px;letter-spacing:.05em;}
+
+/* Main layout */
+.main{max-width:1100px;margin:0 auto;padding:48px 32px 80px;}
+.intro{background:#fff;border:1px solid var(--c1);border-radius:16px;padding:24px 28px;margin-bottom:48px;
+  display:flex;gap:20px;align-items:flex-start;}
+.intro-icon{width:40px;height:40px;border-radius:11px;background:var(--c4);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;}
+.intro-icon svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.intro h3{font-size:15px;color:var(--c4);margin-bottom:5px;}
+.intro p{font-size:13px;color:var(--c2);line-height:1.7;}
+
+/* Flow steps */
+.flow{display:flex;flex-direction:column;gap:0;}
+
+.step{display:grid;grid-template-columns:200px 1fr;gap:0;}
+
+/* Step header (left) */
+.step-left{display:flex;flex-direction:column;align-items:center;padding-top:4px;}
+.step-badge{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1;}
+.step-num{width:44px;height:44px;border-radius:50%;background:var(--c4);color:#fff;
+  font-family:'Marcellus',serif;font-size:18px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(30,42,56,.25);flex-shrink:0;}
+.step-name{font-size:12px;font-weight:700;color:var(--c3);text-align:center;letter-spacing:.04em;text-transform:uppercase;
+  background:#fff;border:1px solid var(--c1);border-radius:8px;padding:4px 10px;white-space:nowrap;}
+.step-screen{font-size:10px;color:var(--c2);text-align:center;margin-top:2px;}
+.step-line{width:2px;background:var(--c1);flex:1;min-height:40px;margin:8px 0;}
+
+/* Step content (right) */
+.step-right{padding:0 0 48px 32px;}
+.step-intro{font-size:13px;color:var(--c2);margin-bottom:16px;line-height:1.6;
+  padding:10px 14px;background:#fff;border-left:3px solid var(--bot);border-radius:0 8px 8px 0;
+  border:1px solid var(--c1);border-left:3px solid var(--bot);}
+
+/* Tables grid */
+.tables-grid{display:flex;flex-wrap:wrap;gap:16px;}
+
+/* DB Table card */
+.db-table{background:#fff;border:1.5px solid var(--c1);border-radius:14px;overflow:hidden;
+  box-shadow:0 4px 14px rgba(30,42,56,.06);min-width:220px;flex:1;}
+.db-table.highlight{border-color:var(--bot);}
+.db-head{padding:10px 16px;display:flex;align-items:center;gap:10px;}
+.db-head-icon{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.db-head-icon svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.db-table-name{font-family:'Marcellus',serif;font-size:14px;color:#fff;}
+.db-table-sub{font-size:9px;color:rgba(255,255,255,.55);margin-top:1px;}
+.db-fields{border-top:1px solid var(--c0);}
+.db-field{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid var(--c0);font-size:11px;}
+.db-field:last-child{border-bottom:none;}
+.db-field.pk{background:#f8f9fb;}
+.field-tag{font-size:8px;font-weight:700;color:#fff;padding:1px 5px;border-radius:3px;
+  letter-spacing:.04em;flex-shrink:0;min-width:22px;text-align:center;}
+.tag-pk{background:var(--c4);}
+.tag-fk{background:var(--bot);}
+.field-name{color:var(--c4);font-weight:600;flex:1;}
+.field-name.underline{text-decoration:underline;}
+.field-type{font-size:9px;color:var(--c2);font-family:monospace;background:var(--c0);
+  padding:1px 5px;border-radius:3px;flex-shrink:0;}
+.field-note{font-size:9px;color:var(--c2);font-style:italic;}
+
+/* Relationship arrow between tables */
+.rel-row{display:flex;align-items:center;gap:10px;margin:8px 0 4px;flex-wrap:wrap;}
+.rel-chip{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--c1);
+  border-radius:8px;padding:5px 12px;font-size:11px;color:var(--c3);}
+.rel-chip .kard{font-weight:700;color:var(--c4);font-size:12px;}
+.rel-chip .arrow-sym{color:var(--bot);font-size:14px;}
+.rel-chip .new-tag{background:var(--bot);color:#fff;font-size:8px;font-weight:700;
+  padding:1px 6px;border-radius:3px;margin-left:4px;letter-spacing:.05em;}
+
+/* ENUM values display */
+.enum-vals{font-size:9px;color:var(--c2);font-style:italic;margin-left:4px;}
+
+/* Step accent colors */
+.step-num.login{background:var(--c4);}
+.step-num.home{background:#2e5e3e;}
+.step-num.buchen{background:#1a4a5e;}
+.step-num.bestaetigung{background:#2e5e3e;}
+.step-num.freunde{background:#7a3010;}
+.step-num.profil{background:#3d2060;}
+
+.db-head.login{background:var(--c4);}
+.db-head.home{background:#2e5e3e;}
+.db-head.platz{background:#2e5e3e;}
+.db-head.kategorie{background:#46566B;}
+.db-head.buchung{background:#1a4a5e;}
+.db-head.bestaetigung{background:#1a4a5e;}
+.db-head.benachrichtigung{background:var(--bot);}
+.db-head.einladung{background:#7a3010;}
+.db-head.freundschaft{background:#7a3010;}
+.db-head.gruppe{background:#3d2060;}
+.db-head.gruppemitglied{background:#3d2060;}
+.db-head.nachricht{background:#1a4a5e;}
+
+/* Section divider line before each step */
+.step:not(:first-child) .step-left{padding-top:0;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">
+    <div class="hdr-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+    </div>
+    <h1>Platz<span>Frei</span></h1>
+  </div>
+  <span class="hdr-badge">Aufgabe 5 · Konzeptioneller Datenbankentwurf · App-Flow-Reihenfolge</span>
+</div>
+
+<div class="main">
+
+  <div class="intro">
+    <div class="intro-icon">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>
+    </div>
+    <div>
+      <h3>Konzeptioneller Datenbankentwurf – Strukturiert nach App-Flow</h3>
+      <p>Die Tabellen sind in der Reihenfolge dargestellt, in der sie bei der Nutzung der PlatzFrei-App zum Einsatz kommen:<br>
+      <strong>① Anmeldung → ② Home / Suche → ③ Platz buchen → ④ Buchungsbestätigung → ⑤ Freunde einladen → ⑥ Profil, Gruppen & Chat</strong><br>
+      PK = Primärschlüssel &nbsp;·&nbsp; FK = Fremdschlüssel &nbsp;·&nbsp; Beziehungen sind als Kardinalitäten angegeben (1:N, M:N).</p>
+    </div>
+  </div>
+
+  <div class="flow">
+
+    <!-- ═══════════════════════════════
+         SCHRITT 1 — ANMELDUNG
+    ═══════════════════════════════ -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-badge">
+          <div class="step-num login">1</div>
+          <div class="step-name">Anmeldung</div>
+          <div class="step-screen">Login / Registrierung</div>
+        </div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-intro">Der Nutzer meldet sich an oder registriert sich neu. Die <strong>User</strong>-Tabelle ist die zentrale Entität der gesamten App – alle anderen Tabellen verweisen auf sie.</div>
+        <div class="tables-grid">
+          <div class="db-table highlight">
+            <div class="db-head login">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+              <div><div class="db-table-name">User</div><div class="db-table-sub">Alle App-Nutzer</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">user_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">vorname</span><span class="field-type">VARCHAR(50)</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">nachname</span><span class="field-type">VARCHAR(50)</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">email</span><span class="field-type">VARCHAR · UNIQUE</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">passwort_hash</span><span class="field-type">VARCHAR(255)</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">profilbild_url</span><span class="field-type">TEXT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">erstellt_am</span><span class="field-type">DATETIME</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCHRITT 2 — HOME / SUCHE
+    ═══════════════════════════════ -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-badge">
+          <div class="step-num home">2</div>
+          <div class="step-name">Home</div>
+          <div class="step-screen">Plätze entdecken & filtern</div>
+        </div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-intro">Auf dem Homescreen sieht der Nutzer verfügbare Sportanlagen. Die App lädt <strong>Sportanlagen</strong>, filtert nach <strong>Kategorie</strong> (Sportart) und zeigt die einzelnen <strong>Plätze</strong> je Anlage an.</div>
+        <div class="tables-grid">
+          <div class="db-table highlight">
+            <div class="db-head home">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+              <div><div class="db-table-name">Sportanlage</div><div class="db-table-sub">Buchbare Anlage</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">anlage_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">name</span><span class="field-type">VARCHAR(100)</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">adresse</span><span class="field-type">TEXT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">latitude</span><span class="field-type">FLOAT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">longitude</span><span class="field-type">FLOAT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">bewertung</span><span class="field-type">FLOAT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">bild_url</span><span class="field-type">TEXT</span></div>
+            </div>
+          </div>
+
+          <div class="db-table">
+            <div class="db-head kategorie">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+              <div><div class="db-table-name">Kategorie</div><div class="db-table-sub">Sportart je Anlage</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">kategorie_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">anlage_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">sportart</span><span class="field-type">VARCHAR(50)</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">icon_url</span><span class="field-type">TEXT</span></div>
+            </div>
+          </div>
+
+          <div class="db-table">
+            <div class="db-head platz">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div>
+              <div><div class="db-table-name">Platz</div><div class="db-table-sub">Einzelner Sportplatz</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">platz_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">anlage_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">bezeichnung</span><span class="field-type">VARCHAR(50)</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">kapazitaet</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">sport_typ</span><span class="field-type">VARCHAR(50)</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="rel-row" style="margin-top:14px;">
+          <div class="rel-chip"><span class="kard">Sportanlage</span><span class="arrow-sym">→</span><span class="kard">Kategorie</span>&nbsp;1:N — eine Anlage hat mehrere Sportarten</div>
+          <div class="rel-chip"><span class="kard">Sportanlage</span><span class="arrow-sym">→</span><span class="kard">Platz</span>&nbsp;1:N — eine Anlage hat mehrere Plätze</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCHRITT 3 — PLATZ BUCHEN
+    ═══════════════════════════════ -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-badge">
+          <div class="step-num buchen">3</div>
+          <div class="step-name">Platz buchen</div>
+          <div class="step-screen">Datum & Zeitslot wählen</div>
+        </div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-intro">Der Nutzer wählt einen Platz, ein Datum und eine Uhrzeit. Ein neuer Datensatz wird in der <strong>Buchung</strong>-Tabelle angelegt und mit User und Platz verknüpft.</div>
+        <div class="tables-grid">
+          <div class="db-table highlight">
+            <div class="db-head buchung">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg></div>
+              <div><div class="db-table-name">Buchung</div><div class="db-table-sub">Platzreservierung</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">buchung_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">user_id</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">platz_id</span><span class="field-type">INT</span><span class="field-note">→ Platz</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">datum</span><span class="field-type">DATE</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">startzeit</span><span class="field-type">TIME</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">endzeit</span><span class="field-type">TIME</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">status</span><span class="field-type">ENUM</span><span class="enum-vals">ausstehend · bestätigt · storniert</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">erstellt_am</span><span class="field-type">DATETIME</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="rel-row" style="margin-top:14px;">
+          <div class="rel-chip"><span class="kard">User</span><span class="arrow-sym">→</span><span class="kard">Buchung</span>&nbsp;1:N — ein Nutzer erstellt viele Buchungen</div>
+          <div class="rel-chip"><span class="kard">Platz</span><span class="arrow-sym">→</span><span class="kard">Buchung</span>&nbsp;1:N — ein Platz wird mehrfach (zu versch. Zeiten) gebucht</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCHRITT 4 — BESTÄTIGUNG
+    ═══════════════════════════════ -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-badge">
+          <div class="step-num bestaetigung">4</div>
+          <div class="step-name">Bestätigung</div>
+          <div class="step-screen">Automatische Benachrichtigung</div>
+        </div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-intro">Nach der Buchung wird der Status in <strong>Buchung</strong> auf <em>„bestätigt"</em> gesetzt. Gleichzeitig erzeugt das System automatisch einen Eintrag in <strong>Benachrichtigung</strong> — die Buchungsbestätigung geht an den Nutzer (und später an eingeladene Freunde).</div>
+        <div class="tables-grid">
+          <div class="db-table">
+            <div class="db-head bestaetigung">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg></div>
+              <div><div class="db-table-name">Buchung</div><div class="db-table-sub">Status-Update: bestätigt</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">buchung_id</span><span class="field-type">INT</span></div>
+              <div class="db-field" style="background:#fff8f5;"><span class="field-tag" style="background:var(--bot);color:#fff;">↑</span><span class="field-name" style="color:var(--bot);">status</span><span class="field-type">→ 'bestätigt'</span></div>
+            </div>
+          </div>
+
+          <div class="db-table highlight">
+            <div class="db-head benachrichtigung">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+              <div><div class="db-table-name">Benachrichtigung</div><div class="db-table-sub">Automatische Mitteilung</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">benachrichtigung_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">empfaenger_id</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">buchung_id</span><span class="field-type">INT</span><span class="field-note">→ Buchung</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">einladung_id</span><span class="field-type">INT · NULL</span><span class="field-note">→ Einladung</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">typ</span><span class="field-type">ENUM</span><span class="enum-vals">buchungsbestaetigung · einladung · erinnerung · stornierung</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">inhalt</span><span class="field-type">TEXT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">gesendet_am</span><span class="field-type">DATETIME</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">gelesen</span><span class="field-type">BOOLEAN</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="rel-row" style="margin-top:14px;">
+          <div class="rel-chip"><span class="kard">Buchung</span><span class="arrow-sym">→</span><span class="kard">Benachrichtigung</span>&nbsp;1:N — eine Buchung löst mehrere Benachrichtigungen aus</div>
+          <div class="rel-chip"><span class="kard">User</span><span class="arrow-sym">→</span><span class="kard">Benachrichtigung</span>&nbsp;1:N — ein Nutzer empfängt viele Benachrichtigungen</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCHRITT 5 — FREUNDE EINLADEN
+    ═══════════════════════════════ -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-badge">
+          <div class="step-num freunde">5</div>
+          <div class="step-name">Freunde einladen</div>
+          <div class="step-screen">Einladung & Benachrichtigung</div>
+        </div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-intro">Nach der Bestätigung kann der Bucher Freunde einladen. Für jeden eingeladenen Freund wird ein Eintrag in <strong>Einladung</strong> angelegt. Das System schreibt automatisch eine <strong>Benachrichtigung</strong> an den eingeladenen Freund. Die Freundesliste wird aus <strong>Freundschaft</strong> geladen.</div>
+        <div class="tables-grid">
+          <div class="db-table highlight">
+            <div class="db-head einladung">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+              <div><div class="db-table-name">Einladung</div><div class="db-table-sub">Freunde zur Buchung einladen</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">einladung_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">buchung_id</span><span class="field-type">INT</span><span class="field-note">→ Buchung</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">einlader_id</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">eingeladener_id</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">status</span><span class="field-type">ENUM</span><span class="enum-vals">ausstehend · angenommen · abgelehnt</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">erstellt_am</span><span class="field-type">DATETIME</span></div>
+            </div>
+          </div>
+
+          <div class="db-table">
+            <div class="db-head freundschaft">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div><div class="db-table-name">Freundschaft</div><div class="db-table-sub">M:N User ↔ User</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">freundschaft_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">user_id_1</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">user_id_2</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">status</span><span class="field-type">ENUM</span><span class="enum-vals">ausstehend · angenommen</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">erstellt_am</span><span class="field-type">DATETIME</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="rel-row" style="margin-top:14px;">
+          <div class="rel-chip"><span class="kard">Buchung</span><span class="arrow-sym">→</span><span class="kard">Einladung</span>&nbsp;1:N — pro Buchung mehrere Einladungen möglich</div>
+          <div class="rel-chip"><span class="kard">Einladung</span><span class="arrow-sym">→</span><span class="kard">Benachrichtigung</span>&nbsp;1:N — jede Einladung erzeugt automatisch eine Benachrichtigung</div>
+          <div class="rel-chip"><span class="kard">User</span><span class="arrow-sym">↔</span><span class="kard">User</span>&nbsp;M:N — Freundschaftsbeziehungen (Zwischentabelle: Freundschaft)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         SCHRITT 6 — PROFIL / GRUPPEN / CHAT
+    ═══════════════════════════════ -->
+    <div class="step">
+      <div class="step-left">
+        <div class="step-badge">
+          <div class="step-num profil">6</div>
+          <div class="step-name">Profil</div>
+          <div class="step-screen">Gruppen & Chat</div>
+        </div>
+      </div>
+      <div class="step-right">
+        <div class="step-intro">Im Profil sieht der Nutzer seine Buchungshistorie, Gruppen und Freunde. <strong>Gruppe</strong> und <strong>GruppeMitglied</strong> verwalten Teams. <strong>Nachricht</strong> speichert den Gruppen- und Direktchat.</div>
+        <div class="tables-grid">
+          <div class="db-table">
+            <div class="db-head gruppe">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div><div class="db-table-name">Gruppe</div><div class="db-table-sub">Nutzergruppe</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">gruppe_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">ersteller_id</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">name</span><span class="field-type">VARCHAR(100)</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">beschreibung</span><span class="field-type">TEXT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">erstellt_am</span><span class="field-type">DATETIME</span></div>
+            </div>
+          </div>
+
+          <div class="db-table">
+            <div class="db-head gruppemitglied">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+              <div><div class="db-table-name">GruppeMitglied</div><div class="db-table-sub">M:N User ↔ Gruppe</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">gruppe_id</span><span class="field-type">INT</span><span class="field-note">→ Gruppe</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">user_id</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">rolle</span><span class="field-type">ENUM</span><span class="enum-vals">admin · mitglied</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">beigetreten_am</span><span class="field-type">DATETIME</span></div>
+            </div>
+          </div>
+
+          <div class="db-table">
+            <div class="db-head nachricht">
+              <div class="db-head-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+              <div><div class="db-table-name">Nachricht</div><div class="db-table-sub">Chat (Gruppe & Direkt)</div></div>
+            </div>
+            <div class="db-fields">
+              <div class="db-field pk"><span class="field-tag tag-pk">PK</span><span class="field-name underline">nachricht_id</span><span class="field-type">INT</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">sender_id</span><span class="field-type">INT</span><span class="field-note">→ User</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">gruppe_id</span><span class="field-type">INT · NULL</span><span class="field-note">→ Gruppe</span></div>
+              <div class="db-field"><span class="field-tag tag-fk">FK</span><span class="field-name">empfaenger_id</span><span class="field-type">INT · NULL</span><span class="field-note">→ User (Direkt)</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">inhalt</span><span class="field-type">TEXT</span></div>
+              <div class="db-field"><span class="field-tag" style="background:var(--c1);color:var(--c3);">—</span><span class="field-name">gesendet_am</span><span class="field-type">DATETIME</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="rel-row" style="margin-top:14px;">
+          <div class="rel-chip"><span class="kard">User</span><span class="arrow-sym">↔</span><span class="kard">Gruppe</span>&nbsp;M:N — Zwischentabelle: GruppeMitglied</div>
+          <div class="rel-chip"><span class="kard">Gruppe</span><span class="arrow-sym">→</span><span class="kard">Nachricht</span>&nbsp;1:N — Gruppen-Chat</div>
+          <div class="rel-chip"><span class="kard">User</span><span class="arrow-sym">→</span><span class="kard">Nachricht</span>&nbsp;1:N — Direkt-Chat</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /flow -->
+
+  <!-- Gesamtübersicht -->
+  <div style="margin-top:56px;background:#fff;border:1px solid var(--c1);border-radius:16px;overflow:hidden;">
+    <div style="background:var(--c4);padding:16px 24px;">
+      <h3 style="color:#fff;font-size:16px;">Alle Tabellen im Überblick</h3>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--c1);">
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">User</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 1 · Anmeldung</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Sportanlage</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 2 · Home</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Kategorie</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 2 · Home</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Platz</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 2 · Home</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Buchung</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 3 · Buchen</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Benachrichtigung</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 4 · Bestätigung</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Einladung</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 5 · Freunde</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Freundschaft</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 5 · Freunde</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Gruppe</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 6 · Profil</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">GruppeMitglied</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 6 · Profil</div></div>
+      <div style="background:#fff;padding:14px 18px;"><div style="font-weight:700;font-size:13px;color:var(--c4);">Nachricht</div><div style="font-size:11px;color:var(--c2);margin-top:2px;">Schritt 6 · Chat</div></div>
+    </div>
+  </div>
+
+  <p style="margin-top:20px;font-size:12px;color:var(--c2);">PlatzFrei · Aufgabe 5: App Back-End Design · Konzeptioneller Datenbankentwurf nach App-Flow-Reihenfolge</p>
+</div>
+</body>
+</html>
