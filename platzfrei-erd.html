@@ -81,7 +81,7 @@ svg.erd{display:block;min-width:1160px;}
     <div class="legend-item"><div class="leg-dot" style="background:var(--c2);border:1.5px solid var(--c3);"></div><span>N (mehrere)</span></div>
   </div>
 
-  <svg class="erd" viewBox="0 0 1160 860" xmlns="http://www.w3.org/2000/svg">
+  <svg class="erd" viewBox="0 0 1160 980" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <marker id="arrow-end" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
         <path d="M0,0 L0,6 L8,3 z" fill="#46566B"/>
@@ -297,8 +297,28 @@ svg.erd{display:block;min-width:1160px;}
       </div>
     </foreignObject>
 
+    <!-- 11. BENACHRICHTIGUNG (mitte-rechts, neu) -->
+    <foreignObject x="560" y="560" width="200" height="210">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="entity-box">
+        <div class="entity-head" style="background:#C8531A;">
+          <div class="entity-name">🔔 Benachrichtigung</div>
+          <div class="entity-sub">Automatische Mitteilung</div>
+        </div>
+        <div class="entity-attrs">
+          <div class="attr-row pk"><span class="attr-tag tag-pk">PK</span><span class="attr-name">benachrichtigung_id</span><span class="attr-type">INT</span></div>
+          <div class="attr-row fk"><span class="attr-tag tag-fk">FK</span><span class="attr-name">empfaenger_id</span><span class="attr-type">INT</span></div>
+          <div class="attr-row fk"><span class="attr-tag tag-fk">FK</span><span class="attr-name">buchung_id</span><span class="attr-type">INT</span></div>
+          <div class="attr-row fk"><span class="attr-tag tag-fk">FK</span><span class="attr-name">einladung_id</span><span class="attr-type">INT</span></div>
+          <div class="attr-row"><span class="attr-name">typ</span><span class="attr-type">ENUM</span></div>
+          <div class="attr-row"><span class="attr-name">inhalt</span><span class="attr-type">TEXT</span></div>
+          <div class="attr-row"><span class="attr-name">gesendet_am</span><span class="attr-type">DATETIME</span></div>
+          <div class="attr-row"><span class="attr-name">gelesen</span><span class="attr-type">BOOLEAN</span></div>
+        </div>
+      </div>
+    </foreignObject>
+
     <!-- 9. GRUPPE_MITGLIED (unten-mitte) -->
-    <foreignObject x="400" y="760" width="210" height="175">
+    <foreignObject x="400" y="880" width="210" height="175">
       <div xmlns="http://www.w3.org/1999/xhtml" class="entity-box">
         <div class="entity-head" style="background:#7a3010;">
           <div class="entity-name">🔗 GruppeMitglied</div>
@@ -314,7 +334,7 @@ svg.erd{display:block;min-width:1160px;}
     </foreignObject>
 
     <!-- 10. NACHRICHT (links-unten) -->
-    <foreignObject x="20" y="580" width="210" height="190">
+    <foreignObject x="20" y="700" width="210" height="190">
       <div xmlns="http://www.w3.org/1999/xhtml" class="entity-box">
         <div class="entity-head" style="background:#1a4a5e;">
           <div class="entity-name">💬 Nachricht</div>
@@ -332,11 +352,23 @@ svg.erd{display:block;min-width:1160px;}
     </foreignObject>
 
     <!-- Linie: GruppeMitglied ↔ User -->
-    <line x1="505" y1="760" x2="130" y2="450" stroke="#46566B" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#crow-n)"/>
+    <line x1="505" y1="880" x2="130" y2="450" stroke="#46566B" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#crow-n)"/>
     <!-- Linie: GruppeMitglied ↔ Gruppe -->
-    <line x1="610" y1="800" x2="730" y2="680" stroke="#46566B" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#crow-n)"/>
+    <line x1="610" y1="900" x2="730" y2="680" stroke="#46566B" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#crow-n)"/>
     <!-- User → Gruppe (ersteller) -->
     <line x1="230" y1="330" x2="748" y2="568" stroke="#46566B" stroke-width="1.4" stroke-dasharray="3,3"/>
+
+    <!-- Benachrichtigung: Buchung → Benachrichtigung (1:N) -->
+    <line x1="480" y1="435" x2="600" y2="560" stroke="#C8531A" stroke-width="1.8" marker-start="url(#one-o)" marker-end="url(#crow-n-o)"/>
+    <text x="516" y="494" font-size="10" fill="#C8531A" font-family="Mulish">1 : N</text>
+
+    <!-- Benachrichtigung: Einladung → Benachrichtigung (1:N) -->
+    <line x1="540" y1="650" x2="560" y2="650" stroke="#C8531A" stroke-width="1.8" marker-start="url(#one-o)" marker-end="url(#crow-n-o)"/>
+    <text x="544" y="644" font-size="10" fill="#C8531A" font-family="Mulish">1:N</text>
+
+    <!-- Benachrichtigung: User → Benachrichtigung (1:N, Empfänger) -->
+    <line x1="230" y1="370" x2="560" y2="620" stroke="#C8531A" stroke-width="1.8" stroke-dasharray="5,3" marker-start="url(#one-o)" marker-end="url(#crow-n-o)"/>
+    <text x="370" y="488" font-size="10" fill="#C8531A" font-family="Mulish">1 : N</text>
 
     <!-- Kardinaltitäts-Labels auf Linien -->
     <text x="620" y="298" font-size="11" fill="#8896A6" font-family="Mulish">N</text>
@@ -367,7 +399,10 @@ svg.erd{display:block;min-width:1160px;}
         <tr style="border-bottom:1px solid var(--c1);"><td style="padding:9px 16px;color:var(--c4);font-weight:600;">User</td><td style="padding:9px 16px;text-align:center;"><span style="background:var(--bot);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;">M : N</span></td><td style="padding:9px 16px;color:var(--c4);font-weight:600;">User (Freund)</td><td style="padding:9px 16px;color:var(--c2);">User können sich gegenseitig befreunden (Zwischentabelle: Freundschaft)</td></tr>
         <tr style="border-bottom:1px solid var(--c1);background:var(--c0);"><td style="padding:9px 16px;color:var(--c4);font-weight:600;">User</td><td style="padding:9px 16px;text-align:center;"><span style="background:var(--bot);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;">M : N</span></td><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Gruppe</td><td style="padding:9px 16px;color:var(--c2);">User können Mitglieder in mehreren Gruppen sein (Zwischentabelle: GruppeMitglied)</td></tr>
         <tr style="border-bottom:1px solid var(--c1);"><td style="padding:9px 16px;color:var(--c4);font-weight:600;">User / Gruppe</td><td style="padding:9px 16px;text-align:center;"><span style="background:var(--c4);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;">1 : N</span></td><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Nachricht</td><td style="padding:9px 16px;color:var(--c2);">Nachrichten gehören zu einem Sender und optional einer Gruppe</td></tr>
-        <tr style="background:var(--c0);"><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Sportanlage</td><td style="padding:9px 16px;text-align:center;"><span style="background:var(--c4);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;">1 : N</span></td><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Kategorie</td><td style="padding:9px 16px;color:var(--c2);">Eine Anlage kann mehrere Sportarten (Tennis, Fußball, …) anbieten</td></tr>
+        <tr style="border-bottom:1px solid var(--c1);"><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Sportanlage</td><td style="padding:9px 16px;text-align:center;"><span style="background:var(--c4);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;">1 : N</span></td><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Kategorie</td><td style="padding:9px 16px;color:var(--c2);">Eine Anlage kann mehrere Sportarten (Tennis, Fußball, …) anbieten</td></tr>
+        <tr style="border-bottom:1px solid var(--c1);background:var(--c0);"><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Buchung</td><td style="padding:9px 16px;text-align:center;"><span style="background:var(--bot);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;">1 : N</span></td><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Benachrichtigung</td><td style="padding:9px 16px;color:var(--c2);">Eine Buchungsbestätigung löst automatisch Benachrichtigungen aus (an Bucher + eingeladene Freunde)</td></tr>
+        <tr style="border-bottom:1px solid var(--c1);"><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Einladung</td><td style="padding:9px 16px;text-align:center;"><span style="background:var(--bot);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;">1 : N</span></td><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Benachrichtigung</td><td style="padding:9px 16px;color:var(--c2);">Jede Einladung erzeugt eine automatische Benachrichtigung an den eingeladenen Freund</td></tr>
+        <tr style="background:var(--c0);"><td style="padding:9px 16px;color:var(--c4);font-weight:600;">User</td><td style="padding:9px 16px;text-align:center;"><span style="background:var(--c4);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;">1 : N</span></td><td style="padding:9px 16px;color:var(--c4);font-weight:600;">Benachrichtigung</td><td style="padding:9px 16px;color:var(--c2);">Ein User empfängt viele Benachrichtigungen (Bestätigungen, Einladungen, Erinnerungen)</td></tr>
       </tbody>
     </table>
   </div>
