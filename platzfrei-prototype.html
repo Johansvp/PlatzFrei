@@ -590,13 +590,15 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
           </div>
         </div>
 
-        <!-- S2: LOGIN -->
+        <!-- S2: LOGIN / REGISTER -->
         <div class="app-screen active" id="s2">
           <div class="status-bar">
             <span class="time">9:41</span>
             <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
           </div>
-          <div class="screen-pad">
+
+          <!-- LOGIN FORM -->
+          <div class="screen-pad" id="s2-login">
             <div class="screen-logo-sm">
               <div class="mark-sm"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
               <span>PlatzFrei</span>
@@ -606,16 +608,47 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
             <div style="height:8px;"></div>
             <div class="input-group">
               <label>E-Mail</label>
-              <input class="app-input" type="email" placeholder="deine@email.de" value="max.mustermann@email.de">
+              <input class="app-input" id="l-email" type="email" placeholder="deine@email.de">
             </div>
             <div class="input-group">
               <label>Passwort</label>
-              <input class="app-input" type="password" placeholder="••••••••" value="password">
+              <input class="app-input" id="l-pw" type="password" placeholder="••••••••">
             </div>
-            <div style="text-align:right;"><button class="link-btn">Passwort vergessen?</button></div>
-            <button class="btn-primary" style="background:var(--c4);" onclick="goTo('s3')">Anmelden</button>
+            <div id="l-error" style="font-size:12px;color:#e74c3c;text-align:center;display:none;"></div>
+            <button class="btn-primary" style="background:var(--c4);" onclick="doLogin()">Anmelden</button>
             <div class="divider">oder</div>
-            <button class="btn-primary" onclick="goTo('s3')">Neu registrieren</button>
+            <button class="btn-primary" onclick="toggleAuthForm('register')">Neu registrieren</button>
+            <div style="flex:1;"></div>
+          </div>
+
+          <!-- REGISTER FORM -->
+          <div class="screen-pad" id="s2-register" style="display:none;">
+            <div class="screen-logo-sm">
+              <div class="mark-sm"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+              <span>PlatzFrei</span>
+            </div>
+            <div class="form-title">Konto erstellen</div>
+            <div class="form-sub">Kostenlos registrieren</div>
+            <div style="height:4px;"></div>
+            <div style="display:flex;gap:8px;">
+              <div class="input-group" style="flex:1;"><label>Vorname</label><input class="app-input" id="r-fn" type="text" placeholder="Max"></div>
+              <div class="input-group" style="flex:1;"><label>Nachname</label><input class="app-input" id="r-ln" type="text" placeholder="Muster"></div>
+            </div>
+            <div class="input-group">
+              <label>E-Mail</label>
+              <input class="app-input" id="r-email" type="email" placeholder="deine@email.de">
+            </div>
+            <div class="input-group">
+              <label>Passwort (min. 6 Zeichen)</label>
+              <input class="app-input" id="r-pw" type="password" placeholder="••••••••">
+            </div>
+            <div class="input-group">
+              <label>Passwort wiederholen</label>
+              <input class="app-input" id="r-pw2" type="password" placeholder="••••••••">
+            </div>
+            <div id="r-error" style="font-size:12px;color:#e74c3c;text-align:center;display:none;"></div>
+            <button class="btn-primary" onclick="doRegister()">Konto erstellen</button>
+            <button class="link-btn" onclick="toggleAuthForm('login')" style="margin-top:4px;">Bereits ein Konto? Anmelden</button>
             <div style="flex:1;"></div>
           </div>
         </div>
@@ -627,7 +660,7 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
             <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
           </div>
           <div class="home-header">
-            <h2>Guten Morgen, Johan!</h2>
+            <h2 id="home-greeting">Guten Morgen!</h2>
             <p>Was spielst du heute?</p>
             <div class="search-bar">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -640,8 +673,9 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
             <div class="filter-chip">Fußball</div>
             <div class="filter-chip">Badminton</div>
           </div>
+          <div id="aktiv-banner-home"></div>
           <div class="cards-list">
-            <div class="place-card" onclick="goTo('s4')">
+            <div class="place-card" onclick="selectAnlage('westpark')">
               <div class="place-img">
                 <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
                 <div class="place-badge">Verfügbar</div>
@@ -657,7 +691,7 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
                 </div>
               </div>
             </div>
-            <div class="place-card" onclick="goTo('s4')">
+            <div class="place-card" onclick="selectAnlage('suedpark')">
               <div class="place-img" style="background:linear-gradient(135deg,#2e4a2e,#1E2A38);">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="21"/><ellipse cx="12" cy="12" rx="5" ry="9"/></svg>
                 <div class="place-badge">Verfügbar</div>
@@ -680,7 +714,7 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
               <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               <span>Home</span>
             </button>
-            <button class="bnav-item" onclick="goTo('s3')">
+            <button class="bnav-item" onclick="goTo('s-buchungen');loadBuchungen()">
               <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
               <span>Buchungen</span>
             </button>
@@ -705,39 +739,30 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
             <button class="back" onclick="goTo('s3')">←</button>
             <div class="title">Platz buchen</div>
           </div>
-          <div class="detail-img">
+          <div class="detail-img" id="s4-img">
             <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
           </div>
           <div class="detail-body">
             <div>
-              <div class="detail-title">Tennisanlage Westpark</div>
-              <div class="detail-row">
+              <div class="detail-title" id="s4-name">Tennisanlage Westpark</div>
+              <div class="detail-row" id="s4-addr">
                 <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
                 Westparkstraße 12, München · 1.2 km
               </div>
             </div>
             <div>
               <div class="section-label">Datum wählen</div>
-              <div class="date-row" style="margin-top:8px;">
-                <div class="date-chip"><div class="day">Mo</div><div class="num">25</div></div>
-                <div class="date-chip active"><div class="day">Di</div><div class="num">26</div></div>
-                <div class="date-chip"><div class="day">Mi</div><div class="num">27</div></div>
-                <div class="date-chip"><div class="day">Do</div><div class="num">28</div></div>
-                <div class="date-chip"><div class="day">Fr</div><div class="num">29</div></div>
-              </div>
+              <div class="date-row" id="date-row" style="margin-top:8px;"></div>
+            </div>
+            <div>
+              <div class="section-label">Platz wählen</div>
+              <div class="time-grid" id="platz-grid" style="margin-top:8px;"></div>
             </div>
             <div>
               <div class="section-label">Uhrzeit wählen</div>
-              <div class="time-grid" style="margin-top:8px;">
-                <div class="time-chip taken">08:00</div>
-                <div class="time-chip taken">09:00</div>
-                <div class="time-chip">10:00</div>
-                <div class="time-chip active">11:00</div>
-                <div class="time-chip">12:00</div>
-                <div class="time-chip">13:00</div>
-              </div>
+              <div class="time-grid" id="time-grid" style="margin-top:8px;"></div>
             </div>
-            <button class="btn-primary" onclick="goTo('s5')">Jetzt buchen</button>
+            <button class="btn-primary" id="btn-book" onclick="doBooking()">Jetzt buchen</button>
           </div>
         </div>
 
@@ -753,23 +778,23 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
             </div>
             <div class="confirm-title">Buchung bestätigt!</div>
             <div class="confirm-sub">Dein Platz ist reserviert. Wir haben dir eine Bestätigung per E-Mail geschickt.</div>
-            <div class="booking-card">
+            <div class="booking-card" id="best-card">
               <div class="booking-row">
                 <span class="key">Anlage</span>
-                <span class="val">Tennisanlage Westpark</span>
+                <span class="val" id="best-anlage">–</span>
               </div>
               <div style="height:1px;background:var(--line);"></div>
               <div class="booking-row">
                 <span class="key">Datum</span>
-                <span class="val">Di, 26. Jun 2026</span>
+                <span class="val" id="best-datum">–</span>
               </div>
               <div class="booking-row">
                 <span class="key">Uhrzeit</span>
-                <span class="val">11:00 – 12:00 Uhr</span>
+                <span class="val" id="best-uhrzeit">–</span>
               </div>
               <div class="booking-row">
                 <span class="key">Platz</span>
-                <span class="val">Platz 3</span>
+                <span class="val" id="best-platz">–</span>
               </div>
               <div style="height:1px;background:var(--line);"></div>
             </div>
@@ -791,35 +816,20 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
             <button class="back" onclick="goTo('s5')">←</button>
             <div class="title">Freunde einladen</div>
           </div>
-          <div style="padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:12px;">
-            <div style="background:var(--c0);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--c3);">
-              <strong>Di, 26. Jun · 11:00 Uhr</strong><br>
-              <span style="color:var(--c2);">Tennisanlage Westpark · Platz 3</span>
+          <div style="padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto;">
+            <div id="freunde-buchung-info" style="background:var(--c0);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--c3);">
+              <strong>–</strong>
             </div>
-            <div class="friends-list">
-              <div class="friend-item">
-                <div class="avatar">L</div>
-                <div><div class="friend-name">Lisa Müller</div><div class="friend-sub">@lisa.m</div></div>
-                <button class="invite-toggle on">✓</button>
-              </div>
-              <div class="friend-item">
-                <div class="avatar" style="background:var(--bot);">T</div>
-                <div><div class="friend-name">Tom Schneider</div><div class="friend-sub">@tomschn</div></div>
-                <button class="invite-toggle on">✓</button>
-              </div>
-              <div class="friend-item">
-                <div class="avatar" style="background:#46566B;">A</div>
-                <div><div class="friend-name">Anna Koch</div><div class="friend-sub">@anna.k</div></div>
-                <button class="invite-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off');this.textContent=this.classList.contains('on')?'✓':'+'">+</button>
-              </div>
-              <div class="friend-item">
-                <div class="avatar" style="background:#8896A6;">J</div>
-                <div><div class="friend-name">Jonas Weber</div><div class="friend-sub">@j.weber</div></div>
-                <button class="invite-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off');this.textContent=this.classList.contains('on')?'✓':'+'">+</button>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <label style="font-size:11px;font-weight:700;color:var(--c3);text-transform:uppercase;letter-spacing:.06em;">Freund per E-Mail einladen</label>
+              <div style="display:flex;gap:7px;">
+                <input class="app-input" id="f-email-input" type="email" placeholder="freund@email.de" style="flex:1;" onkeydown="if(event.key==='Enter')addInviteEmail()">
+                <button onclick="addInviteEmail()" style="background:var(--c4);color:#fff;border:none;border-radius:12px;padding:0 14px;font-family:'Mulish',sans-serif;font-weight:700;cursor:pointer;">+</button>
               </div>
             </div>
+            <div id="invite-tags" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
             <div style="margin-top:auto;">
-              <button class="btn-primary" onclick="goTo('s3')">Einladungen senden (2)</button>
+              <button class="btn-primary" id="btn-send-invites" onclick="doInvite()" disabled>Einladungen senden</button>
             </div>
           </div>
           <div class="bottom-nav">
@@ -827,7 +837,7 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
               <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               <span>Home</span>
             </button>
-            <button class="bnav-item" onclick="goTo('s3')">
+            <button class="bnav-item" onclick="goTo('s-buchungen');loadBuchungen()">
               <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
               <span>Buchungen</span>
             </button>
@@ -849,24 +859,24 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
             <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
           </div>
           <div class="profil-header">
-            <div class="profil-avatar">M</div>
-            <div class="profil-name">Max Mustermann</div>
-            <div class="profil-email">max.mustermann@email.de</div>
+            <div class="profil-avatar" id="profil-avatar">M</div>
+            <div class="profil-name" id="profil-name">–</div>
+            <div class="profil-email" id="profil-email">–</div>
           </div>
           <div class="profil-body">
             <div class="stats-row">
-              <div class="stat-box"><div class="stat-num">14</div><div class="stat-lbl">Buchungen</div></div>
-              <div class="stat-box"><div class="stat-num">6</div><div class="stat-lbl">Freunde</div></div>
-              <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">Gruppen</div></div>
+              <div class="stat-box"><div class="stat-num" id="stat-buchungen">0</div><div class="stat-lbl">Buchungen</div></div>
+              <div class="stat-box"><div class="stat-num" id="stat-aktiv">0</div><div class="stat-lbl">Aktiv</div></div>
+              <div class="stat-box"><div class="stat-num">🏆</div><div class="stat-lbl">Sport</div></div>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" onclick="goTo('s-buchungen');loadBuchungen()">
               <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg>
-              <div><div class="menu-label">Meine Buchungen</div><div class="menu-sub">14 aktive Buchungen</div></div>
+              <div><div class="menu-label">Meine Buchungen</div><div class="menu-sub" id="menu-buch-sub">–</div></div>
               <span class="arrow">›</span>
             </div>
             <div class="menu-item">
               <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              <div><div class="menu-label">Freunde & Gruppen</div><div class="menu-sub">6 Freunde · 3 Gruppen</div></div>
+              <div><div class="menu-label">Freunde & Gruppen</div><div class="menu-sub">Freunde einladen</div></div>
               <span class="arrow">›</span>
             </div>
             <div class="menu-item">
@@ -874,7 +884,7 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
               <div><div class="menu-label">Konto bearbeiten</div><div class="menu-sub">Name, E-Mail, Passwort</div></div>
               <span class="arrow">›</span>
             </div>
-            <div class="menu-item" style="border-color:#fde0d6;">
+            <div class="menu-item" style="border-color:#fde0d6;" onclick="doLogout()">
               <svg viewBox="0 0 24 24" style="stroke:var(--bot);"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
               <div><div class="menu-label" style="color:var(--bot);">Abmelden</div></div>
               <span class="arrow" style="color:var(--bot);">›</span>
@@ -885,7 +895,7 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
               <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               <span>Home</span>
             </button>
-            <button class="bnav-item" onclick="goTo('s3')">
+            <button class="bnav-item" onclick="goTo('s-buchungen');loadBuchungen()">
               <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
               <span>Buchungen</span>
             </button>
@@ -900,6 +910,39 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
           </div>
         </div>
 
+        <!-- S-BUCHUNGEN: MEINE BUCHUNGEN -->
+        <div class="app-screen" id="s-buchungen">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons"><span>●●●</span><span>WiFi</span><span>⚡</span></div>
+          </div>
+          <div class="app-nav">
+            <button class="back" onclick="goTo('s7')">←</button>
+            <div class="title">Meine Buchungen</div>
+          </div>
+          <div style="padding:14px 16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;" id="buchungen-list">
+            <div style="text-align:center;color:var(--c2);font-size:13px;padding:30px 0;">Lade Buchungen…</div>
+          </div>
+          <div class="bottom-nav">
+            <button class="bnav-item" onclick="goTo('s3')">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Home</span>
+            </button>
+            <button class="bnav-item active">
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg>
+              <span>Buchungen</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s6')">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Freunde</span>
+            </button>
+            <button class="bnav-item" onclick="goTo('s7')">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Profil</span>
+            </button>
+          </div>
+        </div>
+
       </div><!-- /phone-screen-wrap -->
     </div><!-- /phone-shell -->
 
@@ -907,17 +950,54 @@ h1,h2,h3,h4{font-family:'Marcellus',serif;font-weight:400;}
   </div><!-- /mockup-center -->
 </div>
 
+<!-- Firebase Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script>
+// ─── Firebase Init ────────────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey: "AIzaSyD6jfSjq3B5_UviISRl9-41bP1VmPl1kbk",
+  authDomain: "platzfrei-e0371.firebaseapp.com",
+  projectId: "platzfrei-e0371",
+  storageBucket: "platzfrei-e0371.firebasestorage.app",
+  messagingSenderId: "916659140649",
+  appId: "1:916659140649:web:bab97ed0bf11ef8c9ac438"
+});
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// ─── App State ────────────────────────────────────────────────────────────────
+let currentUser     = null;
+let currentUserData = null;
+let selectedAnlage  = { id:'westpark', name:'Tennisanlage Westpark', addr:'Westparkstraße 12, München · 1.2 km' };
+let selectedDate    = null;
+let selectedDateFmt = null;
+let selectedPlatz   = null;
+let selectedTime    = null;
+let currentBooking  = null;
+let inviteEmails    = [];
+
+// ─── Anlagen Daten ────────────────────────────────────────────────────────────
+const anlagen = {
+  westpark: { name:'Tennisanlage Westpark', addr:'Westparkstraße 12, München · 1.2 km', sport:'Tennis' },
+  suedpark: { name:'Fußballplatz Südpark',  addr:'Südparkweg 5, München · 0.8 km',      sport:'Fußball' }
+};
+
+// ─── Screen Meta (Sidebar) ────────────────────────────────────────────────────
 const screenMeta = {
-  s1:{label:'Splash / Onboarding',desc:'Splash-Screen — App-Start, Weiterleitung zu Login oder Registrierung.',actions:'• "Jetzt loslegen" → Login\n• "Ich habe schon ein Konto" → Login'},
-  s2:{label:'Login / Registrierung',desc:'Login-Formular mit E-Mail und Passwort. Auch Registrierung möglich.',actions:'• "Anmelden" → Home\n• "Neu registrieren" → Home'},
+  s1:{label:'Splash / Onboarding',desc:'Splash-Screen — App-Start, Weiterleitung zu Login.',actions:'• "Jetzt loslegen" → Login\n• "Ich habe schon ein Konto" → Login'},
+  s2:{label:'Login / Registrierung',desc:'Login-Formular mit E-Mail und Passwort. Auch Registrierung möglich.',actions:'• "Anmelden" → Home\n• "Neu registrieren" → Konto erstellen'},
   s3:{label:'Home – Plätze entdecken',desc:'Übersicht verfügbarer Sportanlagen mit Filter und Suche.',actions:'• Karte antippen → Buchung\n• Bottom Nav → andere Screens'},
   s4:{label:'Platz buchen',desc:'Detailansicht einer Anlage mit Datumsauswahl und Zeitslots.',actions:'• Datum / Uhrzeit wählen\n• "Jetzt buchen" → Bestätigung\n• ← → Home'},
   s5:{label:'Buchungsbestätigung',desc:'Erfolgsmeldung mit Buchungsdetails nach abgeschlossener Reservierung.',actions:'• "Freunde einladen" → Freunde\n• "Zurück zur Startseite" → Home'},
-  s6:{label:'Freunde einladen',desc:'Kontaktliste zum Einladen von Freunden zur aktuellen Buchung.',actions:'• Freunde aus- / abwählen\n• "Einladungen senden" → Home\n• ← → Bestätigung'},
+  s6:{label:'Freunde einladen',desc:'Freunde per E-Mail zur aktuellen Buchung einladen.',actions:'• E-Mail eingeben und + drücken\n• "Einladungen senden" → Home\n• ← → Bestätigung'},
   s7:{label:'Profil',desc:'Nutzerprofil mit Statistiken, Buchungsübersicht und Einstellungen.',actions:'• Bottom Nav → Home / Freunde\n• Menüpunkte → Unterseiten'},
+  's-buchungen':{label:'Meine Buchungen',desc:'Alle gebuchten Plätze des Nutzers mit Status.',actions:'• Buchung stornieren\n• ← → Profil'},
 };
 
+// ─── Tab Switcher (Wireframes / Mockup) ──────────────────────────────────────
 function showTab(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -925,18 +1005,396 @@ function showTab(id){
   event.target.classList.add('active');
 }
 
+// ─── Screen Navigation ────────────────────────────────────────────────────────
 function goTo(id){
   document.querySelectorAll('.app-screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.flow-step').forEach(s=>s.classList.remove('current'));
-  document.getElementById(id).classList.add('active');
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
   const step = document.getElementById('step-'+id);
   if(step) step.classList.add('current');
   const m = screenMeta[id];
   if(m){
-    document.getElementById('screen-desc').textContent = m.desc;
-    document.getElementById('screen-actions').innerHTML = m.actions.replace(/\n/g,'<br>');
+    const descEl = document.getElementById('screen-desc');
+    const actEl  = document.getElementById('screen-actions');
+    if(descEl) descEl.textContent = m.desc;
+    if(actEl)  actEl.innerHTML    = m.actions.replace(/\n/g,'<br>');
   }
 }
+
+// ─── Auth State Observer ──────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if(user){
+    currentUser = user;
+    const snap = await db.collection('users').doc(user.uid).get();
+    if(snap.exists){
+      currentUserData = snap.data();
+    } else {
+      currentUserData = { name: user.displayName || user.email.split('@')[0], email: user.email };
+    }
+    goTo('s3');
+    updateHome();
+    updateProfil();
+  } else {
+    currentUser     = null;
+    currentUserData = null;
+    goTo('s2');
+  }
+});
+
+// ─── Auth: Toggle Login / Register ───────────────────────────────────────────
+function toggleAuthForm(form){
+  document.getElementById('s2-login').style.display    = form==='login'    ? 'flex' : 'none';
+  document.getElementById('s2-register').style.display = form==='register' ? 'flex' : 'none';
+}
+
+// ─── Auth: Login ─────────────────────────────────────────────────────────────
+async function doLogin(){
+  const email = document.getElementById('l-email').value.trim();
+  const pw    = document.getElementById('l-pw').value;
+  const errEl = document.getElementById('l-error');
+  errEl.style.display = 'none';
+  if(!email || !pw){ errEl.textContent='Bitte E-Mail und Passwort eingeben.'; errEl.style.display='block'; return; }
+  try{
+    await auth.signInWithEmailAndPassword(email, pw);
+  } catch(e){
+    const msgs = {
+      'auth/user-not-found':'Kein Konto mit dieser E-Mail gefunden.',
+      'auth/wrong-password':'Falsches Passwort.',
+      'auth/invalid-email':'Ungültige E-Mail-Adresse.',
+      'auth/too-many-requests':'Zu viele Versuche. Bitte warte kurz.',
+      'auth/invalid-credential':'E-Mail oder Passwort falsch.'
+    };
+    errEl.textContent = msgs[e.code] || 'Anmeldung fehlgeschlagen.';
+    errEl.style.display = 'block';
+  }
+}
+
+// ─── Auth: Register ───────────────────────────────────────────────────────────
+async function doRegister(){
+  const fn    = document.getElementById('r-fn').value.trim();
+  const ln    = document.getElementById('r-ln').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const pw    = document.getElementById('r-pw').value;
+  const pw2   = document.getElementById('r-pw2').value;
+  const errEl = document.getElementById('r-error');
+  errEl.style.display = 'none';
+  if(!fn||!ln||!email||!pw){ errEl.textContent='Bitte alle Felder ausfüllen.'; errEl.style.display='block'; return; }
+  if(pw!==pw2){ errEl.textContent='Passwörter stimmen nicht überein.'; errEl.style.display='block'; return; }
+  if(pw.length<6){ errEl.textContent='Passwort muss mindestens 6 Zeichen lang sein.'; errEl.style.display='block'; return; }
+  try{
+    const cred = await auth.createUserWithEmailAndPassword(email, pw);
+    await cred.user.updateProfile({ displayName: fn+' '+ln });
+    await db.collection('users').doc(cred.user.uid).set({
+      name: fn+' '+ln, firstName: fn, lastName: ln,
+      email: email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e){
+    const msgs = {
+      'auth/email-already-in-use':'Diese E-Mail ist bereits registriert.',
+      'auth/invalid-email':'Ungültige E-Mail-Adresse.',
+      'auth/weak-password':'Passwort ist zu schwach.'
+    };
+    errEl.textContent = msgs[e.code] || 'Registrierung fehlgeschlagen.';
+    errEl.style.display = 'block';
+  }
+}
+
+// ─── Auth: Logout ─────────────────────────────────────────────────────────────
+async function doLogout(){
+  await auth.signOut();
+}
+
+// ─── Home: Update Greeting & Active Booking Banner ───────────────────────────
+async function updateHome(){
+  if(!currentUserData) return;
+  const name = currentUserData.firstName || currentUserData.name || 'dort';
+  const hour = new Date().getHours();
+  const greet = hour<12 ? 'Guten Morgen' : hour<18 ? 'Guten Tag' : 'Guten Abend';
+  document.getElementById('home-greeting').textContent = greet+', '+name+'!';
+
+  // Active bookings banner
+  const now = new Date();
+  const qs = await db.collection('bookings')
+    .where('userId','==',currentUser.uid)
+    .where('date','>=',now.toISOString().split('T')[0])
+    .orderBy('date').limit(1).get();
+  const banner = document.getElementById('aktiv-banner-home');
+  if(!qs.empty){
+    const b = qs.docs[0].data();
+    banner.innerHTML = `<div style="background:var(--c4);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:12px;display:flex;align-items:center;gap:8px;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
+      <div><strong>${b.anlage}</strong><br>${b.dateFmt} · ${b.time} Uhr · ${b.platz}</div>
+    </div>`;
+  } else {
+    banner.innerHTML = '';
+  }
+}
+
+// ─── Anlage auswählen & zu S4 navigieren ─────────────────────────────────────
+function selectAnlage(id){
+  selectedAnlage = anlagen[id];
+  document.getElementById('s4-name').textContent = selectedAnlage.name;
+  const addrEl = document.getElementById('s4-addr');
+  addrEl.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>${selectedAnlage.addr}`;
+  buildDateChips();
+  buildPlatzChips();
+  buildTimeChips();
+  goTo('s4');
+}
+
+// ─── S4: Build dynamic date chips ────────────────────────────────────────────
+function buildDateChips(){
+  const wday  = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const mon   = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  const box   = document.getElementById('date-row');
+  box.innerHTML = '';
+  const today = new Date();
+  for(let i=0;i<7;i++){
+    const d = new Date(today); d.setDate(today.getDate()+i);
+    const iso = d.toISOString().split('T')[0];
+    const fmt = `${wday[d.getDay()]}, ${d.getDate()}. ${mon[d.getMonth()]} ${d.getFullYear()}`;
+    const chip = document.createElement('div');
+    chip.className = 'date-chip'+(i===0?' active':'');
+    chip.innerHTML = `<div class="day">${wday[d.getDay()]}</div><div class="num">${d.getDate()}</div>`;
+    chip.onclick = ()=>{
+      document.querySelectorAll('.date-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedDate    = iso;
+      selectedDateFmt = fmt;
+      buildTimeChips();
+    };
+    box.appendChild(chip);
+    if(i===0){ selectedDate=iso; selectedDateFmt=fmt; }
+  }
+}
+
+// ─── S4: Build court (Platz) chips ───────────────────────────────────────────
+function buildPlatzChips(){
+  const grid = document.getElementById('platz-grid');
+  grid.innerHTML = '';
+  const plaetze = ['Platz 1','Platz 2','Platz 3','Platz 4'];
+  plaetze.forEach((p,i)=>{
+    const chip = document.createElement('div');
+    chip.className = 'time-chip'+(i===0?' active':'');
+    chip.textContent = p;
+    chip.onclick = ()=>{
+      document.querySelectorAll('#platz-grid .time-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedPlatz = p;
+    };
+    grid.appendChild(chip);
+    if(i===0) selectedPlatz = p;
+  });
+}
+
+// ─── S4: Build time chips ─────────────────────────────────────────────────────
+function buildTimeChips(){
+  const grid  = document.getElementById('time-grid');
+  grid.innerHTML = '';
+  const times = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+  times.forEach((t,i)=>{
+    const chip = document.createElement('div');
+    chip.className = 'time-chip'+(i===3?' active':'');
+    chip.textContent = t;
+    chip.onclick = ()=>{
+      document.querySelectorAll('#time-grid .time-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedTime = t;
+    };
+    grid.appendChild(chip);
+    if(i===3) selectedTime = t;
+  });
+}
+
+// ─── S4 → S5: Save Booking to Firestore ──────────────────────────────────────
+async function doBooking(){
+  if(!selectedDate||!selectedTime||!selectedPlatz){
+    alert('Bitte Datum, Platz und Uhrzeit wählen.'); return;
+  }
+  const btn = document.getElementById('btn-book');
+  btn.textContent='Wird gebucht…'; btn.disabled=true;
+  const [h,m] = selectedTime.split(':').map(Number);
+  const endH = String(h+1).padStart(2,'0');
+  try{
+    const doc = await db.collection('bookings').add({
+      userId:    currentUser.uid,
+      userName:  currentUserData.name,
+      anlage:    selectedAnlage.name,
+      anlageId:  Object.keys(anlagen).find(k=>anlagen[k].name===selectedAnlage.name)||'westpark',
+      date:      selectedDate,
+      dateFmt:   selectedDateFmt,
+      time:      `${selectedTime} – ${endH}:${m===0?'00':m}`,
+      platz:     selectedPlatz,
+      status:    'aktiv',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    currentBooking = {
+      id: doc.id, anlage: selectedAnlage.name,
+      datum: selectedDateFmt,
+      uhrzeit: `${selectedTime} – ${endH}:00 Uhr`,
+      platz: selectedPlatz
+    };
+    // Update confirmation screen
+    document.getElementById('best-anlage').textContent = currentBooking.anlage;
+    document.getElementById('best-datum').textContent  = currentBooking.datum;
+    document.getElementById('best-uhrzeit').textContent= currentBooking.uhrzeit;
+    document.getElementById('best-platz').textContent  = currentBooking.platz;
+    // Update freunde info
+    document.getElementById('freunde-buchung-info').innerHTML =
+      `<strong>${currentBooking.anlage}</strong><br>
+       <span style="color:var(--c2);">${currentBooking.datum} · ${currentBooking.uhrzeit}</span>`;
+    await updateProfil();
+    goTo('s5');
+  } catch(e){
+    alert('Buchung fehlgeschlagen: '+e.message);
+  }
+  btn.textContent='Jetzt buchen'; btn.disabled=false;
+}
+
+// ─── S6: Add invite email tag ─────────────────────────────────────────────────
+function addInviteEmail(){
+  const inp = document.getElementById('f-email-input');
+  const val = inp.value.trim().toLowerCase();
+  if(!val||!val.includes('@')){ inp.value=''; return; }
+  if(inviteEmails.includes(val)){ inp.value=''; return; }
+  inviteEmails.push(val);
+  renderInviteTags();
+  inp.value = '';
+}
+
+function renderInviteTags(){
+  const box = document.getElementById('invite-tags');
+  box.innerHTML = '';
+  inviteEmails.forEach(e=>{
+    const tag = document.createElement('div');
+    tag.style.cssText='background:var(--c0);border:1px solid var(--line);border-radius:20px;padding:4px 10px;font-size:12px;display:flex;align-items:center;gap:6px;';
+    tag.innerHTML = `<span>${e}</span><button onclick="removeInvite('${e}')" style="background:none;border:none;cursor:pointer;color:var(--c2);font-size:14px;line-height:1;padding:0;">×</button>`;
+    box.appendChild(tag);
+  });
+  document.getElementById('btn-send-invites').disabled = inviteEmails.length===0;
+}
+
+function removeInvite(email){
+  inviteEmails = inviteEmails.filter(e=>e!==email);
+  renderInviteTags();
+}
+
+// ─── S6: Send invitations via Firestore ──────────────────────────────────────
+async function doInvite(){
+  if(!currentBooking||inviteEmails.length===0) return;
+  const btn = document.getElementById('btn-send-invites');
+  btn.textContent='Wird gesendet…'; btn.disabled=true;
+  try{
+    const batch = db.batch();
+    inviteEmails.forEach(email=>{
+      const ref = db.collection('notifications').doc();
+      batch.set(ref,{
+        type:       'invitation',
+        toEmail:    email,
+        fromName:   currentUserData.name,
+        fromUid:    currentUser.uid,
+        bookingId:  currentBooking.id,
+        anlage:     currentBooking.anlage,
+        datum:      currentBooking.datum,
+        uhrzeit:    currentBooking.uhrzeit,
+        platz:      currentBooking.platz,
+        createdAt:  firebase.firestore.FieldValue.serverTimestamp(),
+        read:       false
+      });
+    });
+    await batch.commit();
+    inviteEmails = [];
+    renderInviteTags();
+    alert(`${inviteEmails.length===0?'Einladungen':'Einladungen'} gesendet!`);
+    goTo('s3');
+    updateHome();
+  } catch(e){
+    alert('Fehler beim Senden: '+e.message);
+    btn.disabled=false;
+  }
+  btn.textContent='Einladungen senden';
+}
+
+// ─── S7: Update Profile ───────────────────────────────────────────────────────
+async function updateProfil(){
+  if(!currentUserData||!currentUser) return;
+  const name  = currentUserData.name || '?';
+  const email = currentUserData.email || currentUser.email || '';
+  document.getElementById('profil-avatar').textContent = name[0].toUpperCase();
+  document.getElementById('profil-name').textContent   = name;
+  document.getElementById('profil-email').textContent  = email;
+
+  const snap = await db.collection('bookings').where('userId','==',currentUser.uid).get();
+  const total = snap.size;
+  const now   = new Date().toISOString().split('T')[0];
+  const aktiv = snap.docs.filter(d=>d.data().date>=now&&d.data().status==='aktiv').length;
+
+  document.getElementById('stat-buchungen').textContent = total;
+  document.getElementById('stat-aktiv').textContent     = aktiv;
+  const sub = total===0 ? 'Noch keine Buchungen' : `${total} Buchung${total===1?'':'en'} insgesamt`;
+  document.getElementById('menu-buch-sub').textContent = sub;
+}
+
+// ─── S-Buchungen: Load all bookings ──────────────────────────────────────────
+async function loadBuchungen(){
+  const list = document.getElementById('buchungen-list');
+  list.innerHTML = '<div style="text-align:center;color:var(--c2);font-size:13px;padding:30px 0;">Lade Buchungen…</div>';
+  try{
+    const snap = await db.collection('bookings')
+      .where('userId','==',currentUser.uid)
+      .orderBy('date','desc').get();
+    if(snap.empty){
+      list.innerHTML = '<div style="text-align:center;color:var(--c2);font-size:13px;padding:30px 0;">Noch keine Buchungen vorhanden.</div>';
+      return;
+    }
+    const now = new Date().toISOString().split('T')[0];
+    list.innerHTML = '';
+    snap.docs.forEach(doc=>{
+      const b     = doc.data();
+      const aktiv = b.date>=now && b.status==='aktiv';
+      const card  = document.createElement('div');
+      card.style.cssText = 'background:var(--c0);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;';
+      card.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:13px;">${b.anlage}</strong>
+          <span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;
+            background:${aktiv?'#e8f5e9':'#f5f5f5'};
+            color:${aktiv?'#2e7d32':'var(--c2)'};">
+            ${aktiv?'Aktiv':'Vergangen'}
+          </span>
+        </div>
+        <div style="font-size:12px;color:var(--c2);">${b.dateFmt} · ${b.time}</div>
+        <div style="font-size:12px;color:var(--c2);">${b.platz}</div>
+        ${aktiv?`<button onclick="storniereBuchung('${doc.id}',this)" style="margin-top:4px;background:none;border:1px solid #fde0d6;color:var(--bot);border-radius:10px;padding:6px;font-family:'Mulish',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Stornieren</button>`:''}
+      `;
+      list.appendChild(card);
+    });
+  } catch(e){
+    list.innerHTML = `<div style="text-align:center;color:#e74c3c;font-size:12px;padding:20px;">${e.message}</div>`;
+  }
+}
+
+// ─── Stornierung ──────────────────────────────────────────────────────────────
+async function storniereBuchung(id, btn){
+  if(!confirm('Buchung wirklich stornieren?')) return;
+  btn.textContent='…'; btn.disabled=true;
+  await db.collection('bookings').doc(id).update({ status:'storniert' });
+  await updateProfil();
+  await loadBuchungen();
+  await updateHome();
+}
+
+// ─── Init Splash ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  // Splash → Login nach 2s (nur wenn nicht eingeloggt — auth observer übernimmt)
+  setTimeout(()=>{
+    if(!auth.currentUser) goTo('s2');
+  }, 2000);
+  buildDateChips();
+  buildPlatzChips();
+  buildTimeChips();
+});
 </script>
 </body>
 </html>
