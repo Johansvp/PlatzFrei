@@ -607,16 +607,8 @@ const VTYPES={
   badminton:{icon:'🏸',label:'Badmintonplatz',mk:(c)=>[{n:`Badminton-Halle ${c}`,a:`Hallengasse 5, ${c}`},{n:`Shuttle-Sport ${c}`,a:`Industrieweg 22, ${c}`},{n:`BC ${c} Spielfeld`,a:`Sportpark 14, ${c}`}]},
   halle:{icon:'🏟️',label:'Sporthalle',mk:(c)=>[{n:`Stadthalle ${c}`,a:`Marktplatz 1, ${c}`},{n:`Mehrzweckhalle ${c} West`,a:`Hallenweg 9, ${c}`},{n:`Sport-Arena ${c}`,a:`Arenastraße 100, ${c}`}]},
 };
-const DEMO_FRIENDS=[
-  {id:'demo_max',name:'Max Müller',av:'👨',status:'online',sortTs:Date.now()-3600000},
-  {id:'demo_sarah',name:'Sarah Schmidt',av:'👩',status:'offline',sortTs:Date.now()-86400000},
-  {id:'demo_tom',name:'Thomas Weber',av:'🧔',status:'online',sortTs:Date.now()-172800000},
-];
-const INIT_MSGS={
-  demo_max:[{f:'demo_max',t:'Hey! Spielen wir heute Abend Fußball? 😄',ts:'18:30',st:Date.now()-3600000},{f:'me',t:'Ja klar!',ts:'18:32',st:Date.now()-3500000},{f:'demo_max',t:'Super! ⚽',ts:'18:33',st:Date.now()-3400000}],
-  demo_sarah:[{f:'demo_sarah',t:'Wann gehen wir wieder Tennis spielen? 🎾',ts:'Gestern',st:Date.now()-86400000},{f:'me',t:'Samstag passt mir gut!',ts:'Gestern',st:Date.now()-86000000},{f:'demo_sarah',t:'Perfekt! 😊',ts:'Gestern',st:Date.now()-85000000}],
-  demo_tom:[{f:'demo_tom',t:'Halle für Freitag gebucht?',ts:'Mo.',st:Date.now()-172800000},{f:'me',t:'Mache ich gleich!',ts:'Mo.',st:Date.now()-172000000}],
-};
+const DEMO_FRIENDS=[];
+const INIT_MSGS={};
 
 // ═══ STATE ═══
 let S={user:null,bookings:[],msgs:{},notifs:[],curPage:'home',curChat:null,curChatType:null};
@@ -934,7 +926,7 @@ function updateHome(){
   }).join('');
   updateNotifBadge();
 }
-function updateFriendCount(){document.getElementById('stat-friends').textContent=DEMO_FRIENDS.length+getMyRealFriendIds().length;}
+function updateFriendCount(){document.getElementById('stat-friends').textContent=getMyRealFriendIds().length;}
 function updateNotifBadge(){const b=document.getElementById('nbellb');b.textContent=S.notifs.length;b.style.display=S.notifs.length?'flex':'none';}
 function showNotifs(){
   document.getElementById('nlist').innerHTML=!S.notifs.length?`<div class="empty" style="padding:24px 0"><div class="empty-i">🔕</div><div class="empty-t">Keine Benachrichtigungen</div></div>`:
@@ -1074,16 +1066,18 @@ function renderBuch(){
   }).join('');
 }
 
-// ═══ CHAT LIST (sorted by last msg) ═══
+// ═══ CHAT LIST ═══
 function getChatItems(){
-  const demoItems=DEMO_FRIENDS.map(f=>{const ms=S.msgs[f.id]||[];const last=ms[ms.length-1];const unr=ms.filter(m=>m.f===f.id&&!m.rd).length;return{id:f.id,type:'demo',f,ms,last,unr,lastSt:last?.st||f.sortTs||0};});
-  const realItems=getMyRealFriends().map(u=>{const chat=getRealChat(u.id);const last=chat[chat.length-1];const unr=chat.filter(m=>m.f===u.id&&!m.rd).length;return{id:u.id,type:'real',f:{id:u.id,name:u.name,av:u.avatar||'👤',status:'online'},ms:chat,last,unr,lastSt:last?.st||0};});
-  return[...demoItems,...realItems].sort((a,b)=>b.lastSt-a.lastSt);
+  return getMyRealFriends().map(u=>{
+    const chat=getRealChat(u.id);const last=chat[chat.length-1];
+    const unr=chat.filter(m=>m.f===u.id&&!m.rd).length;
+    return{id:u.id,type:'real',f:{id:u.id,name:u.name,av:u.avatar||'👤'},ms:chat,last,unr,lastSt:last?.st||0};
+  }).sort((a,b)=>b.lastSt-a.lastSt);
 }
 function renderChatList(){
   const cont=document.getElementById('chat-list');const items=getChatItems();
-  if(!items.length){cont.innerHTML=`<div class="empty"><div class="empty-i">💬</div><div class="empty-t">Keine Chats</div><div class="empty-s">Füge Freunde hinzu!</div></div>`;return;}
-  cont.innerHTML=items.map(({f,last,unr,type})=>`<div class="chat-item" onclick="openChat('${f.id}','${type}')"><div class="caw"><div class="cav">${f.av}</div>${f.status==='online'?'<div class="odot"></div>':''}</div><div class="ci-info"><div class="ci-name">${f.name}${type==='real'?' <span style="font-size:10px;background:var(--c1);color:var(--c3);padding:2px 5px;border-radius:6px;font-weight:700">ECHT</span>':''}</div><div class="ci-last">${last?(last.f==='me'||last.f===S.user?.id?'Du: ':'')+last.t.split('\n')[0]:'Noch keine Nachrichten'}</div></div><div class="ci-meta"><div class="ci-time">${last?.ts||''}</div>${unr?`<div class="ci-unread">${unr}</div>`:''}</div></div>`).join('');
+  if(!items.length){cont.innerHTML=`<div class="empty"><div class="empty-i">💬</div><div class="empty-t">Noch keine Chats</div><div class="empty-s">Füge Freunde hinzu und schreib ihnen!</div></div>`;return;}
+  cont.innerHTML=items.map(({f,last,unr})=>`<div class="chat-item" onclick="openChat('${f.id}','real')"><div class="caw"><div class="cav">${f.av}</div><div class="odot"></div></div><div class="ci-info"><div class="ci-name">${f.name}</div><div class="ci-last">${last?(last.f==='me'||last.f===S.user?.id?'Du: ':'')+last.t.split('\n')[0]:'Noch keine Nachrichten'}</div></div><div class="ci-meta"><div class="ci-time">${last?.ts||''}</div>${unr?`<div class="ci-unread">${unr}</div>`:''}</div></div>`).join('');
 }
 async function openChat(fid,type){
   S.curChat=fid;S.curChatType=type;document.getElementById('ch-av').className='ch-av';
@@ -1163,11 +1157,10 @@ async function searchUsers(q){
 function renderFriendSection(){
   const cont=document.getElementById('freq-section');let h='';
   const pending=getPendingToMe();
-  if(pending.length){h+=`<div class="freq-section-title">📬 Anfragen (${pending.length})</div>`;h+=pending.map(r=>`<div class="freq-card"><div class="freq-av">${r.senderAv}</div><div class="freq-info"><div class="freq-name">${r.fromName}</div><div class="freq-sub">möchte dein Freund sein</div></div><div class="freq-btns"><button class="btn-sm btn-dark" onclick="acceptReq(${r.id})">✓</button><button class="btn-sm btn-gray" onclick="declineReq(${r.id})">✕</button></div></div>`).join('');}
+  if(pending.length){h+=`<div class="freq-section-title">📬 Anfragen (${pending.length})</div>`;h+=pending.map(r=>`<div class="freq-card"><div class="freq-av">${r.senderAv}</div><div class="freq-info"><div class="freq-name">${r.fromName}</div><div class="freq-sub">möchte dein Freund sein</div></div><div class="freq-btns"><button class="btn-sm btn-dark" onclick="acceptReq('${r.id}')">✓</button><button class="btn-sm btn-gray" onclick="declineReq('${r.id}')">✕</button></div></div>`).join('');}
   const realFr=getMyRealFriends();
-  h+=`<div class="freq-section-title">👥 Freunde (${DEMO_FRIENDS.length+realFr.length})</div>`;
-  h+=DEMO_FRIENDS.map(f=>`<div class="freq-card"><div class="freq-av">${f.av}</div><div class="freq-info"><div class="freq-name">${f.name}</div><div class="freq-sub">${f.status==='online'?'🟢 Online':'⚫ Offline'}</div></div></div>`).join('');
-  if(realFr.length)h+=realFr.map(u=>`<div class="freq-card"><div class="freq-av">${u.avatar||'👤'}</div><div class="freq-info"><div class="freq-name">${u.name}</div><div class="freq-sub">🟢 @${u.u}</div></div><button class="btn-sm btn-red" onclick="removeFriend(${u.id})">Entfernen</button></div>`).join('');
+  h+=`<div class="freq-section-title">👥 Freunde (${realFr.length})</div>`;
+  if(realFr.length)h+=realFr.map(u=>`<div class="freq-card"><div class="freq-av">${u.avatar||'👤'}</div><div class="freq-info"><div class="freq-name">${u.name}</div><div class="freq-sub">🟢 @${u.u}</div></div><button class="btn-sm btn-red" onclick="removeFriend('${u.id}')">Entfernen</button></div>`).join('');
   else h+=`<div style="margin-top:10px;padding:13px;background:var(--c1);border-radius:var(--rs);font-size:13px;color:var(--gd);line-height:1.5">💡 Suche oben nach dem Benutzernamen eines anderen PlatzFrei-Nutzers, um ihn hinzuzufügen!</div>`;
   cont.innerHTML=h;
 }
@@ -1176,8 +1169,8 @@ function renderFriendSection(){
 function updateBadges(){
   const now=new Date();const uc=S.bookings.filter(b=>new Date(b.dt)>=now&&!b.cancelled).length;
   const bb=document.getElementById('nb-buch');bb.textContent=uc;bb.style.display=uc?'flex':'none';
-  let unr=0;DEMO_FRIENDS.forEach(f=>{if(S.msgs[f.id])unr+=S.msgs[f.id].filter(m=>m.f===f.id&&!m.rd).length;});
-  getMyRealFriends().forEach(u=>{unr+=getRealChat(u.id).filter(m=>(m.f===u.id||m.f===Number(u.id))&&!m.rd).length;});
+  let unr=0;
+  getMyRealFriends().forEach(u=>{unr+=getRealChat(u.id).filter(m=>m.f===u.id&&!m.rd).length;});
   unr+=getPendingToMe().length;
   const fb=document.getElementById('nb-frnd');fb.textContent=unr;fb.style.display=unr?'flex':'none';
   updateNotifBadge();
