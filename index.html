@@ -325,7 +325,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
       <button class="auth-tab" onclick="authTab('register')">Registrieren</button>
     </div>
     <div id="login-form">
-      <div class="fg"><label class="fl">Benutzername</label><input class="fi" id="lu" type="text" placeholder="Dein Benutzername" autocomplete="username"></div>
+      <div class="fg"><label class="fl">E-Mail</label><input class="fi" id="lu" type="email" placeholder="deine@email.de" autocomplete="email"></div>
       <div class="fg"><label class="fl">Passwort</label><input class="fi" id="lp" type="password" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="btn-p" onclick="doLogin()">Anmelden</button>
     </div>
@@ -582,7 +582,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   </div>
 </div>
 
+<!-- Firebase Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+// ─── Firebase Init ─────────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:"AIzaSyD6jfSjq3B5_UviISRl9-41bP1VmPl1kbk",
+  authDomain:"platzfrei-e0371.firebaseapp.com",
+  projectId:"platzfrei-e0371",
+  storageBucket:"platzfrei-e0371.firebasestorage.app",
+  messagingSenderId:"916659140649",
+  appId:"1:916659140649:web:bab97ed0bf11ef8c9ac438"
+});
+const auth=firebase.auth();
+const db=firebase.firestore();
+
 // ═══ DATA ═══
 const CITIES=['Aachen','Augsburg','Berlin','Bielefeld','Bochum','Bonn','Bremen','Chemnitz','Dortmund','Dresden','Düsseldorf','Erfurt','Essen','Frankfurt','Freiburg','Hamburg','Hannover','Heidelberg','Karlsruhe','Kiel','Köln','Leipzig','Lübeck','Magdeburg','Mainz','Mannheim','München','Münster','Nürnberg','Regensburg','Rostock','Saarbrücken','Stuttgart','Wiesbaden','Wuppertal','Würzburg'];
 const VTYPES={
@@ -607,47 +623,128 @@ let S={user:null,bookings:[],msgs:{},notifs:[],curPage:'home',curChat:null,curCh
 let bkS={city:null,vtype:null,vname:null,dur:null,date:null,time:null,friends:[],groups:[]};
 let gkS={members:[]};
 let botOpen=false,botInited=false,currentTab='chats';
-let bot={step:null,city:null,vtype:null,dur:null,time:null,venue:null,inviteFid:null,inviteName:null,groupName:null,groupMembers:[],cancelBid:null};
+let bot={step:null,city:null,vtype:null,dur:null,time:null,venue:null,inviteFid:null,inviteName:null,groupName:null,groupMembers:[],cancelBid:null,newBkId:null};
 
-// ═══ FRIEND SYSTEM ═══
-function getAllReqs(){return JSON.parse(localStorage.getItem('sb_freq')||'[]');}
-function saveAllReqs(r){localStorage.setItem('sb_freq',JSON.stringify(r));}
-function getMyRealFriendIds(){const uid=String(S.user.id);return getAllReqs().filter(r=>r.status==='accepted'&&(String(r.from)===uid||String(r.to)===uid)).map(r=>String(r.from)===uid?r.to:r.from);}
-function getMyRealFriends(){const ids=getMyRealFriendIds().map(String);return JSON.parse(localStorage.getItem('sb_users')||'[]').filter(u=>ids.includes(String(u.id)));}
-function getPendingToMe(){const users=JSON.parse(localStorage.getItem('sb_users')||'[]');const uid=String(S.user.id);return getAllReqs().filter(r=>String(r.to)===uid&&r.status==='pending').map(r=>({...r,senderName:users.find(u=>String(u.id)===String(r.from))?.name||r.fromName||'?',senderAv:users.find(u=>String(u.id)===String(r.from))?.avatar||'👤'}));}
-function isAlreadyFriend(uid){return getMyRealFriendIds().map(String).includes(String(uid));}
-function hasPendingTo(uid){return getAllReqs().some(r=>String(r.from)===String(S.user.id)&&String(r.to)===String(uid)&&r.status==='pending');}
-function hasPendingFrom(uid){return getAllReqs().some(r=>String(r.from)===String(uid)&&String(r.to)===String(S.user.id)&&r.status==='pending');}
-function sendFriendReq(toUser){
+// ─── Firebase in-memory caches ──────────────────────────────────────────────
+let _friendReqs=[];   // loaded from Firestore friendRequests collection
+let _knownUsers={};   // uid → userDoc (cached from Firestore)
+let _groups=[];       // loaded from Firestore groups collection
+let _realChats={};    // friendUid → messages[]
+let _groupChats={};
+
+// ═══ FRIEND SYSTEM (Firebase) ═══
+function getAllReqs(){return _friendReqs;}
+function saveAllReqs(r){_friendReqs=r;}
+
+async function _loadFriendReqs(){
+  if(!S.user)return;
+  const uid=S.user.id;
+  const[s1,s2]=await Promise.all([
+    db.collection('friendRequests').where('from','==',uid).get(),
+    db.collection('friendRequests').where('to','==',uid).get()
+  ]);
+  const seen=new Set();
+  _friendReqs=[...s1.docs,...s2.docs].filter(d=>{if(seen.has(d.id))return false;seen.add(d.id);return true;}).map(d=>({id:d.id,...d.data()}));
+}
+
+async function _loadFriendsData(){
+  const ids=getMyRealFriendIds();if(!ids.length)return;
+  for(let i=0;i<ids.length;i+=10){
+    const batch=ids.slice(i,i+10);
+    const snap=await db.collection('users').where(firebase.firestore.FieldPath.documentId(),'in',batch).get();
+    snap.docs.forEach(d=>{_knownUsers[d.id]={id:d.id,...d.data()};});
+  }
+}
+
+function getMyRealFriendIds(){
+  const uid=S.user.id;
+  return _friendReqs.filter(r=>r.status==='accepted'&&(r.from===uid||r.to===uid)).map(r=>r.from===uid?r.to:r.from);
+}
+function getMyRealFriends(){return getMyRealFriendIds().map(id=>_knownUsers[id]).filter(Boolean);}
+function getPendingToMe(){
+  const uid=S.user.id;
+  return _friendReqs.filter(r=>r.to===uid&&r.status==='pending').map(r=>({...r,senderName:(_knownUsers[r.from]?.name)||r.fromName||'?',senderAv:(_knownUsers[r.from]?.avatar)||'👤'}));
+}
+function isAlreadyFriend(uid){return getMyRealFriendIds().includes(uid);}
+function hasPendingTo(uid){return _friendReqs.some(r=>r.from===S.user.id&&r.to===uid&&r.status==='pending');}
+function hasPendingFrom(uid){return _friendReqs.some(r=>r.from===uid&&r.to===S.user.id&&r.status==='pending');}
+
+async function sendFriendReq(toUser){
   if(isAlreadyFriend(toUser.id)){toast('Ihr seid bereits befreundet.');return;}
   if(hasPendingTo(toUser.id)){toast('Anfrage bereits gesendet.');return;}
-  const req={id:Date.now(),from:String(S.user.id),fromName:S.user.name,to:String(toUser.id),toName:toUser.name,status:'pending',ts:new Date().toISOString()};
-  const reqs=getAllReqs();reqs.push(req);saveAllReqs(reqs);
-  toast(`Anfrage an ${toUser.name} gesendet! ✅`);searchUsers(document.getElementById('fsearch').value);renderFriendSection();
+  const req={from:S.user.id,fromName:S.user.name,to:toUser.id,toName:toUser.name,status:'pending',ts:new Date().toISOString()};
+  const ref=await db.collection('friendRequests').add(req);
+  _friendReqs.push({id:ref.id,...req});
+  toast(`Anfrage an ${toUser.name} gesendet! ✅`);
+  searchUsers(document.getElementById('fsearch').value);renderFriendSection();
 }
-function acceptReq(reqId){
-  const reqs=getAllReqs();const r=reqs.find(x=>String(x.id)===String(reqId));if(r)r.status='accepted';saveAllReqs(reqs);
+
+async function acceptReq(reqId){
+  await db.collection('friendRequests').doc(reqId).update({status:'accepted'});
+  const r=_friendReqs.find(x=>x.id===reqId);if(r)r.status='accepted';
   S.notifs.unshift({icon:'👥',title:'Neue Freundschaft!',body:`Du und ${r?.fromName} seid jetzt befreundet.`,time:'Gerade eben'});
+  if(r){const otherId=r.from===S.user.id?r.to:r.from;const snap=await db.collection('users').doc(otherId).get();if(snap.exists)_knownUsers[otherId]={id:otherId,...snap.data()};}
   updateNotifBadge();renderFriendSection();renderChatList();updateFriendCount();
 }
-function declineReq(reqId){
-  saveAllReqs(getAllReqs().filter(x=>String(x.id)!==String(reqId)));
+
+async function declineReq(reqId){
+  await db.collection('friendRequests').doc(reqId).delete();
+  _friendReqs=_friendReqs.filter(x=>x.id!==reqId);
   renderFriendSection();
 }
-function removeFriend(uid){
-  saveAllReqs(getAllReqs().filter(r=>!((String(r.from)===String(S.user.id)&&String(r.to)===String(uid))||(String(r.to)===String(S.user.id)&&String(r.from)===String(uid)))));
+
+async function removeFriend(uid){
+  const toDelete=_friendReqs.filter(r=>(r.from===S.user.id&&r.to===uid)||(r.to===S.user.id&&r.from===uid));
+  await Promise.all(toDelete.map(r=>db.collection('friendRequests').doc(r.id).delete()));
+  _friendReqs=_friendReqs.filter(r=>!((r.from===S.user.id&&r.to===uid)||(r.to===S.user.id&&r.from===uid)));
   renderFriendSection();renderChatList();updateFriendCount();
 }
-function realChatKey(a,b){const na=Number(a),nb=Number(b);if(!isNaN(na)&&!isNaN(nb))return`sb_rc_${Math.min(na,nb)}_${Math.max(na,nb)}`;return`sb_rc_${[String(a),String(b)].sort().join('_')}`;}
-function getRealChat(fid){return JSON.parse(localStorage.getItem(realChatKey(S.user.id,fid))||'[]');}
-function saveRealChat(fid,msgs){localStorage.setItem(realChatKey(S.user.id,fid),JSON.stringify(msgs));}
-function acceptReqByUid(uid){const r=getAllReqs().find(x=>String(x.from)===String(uid)&&String(x.to)===String(S.user.id)&&x.status==='pending');if(r)acceptReq(r.id);searchUsers(document.getElementById('fsearch').value);}
 
-// ═══ GROUPS ═══
-function getGroups(){return JSON.parse(localStorage.getItem('sb_groups')||'[]');}
-function saveGroups(g){localStorage.setItem('sb_groups',JSON.stringify(g));}
-function getGroupChat(gid){return JSON.parse(localStorage.getItem('sb_gc_'+gid)||'[]');}
-function saveGroupChat(gid,msgs){localStorage.setItem('sb_gc_'+gid,JSON.stringify(msgs));}
+function realChatKey(a,b){return[String(a),String(b)].sort().join('_');}
+
+function getRealChat(fid){return _realChats[fid]||[];}
+
+async function getRealChatAsync(fid){
+  if(_realChats[fid])return _realChats[fid];
+  const key=realChatKey(S.user.id,fid);
+  const snap=await db.collection('chats').doc(key).get();
+  _realChats[fid]=snap.exists?(snap.data().messages||[]):[];
+  return _realChats[fid];
+}
+
+async function saveRealChat(fid,msgs){
+  _realChats[fid]=msgs;
+  const key=realChatKey(S.user.id,fid);
+  await db.collection('chats').doc(key).set({messages:msgs,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+}
+
+async function acceptReqByUid(uid){
+  const r=_friendReqs.find(x=>x.from===uid&&x.to===S.user.id&&x.status==='pending');
+  if(r)await acceptReq(r.id);
+  searchUsers(document.getElementById('fsearch').value);
+}
+
+// ═══ GROUPS (Firebase) ═══
+function getGroups(){return _groups.filter(g=>g.members&&g.members.includes(S.user.id));}
+
+async function _loadGroups(){
+  if(!S.user)return;
+  const snap=await db.collection('groups').where('members','array-contains',S.user.id).get();
+  _groups=snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+function getGroupChat(gid){return _groupChats[String(gid)]||[];}
+
+async function _loadGroupChat(gid){
+  const snap=await db.collection('groupChats').doc(String(gid)).get();
+  _groupChats[String(gid)]=snap.exists?(snap.data().messages||[]):[];
+  return _groupChats[String(gid)];
+}
+
+async function saveGroupChat(gid,msgs){
+  _groupChats[String(gid)]=msgs;
+  await db.collection('groupChats').doc(String(gid)).set({messages:msgs,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+}
 function openCreateGroup(){
   gkS.members=[];
   const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name,av:u.avatar||'👤'}))];
@@ -657,19 +754,22 @@ function openCreateGroup(){
 }
 function closeGroupModal(){document.getElementById('group-modal').classList.remove('active');}
 function togGroupMember(id,el){const idx=gkS.members.indexOf(id);const chk=document.getElementById('gc-'+id);if(idx>-1){gkS.members.splice(idx,1);el.classList.remove('sel');chk.classList.remove('chk');}else{gkS.members.push(id);el.classList.add('sel');chk.classList.add('chk');}}
-function createGroup(){
+async function createGroup(){
   const name=document.getElementById('g-name').value.trim();
   if(!name){alert('Bitte einen Gruppennamen eingeben.');return;}
   if(!gkS.members.length){alert('Bitte mindestens einen Freund wählen.');return;}
-  const groups=getGroups();const g={id:Date.now(),name,creator:S.user.id,members:[S.user.id,...gkS.members],at:new Date().toISOString()};
-  groups.push(g);saveGroups(groups);
-  const chat=getGroupChat(g.id);chat.push({f:'system',t:`Gruppe "${name}" wurde erstellt. Willkommen! 🎉`,ts:nowTime(),st:Date.now()});saveGroupChat(g.id,chat);
+  const g={name,creator:S.user.id,members:[S.user.id,...gkS.members],at:new Date().toISOString()};
+  const ref=await db.collection('groups').add(g);
+  const fullG={id:ref.id,...g};_groups.push(fullG);
+  const initMsg=[{f:'system',t:`Gruppe "${name}" wurde erstellt. Willkommen! 🎉`,ts:nowTime(),st:Date.now()}];
+  await saveGroupChat(ref.id,initMsg);
   closeGroupModal();renderGroupList();toast(`Gruppe "${name}" erstellt! 🎉`);
 }
-function deleteGroup(gid){
+async function deleteGroup(gid){
   if(!confirm('Gruppe wirklich löschen?'))return;
-  const groups=getGroups().filter(g=>g.id!==gid);saveGroups(groups);
-  localStorage.removeItem('sb_gc_'+gid);
+  await db.collection('groups').doc(String(gid)).delete();
+  await db.collection('groupChats').doc(String(gid)).delete().catch(()=>{});
+  _groups=_groups.filter(g=>g.id!==gid);delete _groupChats[String(gid)];
   renderGroupList();toast('Gruppe gelöscht.');
 }
 function renderGroupList(){
@@ -698,7 +798,7 @@ function toggleBookCancel(bid){
   document.querySelectorAll('.bcard-wrap').forEach(w=>{if(w!==wrap)w.classList.remove('show-cancel');});
   wrap.classList.toggle('show-cancel');
 }
-function cancelBooking(bid){
+async function cancelBooking(bid){
   if(!confirm('Buchung wirklich stornieren?'))return;
   const bk=S.bookings.find(b=>b.id===bid);
   if(bk){
@@ -712,58 +812,88 @@ function cancelBooking(bid){
       const gc=getGroupChat(gid);gc.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveGroupChat(gid,gc);
     });
     bk.cancelled=true;
-    saveMsgs();
   }
-  const all=JSON.parse(localStorage.getItem('sb_books')||'[]');
-  const idx=all.findIndex(b=>b.id===bid);if(idx>-1){all[idx].cancelled=true;localStorage.setItem('sb_books',JSON.stringify(all));}
+  await db.collection('bookings').doc(String(bid)).update({cancelled:true});
   buchFilter='storniert';document.querySelectorAll('#page-buchungen .ftab').forEach((x,i)=>{x.classList.toggle('active',i===2);});
   renderBuch();updateHome();updateBadges();toast('Buchung storniert.');
 }
-function openGroupChat(gid){
-  const g=getGroups().find(x=>x.id===gid);if(!g)return;
+async function openGroupChat(gid){
+  const g=_groups.find(x=>x.id===gid);if(!g)return;
   S.curChat=gid;S.curChatType='group';
   document.getElementById('ch-av').textContent='👥';document.getElementById('ch-av').className='ch-av group';
   document.getElementById('ch-name').textContent=g.name;document.getElementById('ch-st').textContent=`${g.members.length} Mitglieder`;
-  renderGroupMsgs(getGroupChat(gid));document.getElementById('chat-scr').classList.add('active');
+  const msgs=await _loadGroupChat(gid);
+  renderGroupMsgs(msgs);document.getElementById('chat-scr').classList.add('active');
 }
 function renderGroupMsgs(msgs){
-  const c=document.getElementById('ch-msgs');const allUsers=JSON.parse(localStorage.getItem('sb_users')||'[]');
+  const c=document.getElementById('ch-msgs');
   c.innerHTML=msgs.map(m=>{
     if(m.f==='system')return`<div style="text-align:center;font-size:11px;color:var(--mt);padding:7px;background:rgba(70,86,107,.07);border-radius:9px;margin:3px 0">${m.t}</div>`;
-    const isMe=m.f===S.user.id||m.f==='me';const senderName=isMe?'':(DEMO_FRIENDS.find(f=>f.id===m.f)?.name||allUsers.find(u=>u.id===m.f)?.name||m.senderName||'?');
+    const isMe=m.f===S.user.id||m.f==='me';const senderName=isMe?'':(DEMO_FRIENDS.find(f=>f.id===m.f)?.name||_knownUsers[m.f]?.name||m.senderName||'?');
     return`<div class="mw ${isMe?'me':'them'}">${!isMe?`<div class="msg-sender">${senderName}</div>`:''}<div class="mb">${m.t.replace(/\n/g,'<br>')}</div><div class="mt">${m.ts}</div></div>`;
   }).join('');setTimeout(()=>c.scrollTop=c.scrollHeight,50);
 }
 
-// ═══ AUTH ═══
+// ═══ AUTH (Firebase) ═══
 function authTab(t){
   document.querySelectorAll('.auth-tab').forEach((el,i)=>el.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='register')));
   document.getElementById('login-form').style.display=t==='login'?'':'none';
   document.getElementById('reg-form').style.display=t==='register'?'':'none';
 }
-function doLogin(){
-  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
-  if(!u||!p){alert('Bitte alle Felder ausfüllen.');return;}
-  const found=JSON.parse(localStorage.getItem('sb_users')||'[]').find(x=>x.u===u&&x.p===p);
-  if(!found){alert('Benutzername oder Passwort falsch.');return;}
-  startSession(found);
+
+async function doLogin(){
+  const email=document.getElementById('lu').value.trim(),pw=document.getElementById('lp').value;
+  if(!email||!pw){alert('Bitte alle Felder ausfüllen.');return;}
+  try{
+    await auth.signInWithEmailAndPassword(email,pw);
+  }catch(e){
+    const m={'auth/user-not-found':'Kein Konto gefunden.','auth/wrong-password':'Falsches Passwort.','auth/invalid-email':'Ungültige E-Mail.','auth/invalid-credential':'E-Mail oder Passwort falsch.','auth/too-many-requests':'Zu viele Versuche. Bitte warte kurz.'};
+    alert(m[e.code]||'Anmeldung fehlgeschlagen: '+e.message);
+  }
 }
-function doRegister(){
+
+async function doRegister(){
   const n=document.getElementById('rn').value.trim(),u=document.getElementById('ru').value.trim(),e=document.getElementById('re').value.trim(),p=document.getElementById('rp').value;
   if(!n||!u||!e||!p){alert('Bitte alle Felder ausfüllen.');return;}
   if(p.length<6){alert('Passwort mind. 6 Zeichen.');return;}
-  const users=JSON.parse(localStorage.getItem('sb_users')||'[]');
-  if(users.find(x=>x.u===u)){alert('Benutzername bereits vergeben.');return;}
-  const nu={id:Date.now(),name:n,u,e,p,avatar:'😊'};users.push(nu);localStorage.setItem('sb_users',JSON.stringify(users));
-  startSession(nu);
+  // Check username unique
+  const uCheck=await db.collection('users').where('u','==',u).get();
+  if(!uCheck.empty){alert('Benutzername bereits vergeben.');return;}
+  try{
+    const cred=await auth.createUserWithEmailAndPassword(e,p);
+    await cred.user.updateProfile({displayName:n});
+    await db.collection('users').doc(cred.user.uid).set({id:cred.user.uid,name:n,u,email:e,e,avatar:'😊',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  }catch(err){
+    const m={'auth/email-already-in-use':'E-Mail bereits registriert.','auth/weak-password':'Passwort zu schwach.','auth/invalid-email':'Ungültige E-Mail.'};
+    alert(m[err.code]||'Registrierung fehlgeschlagen: '+err.message);
+  }
 }
-function startSession(user){
-  S.user=user;localStorage.setItem('sb_ses',JSON.stringify(user));
-  S.bookings=JSON.parse(localStorage.getItem('sb_books')||'[]').filter(b=>b.uid===user.id);
-  const sm=localStorage.getItem('sb_msgs_'+user.id);S.msgs=sm?JSON.parse(sm):JSON.parse(JSON.stringify(INIT_MSGS));
-  document.getElementById('auth-screen').style.display='none';document.getElementById('app-screen').style.display='block';
-  initApp();
-}
+
+// ─── Firebase Auth State Observer (replaces startSession + boot check) ───────
+auth.onAuthStateChanged(async fbUser=>{
+  if(fbUser){
+    const snap=await db.collection('users').doc(fbUser.uid).get();
+    const data=snap.exists?snap.data():{id:fbUser.uid,name:fbUser.displayName||'',u:fbUser.email.split('@')[0],email:fbUser.email,e:fbUser.email,avatar:'😊'};
+    S.user={...data,id:fbUser.uid};
+    // Load bookings from Firestore
+    const bSnap=await db.collection('bookings').where('uid','==',fbUser.uid).get();
+    S.bookings=bSnap.docs.map(d=>({id:d.id,...d.data()}));
+    // Demo messages
+    S.msgs=JSON.parse(JSON.stringify(INIT_MSGS));
+    // Load social data
+    await _loadFriendReqs();
+    await _loadFriendsData();
+    await _loadGroups();
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('app-screen').style.display='block';
+    initApp();
+  }else{
+    S={user:null,bookings:[],msgs:{},notifs:[],curPage:'home',curChat:null,curChatType:null};
+    _friendReqs=[];_knownUsers={};_groups=[];_realChats={};_groupChats={};
+    document.getElementById('auth-screen').style.display='flex';
+    document.getElementById('app-screen').style.display='none';
+  }
+});
 
 // ═══ INIT ═══
 function initApp(){
@@ -773,7 +903,6 @@ function initApp(){
   document.getElementById('ch-inp').addEventListener('keypress',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}});
   document.addEventListener('click',e=>{if(!e.target.closest('.group-wrap'))document.querySelectorAll('.group-wrap.show-del').forEach(w=>w.classList.remove('show-del'));});
   document.addEventListener('click',e=>{if(!e.target.closest('.bcard-wrap'))document.querySelectorAll('.bcard-wrap.show-cancel').forEach(w=>w.classList.remove('show-cancel'));});
-  setInterval(()=>{updateBadges();updateFriendCount();if(currentTab==='friends')renderFriendSection();if(currentTab==='groups')renderGroupList();},5000);
 }
 
 // ═══ NAV ═══
@@ -813,7 +942,7 @@ function setVF(t,el){document.querySelectorAll('.fc').forEach(x=>x.classList.rem
 function showCity(city){
   document.getElementById('city-list').style.display='none';document.getElementById('city-detail').style.display='';
   document.getElementById('cd-name').textContent=city;document.getElementById('cd-sub').textContent=`Sportanlagen in ${city}`;
-  const allBooks=JSON.parse(localStorage.getItem('sb_books')||'[]');let h='';
+  const allBooks=S.bookings||[];let h='';
   Object.entries(VTYPES).forEach(([type,info])=>{
     h+=`<div class="vts"><div class="vth"><span style="font-size:17px">${info.icon}</span><span style="font-size:15px;font-weight:700;color:var(--gd);margin-left:8px">${info.label}</span></div>`;
     info.mk(city).forEach(v=>{const busy=allBooks.some(b=>b.city===city&&b.vname===v.n&&isBusy(b));h+=`<div class="vc" onclick="openBook('${city}','${type}','${v.n.replace(/'/g,"\\'")}','${v.a.replace(/'/g,"\\'")}')"><div class="vci">${info.icon}</div><div style="flex:1"><div class="vcn">${v.n}</div><div class="vca">📍 ${v.a}</div></div><div class="avail ${busy?'busy':'free'}">${busy?'Belegt':'Frei'}</div></div>`;});
@@ -839,7 +968,7 @@ function openBook(city,vtype,vname,vaddr){
 function closeModal(){document.getElementById('book-modal').classList.remove('active');}
 function onDateChange(val){bkS.date=val;bkS.time=null;document.querySelectorAll('.ts').forEach(x=>x.classList.remove('sel'));genSlots(bkS.city,bkS.vname,val);chkBk();}
 function genSlots(city,vname,dateStr){
-  const all=JSON.parse(localStorage.getItem('sb_books')||'[]');const now=new Date();
+  const all=S.bookings||[];const now=new Date();
   const isToday=dateStr===todayStr();let h='';
   for(let hr=8;hr<=21;hr++)for(let mn=0;mn<60;mn+=30){
     const ts=`${String(hr).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
@@ -871,23 +1000,29 @@ function togGI(id){
   if(idx>-1){bkS.groups.splice(idx,1);document.getElementById('gii-'+id).classList.remove('sel');document.getElementById('gic-'+id).classList.remove('chk');}
   else{bkS.groups.push(id);document.getElementById('gii-'+id).classList.add('sel');document.getElementById('gic-'+id).classList.add('chk');}
 }
-function doBook(){
+async function doBook(){
   if(!bkS.dur||!bkS.time)return;
+  const btn=document.getElementById('bk-btn');btn.textContent='Wird gebucht…';btn.disabled=true;
   const[y,mo,d]=bkS.date.split('-').map(Number);const[h,m]=bkS.time.split(':').map(Number);
   const dt=new Date(y,mo-1,d,h,m,0,0);
-  const bk={id:Date.now(),uid:S.user.id,city:bkS.city,vtype:bkS.vtype,vname:bkS.vname,dur:bkS.dur,dt:dt.toISOString(),friends:bkS.friends,groups:bkS.groups,at:new Date().toISOString()};
-  S.bookings.push(bk);const all=JSON.parse(localStorage.getItem('sb_books')||'[]');all.push(bk);localStorage.setItem('sb_books',JSON.stringify(all));
-  const invTxt=`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
-  bkS.friends.forEach(fid=>{
-    if(String(fid).startsWith('demo_')){if(!S.msgs[fid])S.msgs[fid]=[];S.msgs[fid].push({f:'me',t:invTxt,ts:nowTime(),st:Date.now()});}
-    else{const c=getRealChat(fid);c.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveRealChat(fid,c);}
-  });
-  bkS.groups.forEach(gid=>{
-    const g=getGroups().find(x=>x.id===gid);if(!g)return;
-    const gc=getGroupChat(gid);gc.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveGroupChat(gid,gc);
-  });
-  saveMsgs();S.notifs.unshift({icon:VTYPES[bkS.vtype]?.icon||'📅',title:'Buchung bestätigt',body:`${bk.vname} · ${fmtDT(bk.dt)}`,time:'Gerade eben'});
-  closeModal();showConf(bk);updateHome();updateBadges();
+  const bkData={uid:S.user.id,city:bkS.city,vtype:bkS.vtype,vname:bkS.vname,dur:bkS.dur,dt:dt.toISOString(),friends:bkS.friends,groups:bkS.groups,at:new Date().toISOString(),cancelled:false};
+  try{
+    const ref=await db.collection('bookings').add(bkData);
+    const bk={id:ref.id,...bkData};
+    S.bookings.push(bk);
+    const invTxt=`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
+    bkS.friends.forEach(fid=>{
+      if(String(fid).startsWith('demo_')){if(!S.msgs[fid])S.msgs[fid]=[];S.msgs[fid].push({f:'me',t:invTxt,ts:nowTime(),st:Date.now()});}
+      else{const c=getRealChat(fid);c.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveRealChat(fid,c);}
+    });
+    bkS.groups.forEach(gid=>{
+      const g=getGroups().find(x=>x.id===gid);if(!g)return;
+      const gc=getGroupChat(gid);gc.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveGroupChat(gid,gc);
+    });
+    S.notifs.unshift({icon:VTYPES[bkS.vtype]?.icon||'📅',title:'Buchung bestätigt',body:`${bk.vname} · ${fmtDT(bk.dt)}`,time:'Gerade eben'});
+    closeModal();showConf(bk);updateHome();updateBadges();
+  }catch(e){alert('Buchung fehlgeschlagen: '+e.message);}
+  btn.textContent='Jetzt buchen';btn.disabled=false;chkBk();
 }
 function showConf(bk){
   const allF=[...DEMO_FRIENDS,...getMyRealFriends().map(u=>({id:u.id,name:u.name}))];
@@ -938,11 +1073,20 @@ function renderChatList(){
   if(!items.length){cont.innerHTML=`<div class="empty"><div class="empty-i">💬</div><div class="empty-t">Keine Chats</div><div class="empty-s">Füge Freunde hinzu!</div></div>`;return;}
   cont.innerHTML=items.map(({f,last,unr,type})=>`<div class="chat-item" onclick="openChat('${f.id}','${type}')"><div class="caw"><div class="cav">${f.av}</div>${f.status==='online'?'<div class="odot"></div>':''}</div><div class="ci-info"><div class="ci-name">${f.name}${type==='real'?' <span style="font-size:10px;background:var(--c1);color:var(--c3);padding:2px 5px;border-radius:6px;font-weight:700">ECHT</span>':''}</div><div class="ci-last">${last?(last.f==='me'||last.f===S.user?.id?'Du: ':'')+last.t.split('\n')[0]:'Noch keine Nachrichten'}</div></div><div class="ci-meta"><div class="ci-time">${last?.ts||''}</div>${unr?`<div class="ci-unread">${unr}</div>`:''}</div></div>`).join('');
 }
-function openChat(fid,type){
+async function openChat(fid,type){
   S.curChat=fid;S.curChatType=type;document.getElementById('ch-av').className='ch-av';
   let fr,msgs;
-  if(type==='real'){fr=JSON.parse(localStorage.getItem('sb_users')||'[]').find(u=>u.id===Number(fid)||u.id===fid);msgs=getRealChat(fid);msgs.forEach(m=>{if(m.f===fid||m.f===Number(fid))m.rd=true;});saveRealChat(fid,msgs);}
-  else{fr=DEMO_FRIENDS.find(f=>f.id===fid);if(!S.msgs[fid])S.msgs[fid]=[];S.msgs[fid].forEach(m=>m.rd=true);msgs=S.msgs[fid];saveMsgs();}
+  if(type==='real'){
+    fr=_knownUsers[fid]||{name:'Unbekannt',avatar:'👤'};
+    msgs=await getRealChatAsync(fid);
+    msgs.forEach(m=>{if(m.f===fid)m.rd=true;});
+    saveRealChat(fid,msgs);
+  }else{
+    fr=DEMO_FRIENDS.find(f=>f.id===fid);
+    if(!S.msgs[fid])S.msgs[fid]=[];
+    S.msgs[fid].forEach(m=>m.rd=true);
+    msgs=S.msgs[fid];
+  }
   document.getElementById('ch-av').textContent=fr?.avatar||fr?.av||'👤';
   document.getElementById('ch-name').textContent=fr?.name||'Unbekannt';
   document.getElementById('ch-st').textContent=type==='real'?'🟢 Registrierter Nutzer':(fr?.status==='online'?'🟢 Online':'⚫ Offline');
@@ -954,13 +1098,20 @@ function renderMsgs(msgs){
   setTimeout(()=>c.scrollTop=c.scrollHeight,50);
 }
 function closeChat(){document.getElementById('chat-scr').classList.remove('active');S.curChat=null;S.curChatType=null;renderChatList();}
-function sendChat(){
+async function sendChat(){
   const inp=document.getElementById('ch-inp');const t=inp.value.trim();if(!t||!S.curChat)return;inp.value='';const now=Date.now();
-  if(S.curChatType==='group'){const chat=getGroupChat(S.curChat);chat.push({f:S.user.id,senderName:S.user.name,t,ts:nowTime(),st:now});saveGroupChat(S.curChat,chat);renderGroupMsgs(chat);}
-  else if(S.curChatType==='real'){const chat=getRealChat(S.curChat);chat.push({f:S.user.id,senderName:S.user.name,t,ts:nowTime(),st:now});saveRealChat(S.curChat,chat);renderMsgs(chat);}
-  else{
-    const msg={f:'me',t,ts:nowTime(),st:now,rd:true};if(!S.msgs[S.curChat])S.msgs[S.curChat]=[];S.msgs[S.curChat].push(msg);saveMsgs();renderMsgs(S.msgs[S.curChat]);
-    const fr=DEMO_FRIENDS.find(f=>f.id===S.curChat);
+  if(S.curChatType==='group'){
+    const chat=getGroupChat(S.curChat);chat.push({f:S.user.id,senderName:S.user.name,t,ts:nowTime(),st:now});
+    _groupChats[String(S.curChat)]=chat;renderGroupMsgs(chat);
+    await saveGroupChat(S.curChat,chat);
+  }else if(S.curChatType==='real'){
+    const chat=getRealChat(S.curChat);chat.push({f:S.user.id,senderName:S.user.name,t,ts:nowTime(),st:now,rd:true});
+    _realChats[S.curChat]=chat;renderMsgs(chat);
+    await saveRealChat(S.curChat,chat);
+  }else{
+    const msg={f:'me',t,ts:nowTime(),st:now,rd:true};
+    if(!S.msgs[S.curChat])S.msgs[S.curChat]=[];
+    S.msgs[S.curChat].push(msg);renderMsgs(S.msgs[S.curChat]);
   }
 }
 
@@ -971,36 +1122,31 @@ function fTab(t,el){
   currentTab=t;if(t==='friends')renderFriendSection();if(t==='groups')renderGroupList();
 }
 
-// ═══ FRIEND SEARCH ═══
+// ═══ FRIEND SEARCH (Firebase) ═══
 async function searchUsers(q){
   const res=document.getElementById('fsearch-results');
   if(!q||q.length<2){res.innerHTML='';return;}
   res.innerHTML='<div style="padding:9px 3px;color:var(--mt);font-size:13px">Suche...</div>';
-  let found=[];
-  if(fbReady()){
-    try{
-      const snap=await fbDb.collection('users').get();
-      const uid=String(S.user.id);
-      found=snap.docs.map(d=>d.data()).filter(u=>String(u.id)!==uid&&(u.u.toLowerCase().includes(q.toLowerCase())||u.name.toLowerCase().includes(q.toLowerCase())));
-      const localUsers=JSON.parse(localStorage.getItem('sb_users')||'[]');
-      found.forEach(u=>{if(!localUsers.find(x=>String(x.id)===String(u.id)))localUsers.push(u);});
-      localStorage.setItem('sb_users',JSON.stringify(localUsers));
-    }catch(e){
-      found=JSON.parse(localStorage.getItem('sb_users')||'[]').filter(u=>String(u.id)!==String(S.user.id)&&(u.u.toLowerCase().includes(q.toLowerCase())||u.name.toLowerCase().includes(q.toLowerCase())));
-    }
-  }else{
-    found=JSON.parse(localStorage.getItem('sb_users')||'[]').filter(u=>u.id!==S.user.id&&(u.u.toLowerCase().includes(q.toLowerCase())||u.name.toLowerCase().includes(q.toLowerCase())));
+  try{
+    const snap=await db.collection('users').get();
+    const uid=S.user.id;
+    const found=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(u=>u.id!==uid&&(u.u?.toLowerCase().includes(q.toLowerCase())||u.name?.toLowerCase().includes(q.toLowerCase())));
+    // Cache found users
+    found.forEach(u=>{_knownUsers[u.id]=u;});
+    if(!found.length){res.innerHTML='<div style="padding:9px 3px;color:var(--mt);font-size:13px">Kein Nutzer gefunden.</div>';return;}
+    res.innerHTML=found.map(u=>{
+      const isFr=isAlreadyFriend(u.id),isPend=hasPendingTo(u.id),pendMe=hasPendingFrom(u.id);
+      let btn='';
+      if(isFr)btn=`<span style="background:var(--c1);color:var(--c3);font-size:11px;font-weight:700;padding:5px 10px;border-radius:10px">✓ Befreundet</span>`;
+      else if(pendMe)btn=`<button class="btn-sm btn-dark" onclick="acceptReqByUid('${u.id}')">Annehmen</button>`;
+      else if(isPend)btn=`<span style="font-size:11px;color:var(--mt);padding:5px 9px">Ausstehend</span>`;
+      else btn=`<button class="btn-sm btn-dark" onclick='sendFriendReq(${JSON.stringify({id:u.id,name:u.name})})'>+ Hinzufügen</button>`;
+      return`<div style="display:flex;align-items:center;gap:11px;padding:11px;background:var(--c1);border-radius:var(--rs);margin-bottom:7px"><div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${u.avatar||'👤'}</div><div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--gd)">${u.name}</div><div style="font-size:11px;color:var(--mt)">@${u.u} <span style="background:#dcfce7;color:#16a34a;padding:2px 5px;border-radius:5px;font-size:10px">🌐 Registriert</span></div></div>${btn}</div>`;
+    }).join('');
+  }catch(e){
+    res.innerHTML=`<div style="padding:9px 3px;color:#dc2626;font-size:12px">Suche fehlgeschlagen: ${e.message}</div>`;
   }
-  if(!found.length){res.innerHTML=`<div style="padding:9px 3px;color:var(--mt);font-size:13px">Kein Nutzer gefunden.</div>`;return;}
-  res.innerHTML=found.map(u=>{
-    const isFr=isAlreadyFriend(u.id);const isPend=hasPendingTo(u.id);const pendMe=hasPendingFrom(u.id);
-    let btn='';
-    if(isFr)btn=`<span style="background:var(--c1);color:var(--c3);font-size:11px;font-weight:700;padding:5px 10px;border-radius:10px">✓ Befreundet</span>`;
-    else if(pendMe)btn=`<button class="btn-sm btn-dark" onclick="acceptReqByUid('${u.id}')">Annehmen</button>`;
-    else if(isPend)btn=`<span style="font-size:11px;color:var(--mt);padding:5px 9px">Ausstehend</span>`;
-    else btn=`<button class="btn-sm btn-dark" onclick='sendFriendReq(${JSON.stringify({id:u.id,name:u.name})})'>+ Hinzufügen</button>`;
-    return`<div style="display:flex;align-items:center;gap:11px;padding:11px;background:var(--c1);border-radius:var(--rs);margin-bottom:7px"><div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${u.avatar||'👤'}</div><div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--gd)">${u.name}</div><div style="font-size:11px;color:var(--mt)">@${u.u} ${fbReady()?'<span style="background:#dcfce7;color:#16a34a;padding:2px 5px;border-radius:5px;font-size:10px">🌐 Registriert</span>':''}</div></div>${btn}</div>`;
-  }).join('');
 }
 function renderFriendSection(){
   const cont=document.getElementById('freq-section');let h='';
@@ -1098,10 +1244,10 @@ function botReply(raw){
   if(bot.step==='confirm'){
     if(t.includes('ja')||t.includes('ok')||t.includes('super')||t.includes('klar')||t.includes('bitte')){
       const now=new Date();const[h,m]=bot.time.split(':').map(Number);const dt=new Date();dt.setHours(h,m,0,0);if(dt<now)dt.setDate(dt.getDate()+1);
-      const bk={id:Date.now(),uid:S.user.id,city:bot.city,vtype:bot.vtype,vname:bot.venue.n,dur:bot.dur,dt:dt.toISOString(),friends:[],groups:[],at:new Date().toISOString()};
-      S.bookings.push(bk);const all=JSON.parse(localStorage.getItem('sb_books')||'[]');all.push(bk);localStorage.setItem('sb_books',JSON.stringify(all));
-      S.notifs.unshift({icon:VTYPES[bot.vtype]?.icon||'📅',title:'Buchung durch SportBot',body:`${bk.vname} · ${fmtDT(bk.dt)}`,time:'Gerade eben'});
-      updateHome();updateBadges();bot.newBkId=bk.id;bot.step='post_book';
+      const bkData={uid:S.user.id,city:bot.city,vtype:bot.vtype,vname:bot.venue.n,dur:bot.dur,dt:dt.toISOString(),friends:[],groups:[],at:new Date().toISOString(),cancelled:false};
+      db.collection('bookings').add(bkData).then(ref=>{const bk={id:ref.id,...bkData};S.bookings.push(bk);bot.newBkId=ref.id;});
+      S.notifs.unshift({icon:VTYPES[bot.vtype]?.icon||'📅',title:'Buchung durch SportBot',body:`${bot.venue.n} · ${fmtDT(dt.toISOString())}`,time:'Gerade eben'});
+      updateHome();updateBadges();bot.newBkId='pending';bot.step='post_book';
       return`✅ Gebucht!\n📍 ${bk.vname}\n🏙️ ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Min.\n\n${postBookPrompt()}`;
     }else{botReset();return'Buchung abgebrochen. Wie kann ich sonst helfen?';}
   }
@@ -1117,22 +1263,18 @@ function botReply(raw){
     else picked=allF.find(f=>t.includes(f.name.toLowerCase().split(' ')[0]));
     if(picked){
       const bk=S.bookings.find(b=>b.id===bot.newBkId);
-      if(bk&&!bk.friends.includes(picked.id))bk.friends.push(picked.id);
-      const all=JSON.parse(localStorage.getItem('sb_books')||'[]');const idx=all.findIndex(b=>b.id===bot.newBkId);if(idx>-1){all[idx]=bk;localStorage.setItem('sb_books',JSON.stringify(all));}
-      const invTxt=`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
+      if(bk&&!bk.friends.includes(picked.id)){bk.friends.push(picked.id);db.collection('bookings').doc(String(bot.newBkId)).update({friends:bk.friends});}
+      const invTxt=bk?`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`:`🎉 Du wurdest eingeladen!`;
       if(String(picked.id).startsWith('demo_')){
         if(!S.msgs[picked.id])S.msgs[picked.id]=[];
         S.msgs[picked.id].push({f:'me',t:invTxt,ts:nowTime(),st:Date.now()});
       }else{const c=getRealChat(picked.id);c.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveRealChat(picked.id,c);}
-      saveMsgs();updateBadges();
-      const remaining=allF.filter(f=>!(bk.friends||[]).includes(f.id));
-      if(remaining.length){return`✅ ${picked.name} eingeladen!\n\nNoch jemanden einladen?`;}
+      updateBadges();
+      const remaining=allF.filter(f=>!(bk?.friends||[]).includes(f.id));
+      if(remaining.length)return`✅ ${picked.name} eingeladen!\n\nNoch jemanden einladen?`;
       botReset();return`✅ ${picked.name} eingeladen! Viel Spaß beim Sport! 💪`;
     }
     // Gruppe teilen
-    let grpPicked=null;
-    if(!isNaN(num)&&num>=1&&num<=myGroups.length)grpPicked=myGroups[num-1];
-    else if(t.includes('gruppe')||t.includes('teilen'))grpPicked=null;
     if(t.includes('gruppe')||t.includes('teilen')){
       if(!myGroups.length)return`Du hast noch keine Gruppen.\n\n${postBookPrompt()}`;
       const list=myGroups.map((g,i)=>`${i+1}. ${g.name}`).join('\n');
@@ -1141,15 +1283,14 @@ function botReply(raw){
     return postBookPrompt();
   }
   if(bot.step==='post_group_pick'){
-    const myGroups=getGroups().filter(g=>g.members.includes(S.user.id));
+    const myGroups=getGroups();
     const num=parseInt(t);let picked=null;
     if(!isNaN(num)&&num>=1&&num<=myGroups.length)picked=myGroups[num-1];
     else picked=myGroups.find(g=>t.includes(g.name.toLowerCase()));
     if(picked){
       const bk=S.bookings.find(b=>b.id===bot.newBkId);
-      if(bk&&!bk.groups.includes(picked.id))bk.groups.push(picked.id);
-      const all=JSON.parse(localStorage.getItem('sb_books')||'[]');const idx=all.findIndex(b=>b.id===bot.newBkId);if(idx>-1){all[idx]=bk;localStorage.setItem('sb_books',JSON.stringify(all));}
-      const invTxt=`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`;
+      if(bk&&!bk.groups.includes(picked.id)){bk.groups.push(picked.id);db.collection('bookings').doc(String(bot.newBkId)).update({groups:bk.groups});}
+      const invTxt=bk?`🎉 Einladung!\n📍 ${bk.vname}, ${bk.city}\n🕐 ${fmtDT(bk.dt)}\n⏱ ${bk.dur} Minuten`:`🎉 Du wurdest eingeladen!`;
       const gc=getGroupChat(picked.id);gc.push({f:S.user.id,senderName:S.user.name,t:invTxt,ts:nowTime(),st:Date.now()});saveGroupChat(picked.id,gc);
       updateBadges();bot.step='post_book';
       return`✅ Buchung in "${picked.name}" geteilt!\n\n${postBookPrompt()}`;
@@ -1224,8 +1365,7 @@ function botReply(raw){
         (bk.groups||[]).forEach(gid=>{const g=getGroups().find(x=>x.id===gid);if(!g)return;const gc=getGroupChat(gid);gc.push({f:S.user.id,senderName:S.user.name,t:cancelTxt,ts:nowTime(),st:Date.now()});saveGroupChat(gid,gc);});
         bk.cancelled=true;saveMsgs();
       }
-      const all=JSON.parse(localStorage.getItem('sb_books')||'[]');
-      const idx=all.findIndex(b=>b.id===bid);if(idx>-1){all[idx].cancelled=true;localStorage.setItem('sb_books',JSON.stringify(all));}
+      db.collection('bookings').doc(String(bid)).update({cancelled:true}).catch(()=>{});
       buchFilter='storniert';document.querySelectorAll('#page-buchungen .ftab').forEach((x,i)=>{x.classList.toggle('active',i===2);});
       renderBuch();updateHome();updateBadges();botReset();
       return`✅ Buchung storniert${notified?' und Absage an alle Eingeladenen gesendet':''}.`;
@@ -1283,72 +1423,74 @@ function setAvEl(el,av){
 async function saveProfile(){
   const name=document.getElementById('prof-name').value.trim(),uname=document.getElementById('prof-user').value.trim(),email=document.getElementById('prof-email').value.trim();
   if(!name||!uname){alert('Name und Benutzername dürfen nicht leer sein.');return;}
-  S.user.name=name;S.user.u=uname;S.user.e=email;S.user.avatar=profAv;
-  const users=JSON.parse(localStorage.getItem('sb_users')||'[]');const idx=users.findIndex(x=>x.id===S.user.id);if(idx>-1){users[idx]=S.user;localStorage.setItem('sb_users',JSON.stringify(users));}
-  localStorage.setItem('sb_ses',JSON.stringify(S.user));
+  S.user.name=name;S.user.u=uname;S.user.e=email;S.user.email=email;S.user.avatar=profAv;
+  await db.collection('users').doc(S.user.id).update({name,u:uname,email,e:email,avatar:profAv});
+  if(auth.currentUser)await auth.currentUser.updateProfile({displayName:name});
   document.getElementById('hgreet').textContent=`Hallo, ${name.split(' ')[0]}! 👋`;setAvEl(document.getElementById('home-pav'),profAv);
   closeProfile();toast('✅ Profil gespeichert!');
 }
 function closeProfile(){document.getElementById('prof-scr').classList.remove('active');}
 
 async function doLogout(){
-  localStorage.removeItem('sb_ses');
+  await auth.signOut();
+  // auth.onAuthStateChanged handles UI reset
   document.getElementById('prof-scr').classList.remove('active');
-  document.getElementById('app-screen').style.display='none';
-  document.getElementById('auth-screen').style.display='flex';
-  S={user:null,bookings:[],msgs:{},notifs:[],curPage:'home',curChat:null,curChatType:null};
-  bot={step:null,city:null,vtype:null,dur:null,time:null,venue:null,inviteFid:null,inviteName:null,groupName:null,groupMembers:[],cancelBid:null};
+  bot={step:null,city:null,vtype:null,dur:null,time:null,venue:null,inviteFid:null,inviteName:null,groupName:null,groupMembers:[],cancelBid:null,newBkId:null};
   botOpen=false;botInited=false;
   document.getElementById('bot-panel').classList.remove('open');
   document.getElementById('bot-msgs').innerHTML='';
-  // Reset auth form
   document.getElementById('lu').value='';document.getElementById('lp').value='';
   authTab('login');
 }
 
-function confirmDeleteAccount(){
-  if(!confirm('Konto wirklich schließen? Alle deine Daten werden dauerhaft gelöscht und du kannst dich nicht mehr mit diesen Daten anmelden. Dieser Vorgang ist unwiderruflich.'))return;
+async function confirmDeleteAccount(){
+  if(!confirm('Konto wirklich schließen? Alle deine Daten werden dauerhaft gelöscht. Dieser Vorgang ist unwiderruflich.'))return;
   const uid=S.user.id;
-  // Remove user from users list
-  const users=JSON.parse(localStorage.getItem('sb_users')||'[]').filter(u=>u.id!==uid);
-  localStorage.setItem('sb_users',JSON.stringify(users));
-  // Remove bookings
-  const books=JSON.parse(localStorage.getItem('sb_books')||'[]').filter(b=>b.uid!==uid);
-  localStorage.setItem('sb_books',JSON.stringify(books));
-  // Remove friend requests
-  const reqs=getAllReqs().filter(r=>r.from!==uid&&r.to!==uid);
-  saveAllReqs(reqs);
-  // Remove messages and session
-  localStorage.removeItem('sb_msgs_'+uid);
-  localStorage.removeItem('sb_ses');
-  // Back to auth
-  document.getElementById('prof-scr').classList.remove('active');
-  document.getElementById('app-screen').style.display='none';
-  document.getElementById('auth-screen').style.display='flex';
-  S={user:null,bookings:[],msgs:{},notifs:[],curPage:'home',curChat:null,curChatType:null};
-  bot={step:null,city:null,vtype:null,dur:null,time:null,venue:null,inviteFid:null,inviteName:null,groupName:null,groupMembers:[],cancelBid:null};
-  botOpen=false;botInited=false;
-  document.getElementById('bot-panel').classList.remove('open');
-  document.getElementById('bot-msgs').innerHTML='';
-  document.getElementById('lu').value='';document.getElementById('lp').value='';
-  authTab('login');
-  alert('Dein Konto wurde vollständig gelöscht.');
+  try{
+    // Delete bookings
+    const bSnap=await db.collection('bookings').where('uid','==',uid).get();
+    await Promise.all(bSnap.docs.map(d=>d.ref.delete()));
+    // Delete friend requests
+    const r1=await db.collection('friendRequests').where('from','==',uid).get();
+    const r2=await db.collection('friendRequests').where('to','==',uid).get();
+    await Promise.all([...r1.docs,...r2.docs].map(d=>d.ref.delete()));
+    // Delete user doc
+    await db.collection('users').doc(uid).delete();
+    // Delete Firebase Auth account
+    if(auth.currentUser)await auth.currentUser.delete();
+    alert('Dein Konto wurde vollständig gelöscht.');
+    // auth.onAuthStateChanged handles UI reset
+  }catch(e){
+    alert('Fehler beim Löschen: '+e.message);
+  }
 }
 
 // ═══ HELPERS ═══
 function fmtDT(iso){const d=new Date(iso),n=new Date(),t=d.toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'})+' Uhr';const tom=new Date(n);tom.setDate(tom.getDate()+1);if(d.toDateString()===n.toDateString())return`Heute, ${t}`;if(d.toDateString()===tom.toDateString())return`Morgen, ${t}`;return d.toLocaleDateString('de',{day:'2-digit',month:'2-digit',year:'2-digit'})+', '+t;}
 function nowTime(){return new Date().toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'});}
-function saveMsgs(){if(S.user)localStorage.setItem('sb_msgs_'+S.user.id,JSON.stringify(S.msgs));}
+function saveMsgs(){}  // demo messages stay in memory only
 function toast(msg){const t=document.createElement('div');t.style.cssText='position:fixed;bottom:calc(var(--nh)+20px);left:50%;transform:translateX(-50%);background:var(--c4);color:#fff;padding:11px 22px;border-radius:18px;font-weight:700;font-size:13px;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.18);transition:opacity .3s';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);}
+function fbReady(){return true;}
 
 // ═══ BOOT ═══
-function fbReady(){return false;}
 window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('lp').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin();});
   document.getElementById('rp').addEventListener('keypress',e=>{if(e.key==='Enter')doRegister();});
-  const ses=localStorage.getItem('sb_ses');
-  if(ses){const u=JSON.parse(ses);const found=JSON.parse(localStorage.getItem('sb_users')||'[]').find(x=>String(x.id)===String(u.id));if(found)startSession(found);}
+  // auth.onAuthStateChanged handles session restore automatically
 });
+
+// ─── Periodic refresh every 30s (friend requests, groups, bookings) ──────────
+setInterval(async()=>{
+  if(!S.user)return;
+  await _loadFriendReqs();
+  await _loadFriendsData();
+  await _loadGroups();
+  const bSnap=await db.collection('bookings').where('uid','==',S.user.id).get();
+  S.bookings=bSnap.docs.map(d=>({id:d.id,...d.data()}));
+  updateBadges();updateFriendCount();
+  if(currentTab==='friends')renderFriendSection();
+  if(currentTab==='groups')renderGroupList();
+},30000);
 </script>
 </body>
 </html>
