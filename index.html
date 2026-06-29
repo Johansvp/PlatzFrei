@@ -782,18 +782,20 @@ function renderGroupList(){
         <div class="group-av">👥</div>
         <div class="ci-info"><div class="ci-name">${g.name}</div><div class="ci-last">${last?last.t.substring(0,38):'Noch keine Nachrichten'}</div></div>
         <div class="ci-meta"><div class="ci-time">${last?.ts||''}</div></div>
-        <button class="group-dots" onclick="event.stopPropagation();toggleGroupDel(${g.id})">⋯</button>
+        <button class="group-dots" onclick="toggleGroupDel(event,'${g.id}')">⋯</button>
       </div>
-      <div class="group-del-btn"><button onclick="deleteGroup(${g.id})">🗑️ Gruppe löschen</button></div>
+      <div class="group-del-btn"><button onclick="deleteGroup('${g.id}')">🗑️ Gruppe löschen</button></div>
     </div>`;
   }).join('');
 }
-function toggleGroupDel(gid){
+function toggleGroupDel(e,gid){
+  e.stopPropagation();
   const wrap=document.getElementById('gw-'+gid);if(!wrap)return;
   document.querySelectorAll('.group-wrap').forEach(w=>{if(w!==wrap)w.classList.remove('show-del');});
   wrap.classList.toggle('show-del');
 }
-function toggleBookCancel(bid){
+function toggleBookCancel(e,bid){
+  e.stopPropagation();
   const wrap=document.getElementById('bw-'+bid);if(!wrap)return;
   document.querySelectorAll('.bcard-wrap').forEach(w=>{if(w!==wrap)w.classList.remove('show-cancel');});
   wrap.classList.toggle('show-cancel');
@@ -1058,7 +1060,7 @@ function renderBuch(){
     const up=new Date(b.dt)>=now;const ca=!!b.cancelled;const inv=(b.friends||[]).map(id=>allF.find(f=>f.id===id)?.name).filter(Boolean);
     const statusCls=ca?'s-c':up?'s-up':'s-p';const statusTxt=ca?'Storniert':up?'Bevorstehend':'Vergangen';
     const cardCls=ca?'cancelled':up?'':'past';
-    return`<div class="bcard-wrap" id="bw-${b.id}"><div class="bcard ${cardCls}"><div class="bch"><div style="display:flex;align-items:center;gap:9px"><span style="font-size:20px">${VTYPES[b.vtype]?.icon||'📍'}</span><div class="bct">${b.vname}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="bcs ${statusCls}">${statusTxt}</div>${up&&!ca?`<button class="bcard-dots" onclick="event.stopPropagation();toggleBookCancel('${b.id}')">⋯</button>`:''}</div></div><div class="bcd"><div class="bdr">🏙️ ${b.city}</div><div class="bdr">🕐 ${fmtDT(b.dt)}</div><div class="bdr">⏱ ${b.dur} Min.</div></div>${inv.length?`<div class="bfr">${inv.map(n=>`<div class="bfc">👤 ${n}</div>`).join('')}</div>`:''}</div>${up&&!ca?`<div class="bcard-cancel-btn"><button onclick="cancelBooking('${b.id}')">🗑️ Buchung stornieren</button></div>`:''}</div>`;
+    return`<div class="bcard-wrap" id="bw-${b.id}"><div class="bcard ${cardCls}"><div class="bch"><div style="display:flex;align-items:center;gap:9px"><span style="font-size:20px">${VTYPES[b.vtype]?.icon||'📍'}</span><div class="bct">${b.vname}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="bcs ${statusCls}">${statusTxt}</div>${up&&!ca?`<button class="bcard-dots" onclick="toggleBookCancel(event,'${b.id}')">⋯</button>`:''}</div></div><div class="bcd"><div class="bdr">🏙️ ${b.city}</div><div class="bdr">🕐 ${fmtDT(b.dt)}</div><div class="bdr">⏱ ${b.dur} Min.</div></div>${inv.length?`<div class="bfr">${inv.map(n=>`<div class="bfc">👤 ${n}</div>`).join('')}</div>`:''}</div>${up&&!ca?`<div class="bcard-cancel-btn"><button onclick="cancelBooking('${b.id}')">🗑️ Buchung stornieren</button></div>`:''}</div>`;
   }).join('');
 }
 
