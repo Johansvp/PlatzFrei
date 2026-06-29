@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PlatzFrei</title>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--c0:#F7F8FA;--c1:#DDE3EA;--c2:#8896A6;--c3:#46566B;--c4:#1E2A38;--bot:#C8531A;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Mulish',sans-serif;background:#c8cdd4;display:flex;justify-content:center;min-height:100vh;}
+#app{width:100%;max-width:430px;min-height:100vh;background:var(--c0);position:relative;display:flex;flex-direction:column;}
+.screen{display:none;flex-direction:column;height:100vh;overflow:hidden;}
+.screen.active{display:flex;}
+.sb{height:44px;background:var(--c4);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;}
+.sb .t{color:#fff;font-size:13px;font-weight:700;font-family:'Marcellus',serif;}
+.sb .ic{color:rgba(255,255,255,.5);font-size:11px;}
+.anav{background:var(--c4);padding:10px 18px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.bk{background:rgba(255,255,255,.12);color:#fff;width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;border:none;flex-shrink:0;}
+.anav .tt{font-family:'Marcellus',serif;color:#fff;font-size:16px;}
+.bnav{height:62px;background:#fff;border-top:1px solid var(--c1);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:6px;}
+.bni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 12px;border:none;background:transparent;position:relative;}
+.bni svg{width:22px;height:22px;fill:none;stroke:var(--c2);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+.bni span{font-size:10px;color:var(--c2);font-family:'Mulish',sans-serif;}
+.bni.on svg{stroke:var(--bot);}
+.bni.on span{color:var(--bot);font-weight:700;}
+.bdot{position:absolute;top:4px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--bot);border:2px solid #fff;display:none;}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+.lbl{font-size:11px;font-weight:700;color:var(--c3);text-transform:uppercase;letter-spacing:.07em;}
+.inp{background:#fff;border:1.5px solid var(--c1);border-radius:13px;padding:14px 16px;font-size:15px;color:var(--c4);font-family:'Mulish',sans-serif;outline:none;transition:border-color .2s;width:100%;}
+.inp:focus{border-color:var(--c4);}
+.btn{border-radius:14px;padding:15px;text-align:center;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Mulish',sans-serif;transition:opacity .15s;width:100%;}
+.btn:active{opacity:.8;}
+.btn-dark{background:var(--c4);color:#fff;}
+.btn-acc{background:var(--bot);color:#fff;}
+.btn-ghost{background:var(--c1);color:var(--c3);}
+.btn-red{background:#c0392b;color:#fff;}
+.chip{background:#fff;border:1px solid var(--c1);border-radius:999px;padding:6px 16px;font-size:12px;color:var(--c3);cursor:pointer;white-space:nowrap;font-family:'Mulish',sans-serif;font-weight:600;flex-shrink:0;}
+.chip.on{background:var(--c4);color:#fff;border-color:var(--c4);}
+.card{background:#fff;border:1px solid var(--c1);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .1s;}
+.card:active{transform:scale(.98);}
+.cal-day{flex-shrink:0;width:54px;background:#fff;border:1.5px solid var(--c1);border-radius:13px;padding:10px 6px;text-align:center;cursor:pointer;}
+.cal-day.sel{background:var(--c4);border-color:var(--c4);}
+.cal-day .wd{font-size:10px;color:var(--c2);font-weight:700;}
+.cal-day .d{font-family:'Marcellus',serif;font-size:22px;color:var(--c4);}
+.cal-day.sel .wd,.cal-day.sel .d{color:#fff;}
+.slot{background:#fff;border:1.5px solid var(--c1);border-radius:11px;padding:12px;text-align:center;font-size:13px;color:var(--c3);cursor:pointer;font-family:'Mulish',sans-serif;font-weight:600;}
+.slot.busy{background:var(--c1);color:var(--c2);cursor:default;}
+.slot.sel{background:var(--bot);border-color:var(--bot);color:#fff;}
+.platz-btn{background:#fff;border:1.5px solid var(--c1);border-radius:11px;padding:12px;text-align:center;font-size:13px;color:var(--c3);cursor:pointer;font-family:'Mulish',sans-serif;font-weight:600;}
+.platz-btn.sel{background:var(--c4);border-color:var(--c4);color:#fff;}
+.notif-item{background:#fff;border:1px solid var(--c1);border-radius:14px;padding:14px;display:flex;gap:12px;}
+.notif-item.unread{border-color:#b0c4e0;}
+.ni-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.buch-card{background:#fff;border:1px solid var(--c1);border-radius:16px;padding:14px 16px;}
+.buch-card.aktiv{border-color:#2e7d32;border-left:4px solid #2e7d32;}
+.buch-card.storniert{opacity:.6;}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;margin-bottom:8px;}
+.tag-green{background:#e8f5e9;color:#2e7d32;}
+.tag-red{background:#fde8e8;color:#c0392b;}
+.tag-gray{background:var(--c1);color:var(--c2);}
+.stat{background:#fff;border:1px solid var(--c1);border-radius:14px;padding:12px 8px;text-align:center;}
+.stat-n{font-family:'Marcellus',serif;font-size:26px;color:var(--c4);}
+.stat-l{font-size:10px;color:var(--c2);margin-top:2px;}
+.menu-row{background:#fff;border:1px solid var(--c1);border-radius:13px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.menu-ic{width:36px;height:36px;border-radius:10px;background:var(--c0);border:1px solid var(--c1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ftag{background:var(--c0);border:1px solid var(--c1);border-radius:999px;padding:6px 10px 6px 12px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--c3);font-weight:600;}
+.ftag button{border:none;background:none;cursor:pointer;color:var(--c2);font-size:13px;line-height:1;}
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(20,30,42,.95);color:#fff;padding:12px 22px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:9999;max-width:90vw;text-align:center;}
+#toast.show{opacity:1;}
+#loading{position:fixed;inset:0;background:var(--c4);display:flex;align-items:center;justify-content:center;z-index:9998;flex-direction:column;gap:18px;}
+#loading .logo{font-family:'Marcellus',serif;font-size:38px;color:#fff;}
+#loading .logo span{color:var(--bot);}
+.spin{width:28px;height:28px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.aktiv-banner{background:linear-gradient(135deg,#1a4a1a,#2e7d32);border-radius:16px;padding:14px 16px;margin:10px 18px 0;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="logo">Platz<span>Frei</span></div><div class="spin"></div></div>
+<div id="toast"></div>
+
+<div id="app">
+
+<!-- ═══ AUTH ═══ -->
+<div id="s-auth" class="screen">
+  <div class="scroll" style="background:linear-gradient(160deg,#46566B,#1E2A38);">
+    <div style="padding:64px 28px 40px;display:flex;flex-direction:column;gap:0;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:72px;height:72px;border-radius:22px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </div>
+        <div style="font-family:'Marcellus',serif;font-size:36px;color:#fff;">PlatzFrei</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:6px;">Die smarte Buchungslösung für Sportanlagen</div>
+      </div>
+      <div style="background:rgba(255,255,255,.1);border-radius:14px;padding:4px;display:flex;margin-bottom:22px;">
+        <button id="tab-a" onclick="authTab('login')" style="flex:1;padding:10px;border-radius:11px;border:none;font-family:'Mulish',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.95);color:var(--c4);">Anmelden</button>
+        <button id="tab-b" onclick="authTab('reg')" style="flex:1;padding:10px;border-radius:11px;border:none;font-family:'Mulish',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:rgba(255,255,255,.65);">Registrieren</button>
+      </div>
+      <!-- Login -->
+      <div id="f-login" style="display:flex;flex-direction:column;gap:13px;">
+        <div style="display:flex;flex-direction:column;gap:6px;"><div class="lbl" style="color:rgba(255,255,255,.55);">E-Mail</div><input id="l-mail" class="inp" type="email" placeholder="deine@email.de"></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div class="lbl" style="color:rgba(255,255,255,.55);">Passwort</div><input id="l-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="btn btn-acc" onclick="doLogin()" style="margin-top:4px;">Anmelden</button>
+      </div>
+      <!-- Register -->
+      <div id="f-reg" style="display:none;flex-direction:column;gap:12px;">
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;"><div class="lbl" style="color:rgba(255,255,255,.55);">Vorname</div><input id="r-fn" class="inp" type="text" placeholder="Max"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;"><div class="lbl" style="color:rgba(255,255,255,.55);">Nachname</div><input id="r-ln" class="inp" type="text" placeholder="Muster"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div class="lbl" style="color:rgba(255,255,255,.55);">E-Mail</div><input id="r-mail" class="inp" type="email" placeholder="deine@email.de"></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div class="lbl" style="color:rgba(255,255,255,.55);">Passwort (min. 6 Zeichen)</div><input id="r-pw" class="inp" type="password" placeholder="••••••••"></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div class="lbl" style="color:rgba(255,255,255,.55);">Passwort wiederholen</div><input id="r-pw2" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doRegister()"></div>
+        <button class="btn btn-acc" onclick="doRegister()" style="margin-top:4px;">Konto erstellen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div id="s-home" class="screen">
+  <div class="sb"><span class="t">PlatzFrei</span><span class="ic">●●● WiFi ⚡</span></div>
+  <div style="background:var(--c4);padding:14px 18px 16px;flex-shrink:0;">
+    <div style="font-family:'Marcellus',serif;color:#fff;font-size:22px;" id="greeting">Willkommen!</div>
+    <div style="color:rgba(255,255,255,.5);font-size:13px;margin-top:2px;">Was spielst du heute?</div>
+  </div>
+  <div id="banner-wrap"></div>
+  <div style="display:flex;gap:8px;padding:12px 18px 4px;overflow-x:auto;" id="chips">
+    <div class="chip on" data-f="alle" onclick="filterFac(this)">Alle</div>
+    <div class="chip" data-f="Tennis" onclick="filterFac(this)">Tennis</div>
+    <div class="chip" data-f="Fußball" onclick="filterFac(this)">Fußball</div>
+    <div class="chip" data-f="Basketball" onclick="filterFac(this)">Basketball</div>
+    <div class="chip" data-f="Volleyball" onclick="filterFac(this)">Volleyball</div>
+  </div>
+  <div class="scroll" style="padding:8px 18px 16px;"><div id="fac-list" style="display:flex;flex-direction:column;gap:12px;"></div></div>
+  <div class="bnav">
+    <button class="bni on" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></button>
+    <button class="bni" onclick="nav('s-buchungen',loadBuchungen)"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></button>
+    <button class="bni" id="btn-notif" onclick="nav('s-notifs',loadNotifs)"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Infos</span><div class="bdot" id="notif-dot"></div></button>
+    <button class="bni" onclick="nav('s-profil',loadProfil)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></button>
+  </div>
+</div>
+
+<!-- ═══ BUCHEN ═══ -->
+<div id="s-buchen" class="screen">
+  <div class="sb"><span class="t" id="buch-titel">Platz buchen</span><span class="ic">●●● ⚡</span></div>
+  <div class="anav"><button class="bk" onclick="goHome()">←</button><div class="tt" id="buch-anlage">Anlage</div></div>
+  <div id="buch-img" style="height:110px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:linear-gradient(135deg,#46566B,#1E2A38);"></div>
+  <div class="scroll" style="padding:18px;">
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div><div class="lbl" style="margin-bottom:10px;">Datum wählen</div><div style="display:flex;gap:8px;overflow-x:auto;" id="cal"></div></div>
+      <div><div class="lbl" style="margin-bottom:10px;">Platz wählen</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="platz-grid"></div></div>
+      <div><div class="lbl" style="margin-bottom:10px;">Uhrzeit wählen</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;" id="slot-grid"></div></div>
+      <button class="btn btn-acc" onclick="doBooking()" id="btn-book">Jetzt buchen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BESTÄTIGUNG ═══ -->
+<div id="s-best" class="screen">
+  <div class="sb"><span class="t">Buchung</span><span class="ic">●●● ⚡</span></div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;gap:16px;">
+    <div style="width:72px;height:72px;border-radius:50%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-family:'Marcellus',serif;font-size:26px;color:var(--c4);text-align:center;">Buchung bestätigt!</div>
+    <div style="font-size:13px;color:var(--c2);text-align:center;line-height:1.6;">Dein Platz ist reserviert.</div>
+    <div id="best-details" style="background:#fff;border:1px solid var(--c1);border-radius:16px;padding:16px;width:100%;display:flex;flex-direction:column;gap:9px;"></div>
+    <button class="btn btn-dark" onclick="showScreen('s-freunde')" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Freunde einladen
+    </button>
+    <button class="btn btn-ghost" onclick="goHome()">Zurück zur Startseite</button>
+  </div>
+</div>
+
+<!-- ═══ FREUNDE ═══ -->
+<div id="s-freunde" class="screen">
+  <div class="sb"><span class="t">Freunde einladen</span><span class="ic">●●● ⚡</span></div>
+  <div class="anav"><button class="bk" onclick="showScreen('s-best')">←</button><div class="tt">Freunde einladen</div></div>
+  <div class="scroll" style="padding:18px;">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div id="freunde-info" style="background:var(--c0);border:1px solid var(--c1);border-radius:13px;padding:12px 14px;font-size:13px;color:var(--c3);"></div>
+      <div>
+        <div class="lbl" style="margin-bottom:8px;">E-Mail des Freundes eingeben</div>
+        <div style="display:flex;gap:8px;">
+          <input id="f-mail" class="inp" type="email" placeholder="freund@email.de" style="flex:1;" onkeydown="if(event.key==='Enter')addFriend()">
+          <button class="btn btn-dark" style="width:auto;padding:14px 16px;" onclick="addFriend()">+</button>
+        </div>
+      </div>
+      <div id="f-tags" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      <div id="f-hint" style="font-size:13px;color:var(--c2);text-align:center;padding:8px 0;">Gib die E-Mail eines Freundes ein der PlatzFrei nutzt.</div>
+      <button class="btn btn-acc" onclick="doInvite()" id="btn-invite" disabled>Einladungen senden</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NOTIFS ═══ -->
+<div id="s-notifs" class="screen">
+  <div class="sb"><span class="t">Benachrichtigungen</span><span class="ic">●●● ⚡</span></div>
+  <div class="anav"><button class="bk" onclick="goHome()">←</button><div class="tt">Benachrichtigungen</div></div>
+  <div class="scroll" style="padding:14px 18px;display:flex;flex-direction:column;gap:10px;" id="notif-list"></div>
+</div>
+
+<!-- ═══ BUCHUNGEN ═══ -->
+<div id="s-buchungen" class="screen">
+  <div class="sb"><span class="t">Meine Buchungen</span><span class="ic">●●● ⚡</span></div>
+  <div class="anav"><button class="bk" onclick="goHome()">←</button><div class="tt">Meine Buchungen</div></div>
+  <div class="scroll" style="padding:14px 18px;display:flex;flex-direction:column;gap:10px;" id="buch-list"></div>
+  <div class="bnav">
+    <button class="bni" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></button>
+    <button class="bni on"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></button>
+    <button class="bni" onclick="nav('s-notifs',loadNotifs)"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Infos</span></button>
+    <button class="bni" onclick="nav('s-profil',loadProfil)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></button>
+  </div>
+</div>
+
+<!-- ═══ PROFIL ═══ -->
+<div id="s-profil" class="screen">
+  <div class="sb"><span class="t">Profil</span><span class="ic">●●● ⚡</span></div>
+  <div style="background:var(--c4);padding:24px 20px 28px;display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;">
+    <div id="p-avatar" style="width:72px;height:72px;border-radius:50%;background:var(--bot);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-family:'Marcellus',serif;"></div>
+    <div id="p-name" style="font-family:'Marcellus',serif;font-size:20px;color:#fff;margin-top:4px;"></div>
+    <div id="p-email" style="font-size:12px;color:rgba(255,255,255,.45);"></div>
+  </div>
+  <div class="scroll" style="padding:16px 18px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" id="p-stats"></div>
+      <div class="menu-row" onclick="nav('s-buchungen',loadBuchungen)">
+        <div class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg></div>
+        <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--c4);">Meine Buchungen</div><div id="p-buch-count" style="font-size:11px;color:var(--c2);margin-top:1px;"></div></div>
+        <span style="color:var(--c2);font-size:18px;">›</span>
+      </div>
+      <div class="menu-row" onclick="nav('s-notifs',loadNotifs)">
+        <div class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+        <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--c4);">Benachrichtigungen</div></div>
+        <span style="color:var(--c2);font-size:18px;">›</span>
+      </div>
+      <div class="menu-row" style="border-color:#fde0d6;" onclick="doLogout()">
+        <div class="menu-ic" style="background:#fde8e8;border-color:#fde0d6;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--bot)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></div>
+        <div style="font-size:14px;font-weight:600;color:var(--bot);">Abmelden</div>
+      </div>
+    </div>
+  </div>
+  <div class="bnav">
+    <button class="bni" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></button>
+    <button class="bni" onclick="nav('s-buchungen',loadBuchungen)"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg><span>Buchungen</span></button>
+    <button class="bni" onclick="nav('s-notifs',loadNotifs)"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Infos</span></button>
+    <button class="bni on"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+<script>
+// ── FIREBASE ──
+firebase.initializeApp({
+  apiKey:"AIzaSyD6jfSjq3B5_UviISRl9-41bP1VmPl1kbk",
+  authDomain:"platzfrei-e0371.firebaseapp.com",
+  projectId:"platzfrei-e0371",
+  storageBucket:"platzfrei-e0371.firebasestorage.app",
+  messagingSenderId:"916659140649",
+  appId:"1:916659140649:web:bab97ed0bf11ef8c9ac438"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ── STATE ──
+let CU = null, CD = null;
+let selAnlage = null, selDatum = null, selDatumFmt = '', selUhrzeit = null, selPlatz = null;
+let curBookingId = null, invFriends = [], unsubNotifs = null, curFilter = 'alle';
+
+// ── FACILITIES ──
+const ANLAGEN = [
+  {id:'westpark', name:'Tennisanlage Westpark', sport:'Tennis', dist:'1.2 km', rating:'4.8',
+   plaetze:['Platz 1','Platz 2','Platz 3','Platz 4','Platz 5','Platz 6'], bg:'linear-gradient(135deg,#3d5166,#1E2A38)',
+   icon:`<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="2" y1="12" x2="22" y2="12"/></svg>`},
+  {id:'suedpark', name:'Fußballplatz Südpark', sport:'Fußball', dist:'2.4 km', rating:'4.5',
+   plaetze:['Platz 1','Platz 2'], bg:'linear-gradient(135deg,#2a4a2a,#1E2A38)',
+   icon:`<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="21"/><ellipse cx="12" cy="12" rx="5" ry="9"/></svg>`},
+  {id:'nordstadt', name:'Basketballhalle Nordstadt', sport:'Basketball', dist:'3.1 km', rating:'4.6',
+   plaetze:['Halle A','Halle B','Halle C'], bg:'linear-gradient(135deg,#4a2e1a,#1E2A38)',
+   icon:`<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a9.5 9.5 0 0 0 4.5 8 9.5 9.5 0 0 0-4.5 8"/></svg>`},
+  {id:'ostpark', name:'Beachvolleyball Ostpark', sport:'Volleyball', dist:'0.8 km', rating:'4.9',
+   plaetze:['Feld 1','Feld 2','Feld 3','Feld 4'], bg:'linear-gradient(135deg,#1a3a4a,#1E2A38)',
+   icon:`<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2 4 5 4 9"/><path d="M3.6 9c3 .5 5.5 2 7.4 5"/></svg>`},
+];
+const SLOTS = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'];
+
+// ── AUTH STATE ──
+auth.onAuthStateChanged(async u => {
+  if (u) {
+    CU = u;
+    const snap = await db.collection('users').doc(u.uid).get();
+    CD = snap.exists ? snap.data() : {name: u.displayName || u.email.split('@')[0], email: u.email};
+    hide('loading');
+    goHome();
+    listenNotifs();
+  } else {
+    CU = null; CD = null;
+    hide('loading');
+    showScreen('s-auth');
+  }
+});
+
+// ── AUTH ──
+function authTab(t) {
+  const isL = t==='login';
+  document.getElementById('f-login').style.display = isL?'flex':'none';
+  document.getElementById('f-reg').style.display = isL?'none':'flex';
+  document.getElementById('tab-a').style.cssText = isL?'flex:1;padding:10px;border-radius:11px;border:none;font-family:Mulish,sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.95);color:#1E2A38':'flex:1;padding:10px;border-radius:11px;border:none;font-family:Mulish,sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:rgba(255,255,255,.65)';
+  document.getElementById('tab-b').style.cssText = isL?'flex:1;padding:10px;border-radius:11px;border:none;font-family:Mulish,sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:rgba(255,255,255,.65)':'flex:1;padding:10px;border-radius:11px;border:none;font-family:Mulish,sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.95);color:#1E2A38';
+}
+
+async function doLogin() {
+  const e = v('l-mail'), p = v('l-pw');
+  if(!e||!p){toast('E-Mail und Passwort eingeben');return;}
+  try { await auth.signInWithEmailAndPassword(e,p); }
+  catch(err){ toast(authMsg(err.code)); }
+}
+
+async function doRegister() {
+  const fn=v('r-fn'),ln=v('r-ln'),e=v('r-mail'),p=v('r-pw'),p2=v('r-pw2');
+  if(!fn||!ln||!e||!p){toast('Alle Felder ausfüllen');return;}
+  if(p!==p2){toast('Passwörter stimmen nicht überein');return;}
+  if(p.length<6){toast('Passwort mind. 6 Zeichen');return;}
+  try {
+    const c = await auth.createUserWithEmailAndPassword(e,p);
+    const name = fn+' '+ln;
+    await c.user.updateProfile({displayName:name});
+    await db.collection('users').doc(c.user.uid).set({
+      name, vorname:fn, nachname:ln, email:e.toLowerCase(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    CD = {name, vorname:fn, nachname:ln, email:e.toLowerCase()};
+  } catch(err){ toast(authMsg(err.code)); }
+}
+
+async function doLogout() {
+  if(unsubNotifs) unsubNotifs();
+  await auth.signOut();
+}
+
+function authMsg(c) {
+  return({'auth/user-not-found':'Kein Konto mit dieser E-Mail','auth/wrong-password':'Falsches Passwort',
+    'auth/email-already-in-use':'E-Mail bereits registriert','auth/invalid-email':'Ungültige E-Mail',
+    'auth/weak-password':'Passwort zu schwach','auth/invalid-credential':'E-Mail oder Passwort falsch'}[c]||'Fehler beim Anmelden');
+}
+
+// ── NAV ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function nav(id, fn) { showScreen(id); if(fn) fn(); }
+function goHome() { showScreen('s-home'); loadHome(); }
+function hide(id){ document.getElementById(id).style.display='none'; }
+function v(id){ return document.getElementById(id).value.trim(); }
+
+// ── HOME ──
+function greet() {
+  const h = new Date().getHours();
+  const fn = CD?.vorname || CD?.name?.split(' ')[0] || 'Johan';
+  return (h<12?'Guten Morgen':h<18?'Guten Tag':'Guten Abend')+', '+fn+'!';
+}
+
+async function loadHome() {
+  if(!CU) return;
+  document.getElementById('greeting').textContent = greet();
+  // Active booking banner
+  const today = new Date().toISOString().split('T')[0];
+  const snap = await db.collection('bookings').where('userId','==',CU.uid).where('status','==','aktiv').orderBy('datum').limit(5).get();
+  const upcoming = snap.docs.filter(d=>d.data().datum>=today);
+  const bw = document.getElementById('banner-wrap');
+  if(upcoming.length>0){
+    const b = upcoming[0].data();
+    bw.innerHTML=`<div class="aktiv-banner" onclick="nav('s-buchungen',loadBuchungen)">
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.08em;">Deine nächste Buchung</div>
+      <div style="font-family:'Marcellus',serif;font-size:17px;color:#fff;margin-top:3px;">${b.anlage}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:4px;">${b.datumFmt} · ${b.uhrzeit}–${nh(b.uhrzeit)} Uhr · ${b.platz}</div>
+      ${b.eingeladen?.length?`<div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:5px;">👥 ${b.eingeladen.length} Freund(e) eingeladen</div>`:''}
+    </div>`;
+  } else { bw.innerHTML=''; }
+  renderFacs(curFilter);
+}
+
+function filterFac(el) {
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  curFilter = el.dataset.f;
+  renderFacs(curFilter);
+}
+
+function renderFacs(f) {
+  const list = f==='alle' ? ANLAGEN : ANLAGEN.filter(a=>a.sport===f);
+  document.getElementById('fac-list').innerHTML = list.map(a=>`
+    <div class="card" onclick="openBuchen('${a.id}')">
+      <div style="height:95px;display:flex;align-items:center;justify-content:center;background:${a.bg};position:relative;">
+        ${a.icon}
+        <div style="position:absolute;top:8px;right:8px;background:var(--bot);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;">Verfügbar</div>
+      </div>
+      <div style="padding:12px 16px 14px;">
+        <div style="font-family:'Marcellus',serif;font-size:18px;color:var(--c4);">${a.name}</div>
+        <div style="display:flex;gap:12px;margin-top:4px;"><span style="font-size:12px;color:var(--c2);">📍 ${a.dist}</span><span style="font-size:12px;color:var(--c2);">★ ${a.rating}</span></div>
+        <div style="background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;display:inline-block;margin-top:8px;">${a.plaetze.length} Plätze verfügbar</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── BUCHEN ──
+function openBuchen(id) {
+  selAnlage = ANLAGEN.find(a=>a.id===id);
+  selDatum=null; selUhrzeit=null; selPlatz=null;
+  document.getElementById('buch-anlage').textContent = selAnlage.name;
+  document.getElementById('buch-img').style.background = selAnlage.bg;
+  document.getElementById('buch-img').innerHTML = selAnlage.icon;
+  buildCal(); buildPlatz(); buildSlots();
+  showScreen('s-buchen');
+}
+
+function buildCal() {
+  const WD=['SO','MO','DI','MI','DO','FR','SA'], MO=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  let h='';
+  for(let i=0;i<7;i++){
+    const d=new Date(); d.setDate(d.getDate()+i);
+    const iso=d.toISOString().split('T')[0];
+    const fmt=`${WD[d.getDay()]}, ${d.getDate()}. ${MO[d.getMonth()]}`;
+    h+=`<div class="cal-day${i===0?' sel':''}" data-iso="${iso}" data-fmt="${fmt}" onclick="pickDay(this)"><div class="wd">${i===0?'Heute':WD[d.getDay()]}</div><div class="d">${d.getDate()}</div></div>`;
+    if(i===0){selDatum=iso;selDatumFmt=fmt;}
+  }
+  document.getElementById('cal').innerHTML=h;
+}
+function pickDay(el){document.querySelectorAll('.cal-day').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');selDatum=el.dataset.iso;selDatumFmt=el.dataset.fmt;}
+function buildPlatz(){
+  document.getElementById('platz-grid').innerHTML=selAnlage.plaetze.map((p,i)=>`<div class="platz-btn${i===0?' sel':''}" onclick="pickPlatz(this,'${p}')">${p}</div>`).join('');
+  selPlatz=selAnlage.plaetze[0];
+}
+function pickPlatz(el,p){document.querySelectorAll('.platz-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');selPlatz=p;}
+function buildSlots(){document.getElementById('slot-grid').innerHTML=SLOTS.map(s=>`<div class="slot" onclick="pickSlot(this,'${s}')">${s}</div>`).join('');}
+function pickSlot(el,s){if(el.classList.contains('busy'))return;document.querySelectorAll('.slot').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');selUhrzeit=s;}
+function nh(t){const[h,m]=t.split(':');return `${String(+h+1).padStart(2,'0')}:${m}`;}
+
+async function doBooking() {
+  if(!selDatum){toast('Datum wählen');return;}
+  if(!selPlatz){toast('Platz wählen');return;}
+  if(!selUhrzeit){toast('Uhrzeit wählen');return;}
+  const btn=document.getElementById('btn-book');
+  btn.textContent='Buche…';btn.disabled=true;
+  try{
+    const bdata={userId:CU.uid,userName:CD.name,anlage:selAnlage.name,anlageId:selAnlage.id,
+      datum:selDatum,datumFmt:selDatumFmt,uhrzeit:selUhrzeit,uhrzeitEnd:nh(selUhrzeit),
+      platz:selPlatz,status:'aktiv',eingeladen:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+    const ref=await db.collection('bookings').add(bdata);
+    curBookingId=ref.id;
+    document.getElementById('best-details').innerHTML=`
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Anlage</span><span style="font-size:13px;font-weight:700;color:var(--c4);">${selAnlage.name}</span></div>
+      <div style="height:1px;background:var(--c1);"></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Datum</span><span style="font-size:13px;font-weight:700;color:var(--c4);">${selDatumFmt}</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Uhrzeit</span><span style="font-size:13px;font-weight:700;color:var(--c4);">${selUhrzeit}–${nh(selUhrzeit)} Uhr</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--c2);">Platz</span><span style="font-size:13px;font-weight:700;color:var(--c4);">${selPlatz}</span></div>`;
+    document.getElementById('freunde-info').innerHTML=`<strong>${selAnlage.name}</strong><br><span style="color:var(--c2);">${selDatumFmt} · ${selUhrzeit}–${nh(selUhrzeit)} Uhr · ${selPlatz}</span>`;
+    invFriends=[]; renderFTags();
+    showScreen('s-best');
+    toast('Buchung erfolgreich! 🎉');
+  }catch(e){toast('Fehler: '+e.message);}
+  btn.textContent='Jetzt buchen';btn.disabled=false;
+}
+
+// ── FREUNDE ──
+function addFriend(){
+  const email=v('f-mail').toLowerCase();
+  if(!email)return;
+  if(!email.includes('@')){toast('Gültige E-Mail eingeben');return;}
+  if(email===CU.email.toLowerCase()){toast('Du kannst dich nicht selbst einladen');return;}
+  if(invFriends.includes(email)){toast('Bereits hinzugefügt');return;}
+  invFriends.push(email);
+  document.getElementById('f-mail').value='';
+  renderFTags();
+}
+function removeFriend(e){invFriends=invFriends.filter(x=>x!==e);renderFTags();}
+function renderFTags(){
+  document.getElementById('f-hint').style.display=invFriends.length?'none':'block';
+  document.getElementById('btn-invite').disabled=!invFriends.length;
+  document.getElementById('btn-invite').textContent=`Einladungen senden${invFriends.length?' ('+invFriends.length+')':''}`;
+  document.getElementById('f-tags').innerHTML=invFriends.map(e=>`<div class="ftag"><span>${e}</span><button onclick="removeFriend('${e}')">✕</button></div>`).join('');
+}
+
+async function doInvite(){
+  if(!invFriends.length)return;
+  const btn=document.getElementById('btn-invite');
+  btn.textContent='Sende…';btn.disabled=true;
+  try{
+    const info=`${selAnlage.name} · ${selDatumFmt} · ${selUhrzeit} Uhr`;
+    let sent=0;
+    for(const email of invFriends){
+      const snap=await db.collection('users').where('email','==',email).limit(1).get();
+      if(!snap.empty){
+        await db.collection('notifications').add({
+          empfaengerId:snap.docs[0].id,empfaengerEmail:email,
+          vonId:CU.uid,vonName:CD.name,typ:'einladung',
+          buchungId:curBookingId,buchungInfo:info,
+          anlage:selAnlage.name,datum:selDatumFmt,uhrzeit:selUhrzeit,platz:selPlatz,
+          gelesen:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        sent++;
+      }
+    }
+    await db.collection('bookings').doc(curBookingId).update({eingeladen:firebase.firestore.FieldValue.arrayUnion(...invFriends)});
+    const miss=invFriends.length-sent;
+    if(sent&&!miss) toast(`${sent} Einladung(en) gesendet ✓`);
+    else if(sent) toast(`${sent} gesendet, ${miss} E-Mail(s) nicht in PlatzFrei`);
+    else toast('Keine der E-Mails ist in PlatzFrei registriert');
+    invFriends=[]; renderFTags(); goHome();
+  }catch(e){toast('Fehler: '+e.message);}
+}
+
+// ── NOTIFS ──
+function listenNotifs(){
+  if(!CU)return;
+  if(unsubNotifs)unsubNotifs();
+  unsubNotifs=db.collection('notifications').where('empfaengerId','==',CU.uid).where('gelesen','==',false)
+    .onSnapshot(snap=>{
+      const dot=document.getElementById('notif-dot');
+      if(dot) dot.style.display=snap.size>0?'block':'none';
+    });
+}
+
+async function loadNotifs(){
+  if(!CU)return;
+  const snap=await db.collection('notifications').where('empfaengerId','==',CU.uid).orderBy('createdAt','desc').limit(40).get();
+  const list=document.getElementById('notif-list');
+  if(snap.empty){list.innerHTML='<div style="text-align:center;color:var(--c2);font-size:14px;padding:48px 0;">Keine Benachrichtigungen</div>';return;}
+  list.innerHTML=snap.docs.map(doc=>{
+    const n=doc.data(), unread=!n.gelesen;
+    const isInv=n.typ==='einladung', isSto=n.typ==='stornierung';
+    const iconBg=isInv?'#e8f5e9':isSto?'#fde8e8':'#e8eeff';
+    const iconSvg=isInv
+      ?`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 9.5h16M8 3v4M16 3v4M9 14l2 2 4-4"/></svg>`
+      :isSto
+      ?`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`
+      :`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3557e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const title=isInv?`Einladung von ${n.vonName}`:isSto?'Buchung storniert':'Bestätigung';
+    const body=isInv?`${n.vonName} hat dich eingeladen:<br><strong>${n.buchungInfo||''}</strong>`:isSto?`${n.vonName} hat die Buchung storniert:<br><strong>${n.buchungInfo||''}</strong>`:'Deine Buchung wurde bestätigt.';
+    const actions=isInv&&unread?`<div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="readNotif('${doc.id}')" style="flex:1;background:#e8f5e9;color:#2e7d32;border:none;border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:Mulish,sans-serif;">Annehmen ✓</button>
+      <button onclick="readNotif('${doc.id}')" style="flex:1;background:var(--c1);color:var(--c3);border:none;border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:Mulish,sans-serif;">Ablehnen</button>
+    </div>`:'';
+    const time=n.createdAt?timeAgo(n.createdAt.toDate()):'';
+    return`<div class="notif-item${unread?' unread':''}" id="ni-${doc.id}" style="${unread?'border-color:#C8531A;':''}">
+      ${unread?'<div style="width:8px;height:8px;border-radius:50%;background:var(--bot);flex-shrink:0;margin-top:4px;"></div>':''}
+      <div class="ni-icon" style="background:${iconBg};">${iconSvg}</div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--c4);">${title}</div>
+      <div style="font-size:12px;color:var(--c2);margin-top:2px;line-height:1.45;">${body}</div>
+      ${actions}<div style="font-size:10px;color:var(--c2);margin-top:4px;">${time}</div></div>
+    </div>`;
+  }).join('');
+  // mark all read
+  snap.docs.filter(d=>!d.data().gelesen).forEach(d=>db.collection('notifications').doc(d.id).update({gelesen:true}));
+}
+
+async function readNotif(id){
+  await db.collection('notifications').doc(id).update({gelesen:true});
+  document.getElementById('ni-'+id)?.remove();
+}
+
+function timeAgo(date){
+  const s=Math.floor((Date.now()-date)/1000);
+  if(s<60)return'Gerade eben';if(s<3600)return Math.floor(s/60)+' Min.';
+  if(s<86400)return Math.floor(s/3600)+' Std.';return Math.floor(s/86400)+' Tag(e)';
+}
+
+// ── BUCHUNGEN ──
+async function loadBuchungen(){
+  if(!CU)return;
+  const snap=await db.collection('bookings').where('userId','==',CU.uid).orderBy('datum','desc').get();
+  const list=document.getElementById('buch-list');
+  if(snap.empty){list.innerHTML='<div style="text-align:center;color:var(--c2);font-size:14px;padding:48px 0;">Noch keine Buchungen</div>';return;}
+  const today=new Date().toISOString().split('T')[0];
+  const up=snap.docs.filter(d=>d.data().datum>=today&&d.data().status==='aktiv');
+  const pa=snap.docs.filter(d=>d.data().datum<today||d.data().status!=='aktiv');
+  let h='';
+  if(up.length){h+='<div style="font-size:10px;font-weight:700;color:var(--c2);text-transform:uppercase;letter-spacing:.08em;">Kommende</div>'+up.map(d=>bCard(d)).join('');}
+  if(pa.length){h+='<div style="font-size:10px;font-weight:700;color:var(--c2);text-transform:uppercase;letter-spacing:.08em;margin-top:8px;">Vergangene</div>'+pa.map(d=>bCard(d)).join('');}
+  list.innerHTML=h;
+}
+function bCard(doc){
+  const b=doc.data(), isA=b.status==='aktiv'&&b.datum>=new Date().toISOString().split('T')[0];
+  const tag=isA?'<div class="tag tag-green">Bestätigt</div>':b.status==='storniert'?'<div class="tag tag-red">Storniert</div>':'<div class="tag tag-gray">Abgeschlossen</div>';
+  return`<div class="buch-card ${isA?'aktiv':b.status==='storniert'?'storniert':''}">${tag}
+    <div style="font-family:'Marcellus',serif;font-size:17px;color:var(--c4);">${b.anlage}</div>
+    <div style="font-size:12px;color:var(--c2);margin-top:3px;line-height:1.7;">${b.datumFmt} · ${b.uhrzeit}–${b.uhrzeitEnd} Uhr<br>${b.platz}${b.eingeladen?.length?' · '+b.eingeladen.length+' Freund(e) eingeladen':''}</div>
+    ${isA?`<div style="display:flex;gap:8px;margin-top:12px;"><button class="btn btn-ghost" style="padding:10px;font-size:13px;" onclick="stornieren('${doc.id}')">Stornieren</button></div>`:''}
+  </div>`;
+}
+
+async function stornieren(id){
+  if(!confirm('Buchung wirklich stornieren? Eingeladene Freunde werden automatisch benachrichtigt.'))return;
+  try{
+    const doc=await db.collection('bookings').doc(id).get();
+    const b=doc.data();
+    await db.collection('bookings').doc(id).update({status:'storniert'});
+    if(b.eingeladen?.length){
+      const info=`${b.anlage} · ${b.datumFmt} · ${b.uhrzeit} Uhr`;
+      for(const email of b.eingeladen){
+        const snap=await db.collection('users').where('email','==',email).limit(1).get();
+        if(!snap.empty) await db.collection('notifications').add({
+          empfaengerId:snap.docs[0].id,empfaengerEmail:email,vonId:CU.uid,vonName:CD.name,
+          typ:'stornierung',buchungId:id,buchungInfo:info,gelesen:false,
+          createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    }
+    toast('Buchung storniert. Freunde wurden benachrichtigt.');
+    loadBuchungen();
+  }catch(e){toast('Fehler: '+e.message);}
+}
+
+// ── PROFIL ──
+async function loadProfil(){
+  if(!CU||!CD)return;
+  const name=CD.name||CU.email;
+  document.getElementById('p-avatar').textContent=name.charAt(0).toUpperCase();
+  document.getElementById('p-name').textContent=name;
+  document.getElementById('p-email').textContent=CU.email;
+  const snap=await db.collection('bookings').where('userId','==',CU.uid).get();
+  const total=snap.size, active=snap.docs.filter(d=>d.data().status==='aktiv').length;
+  document.getElementById('p-stats').innerHTML=`
+    <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Buchungen</div></div>
+    <div class="stat"><div class="stat-n">${active}</div><div class="stat-l">Aktiv</div></div>
+    <div class="stat"><div class="stat-n">🏆</div><div class="stat-l">Sport</div></div>`;
+  document.getElementById('p-buch-count').textContent=`${active} aktive Buchungen`;
+}
+
+// ── TOAST ──
+let tt;
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),3200);}
+</script>
+</body>
+</html>
