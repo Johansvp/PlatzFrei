@@ -688,79 +688,217 @@ function buildCurve(preis, pkb, ki, kap, abschr){
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ANALYSE-TEXT
+// ANALYSE-TEXT + SZENARIEN
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function buildAnalysis(preis, pkb, ki, kap, abschr, opt, sim, totalBud, maxBK){
   var optSim = calcSim(opt.pe,opt.dl,opt.ko,opt.mi,opt.vf, preis, pkb, ki, kap, abschr);
-  var pFakt  = Math.pow(MODEL.REF/preis, MODEL.EPS).toFixed(3);
-  var pDiff  = ((preis/MODEL.REF-1)*100).toFixed(1);
 
-  var html =
+  // ────────────────────────────────────────────────
+  // Hilfsfunktionen für Szenarien
+  // ────────────────────────────────────────────────
+  function tryScen(p, kiV, extra){
+    var bkBud = Math.max(0, totalBud + extra - pkb - kiV);
+    var o = findOptimal(p, bkBud, kap);
+    var s = calcSim(o.pe,o.dl,o.ko,o.mi,o.vf, p, pkb, kiV, kap, abschr);
+    return {opt:o, sim:s, bkBud:bkBud, ki:kiV, preis:p, extra:extra};
+  }
+
+  function starsHtml(n){
+    var s='';
+    for(var i=1;i<=5;i++) s+='<span style="font-size:.95rem;color:'+(i<=n?'#f59e0b':'#d1d5db')+'">★</span>';
+    return s;
+  }
+
+  function realTxt(n){ return ['','Sehr riskant','Riskant','Möglich','Realistisch','Sehr realistisch'][n]; }
+
+  function priceReal(p){
+    var d = p - 69; // Abstand zu P6-Preis
+    if(d<=4)  return 5;
+    if(d<=8)  return 4;
+    if(d<=13) return 3;
+    if(d<=18) return 2;
+    return 1;
+  }
+
+  function priceDemandNote(p){
+    var drop = Math.round((1 - Math.pow(69/p, MODEL.EPS))*100);
+    if(drop<=0) return 'Preis gleich wie P6 → keine Nachfrageänderung';
+    return 'Preis +'+Math.round((p/69-1)*100)+'% vs. P6 → Nachfrage −'+drop+'% (ε=0,7)';
+  }
+
+  // Optimalen Preis suchen (ki=0, ohne Extra-Budget)
+  var bestBGp=-9e9, bestP=preis, rOptP;
+  for(var pp=60;pp<=95;pp++){
+    var tt=tryScen(pp,0,0);
+    if(tt.sim.bg>bestBGp){bestBGp=tt.sim.bg;bestP=pp;rOptP=tt;}
+  }
+
+  // Minimum-VC suchen, um Break-Even zu erreichen (ki=0, bestP)
+  var minVC=-1, rBreak=null;
+  for(var vv=500;vv<=30000;vv+=500){
+    var tb=tryScen(bestP,0,vv);
+    if(tb.sim.bg>=0){minVC=vv;rBreak=tb;break;}
+  }
+
+  // Szenarien definieren
+  var scens=[
+    (function(){
+      var r=tryScen(preis,ki,0);
+      return {r:r,icon:'📌',
+        title:'Status quo (aktuelle Einstellungen)',
+        real:5,
+        note:'Mit KapInv '+fmt(ki)+'€ bleiben nur <b>'+fmt(r.bkBud)+'€ für BK</b>. '+priceDemandNote(preis)+'. Das ist die Ausgangssituation.',
+        trade:r.sim.bg<0?'⚠️ Mit diesen Einstellungen entsteht ein Verlust von '+fmt(Math.abs(r.sim.bg))+'€.':null
+      };
+    })(),
+    (function(){
+      var r=tryScen(preis,0,0);
+      var freed=ki;
+      return {r:r,icon:'🏗️',
+        title:'Weg 1: KapInv streichen (0 €)',
+        real:4,
+        note:'KapInv weglassen befreit <b>'+fmt(freed)+'€</b> für BK (jetzt '+fmt(r.bkBud)+'€). '+
+             'Nachfrage steigt auf '+r.sim.nfr+', Absatz '+r.sim.absatz+'. '+
+             '<b>P8-Kapazität wächst nicht</b> — bleibt bei '+kap+' Einheiten.',
+        trade:'⚠️ Kein Kapazitätswachstum für P8. Sinnvoll wenn Markt gesättigt oder Liquidität kritisch.'
+      };
+    })(),
+    (function(){
+      var r=rOptP;
+      var pr=priceReal(bestP);
+      return {r:r,icon:'💡',
+        title:'Weg 2: KapInv 0 + Preis optimieren ('+bestP+'€)',
+        real:pr,
+        note:priceDemandNote(bestP)+'. Absatz fällt auf '+r.sim.nfr+', aber Marge/Stück steigt stark. '+
+             'Das Modell zeigt: Preis <b>'+bestP+'€</b> maximiert den BG bei diesem Budget. '+
+             'Ab da sinkt Nachfrage schneller als die Marge steigt.',
+        trade:(bestP>80?'⚠️ Preis '+bestP+'€ ist deutlich über Konkurrenz (~69-73€) — Absatzrisiko!':
+              (bestP>75?'Mäßig über Marktpreis — Konkurrenz kann reagieren.':null))
+      };
+    })(),
+    (function(){
+      var r=tryScen(preis,ki,5000);
+      return {r:r,icon:'💰',
+        title:'Weg 3: Darlehen / VC +5.000€',
+        real:3,
+        note:'Externe Liquidität erhöht BK-Budget auf <b>'+fmt(r.bkBud)+'€</b>. '+
+             'Nachfrage steigt auf '+r.sim.nfr+'. Preis und KapInv unverändert. '+
+             'Darlehenszins kostet in Folgeperioden!',
+        trade:'⚠️ Zinskosten reduzieren P8-BG. Nur sinnvoll wenn klare Perspektive auf Gewinn.'
+      };
+    })()
+  ];
+
+  if(minVC>0 && rBreak){
+    scens.push({r:rBreak,icon:'🎯',
+      title:'Weg 4: Break-Even-Kombination (KapInv 0 + Preis '+bestP+'€ + VC +'+fmt(minVC)+'€)',
+      real:3,
+      note:'Minimale Maßnahme für positives BG: KapInv streichen + Preis auf '+bestP+
+           '€ + nur <b>'+fmt(minVC)+'€</b> Zusatzliquidität. BG ≈ <b>+'+fmt(rBreak.sim.bg)+'€</b>. '+
+           'Geringster externer Eingriff für schwarze Zahlen.',
+      trade:'⚠️ Drei Stellschrauben gleichzeitig — jede für sich bringt schon Verbesserung.'
+    });
+  }
+
+  // Skalierung für BG-Balken
+  var maxAbs=Math.max(1,Math.max.apply(null,scens.map(function(s){return Math.abs(s.r.sim.bg);})));
+
+  var scenHtml=scens.map(function(s){
+    var bg=s.r.sim.bg;
+    var barC=bg>=0?'#16a34a':'#dc2626';
+    var borderC=bg>=0?'#16a34a':(s.real>=4?'#d97706':'#dc2626');
+    var barW=Math.min(100,Math.abs(bg)/maxAbs*100);
+    return '<div class="a-block" style="border-left-color:'+borderC+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.3rem;margin-bottom:.45rem">'+
+        '<h3 style="margin:0">'+s.icon+' '+s.title+'</h3>'+
+        '<div style="display:flex;align-items:center;gap:.3rem;flex-shrink:0">'+
+          starsHtml(s.real)+
+          '<span style="font-size:.7rem;font-weight:700;background:#f3f4f6;border-radius:3px;padding:.07rem .4rem;color:#374151">'+realTxt(s.real)+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.25rem;margin-bottom:.4rem">'+
+        '<div class="mbox" style="padding:.3rem .4rem"><div class="mbox-label">Preis</div><div style="font-weight:700;font-size:.88rem">'+s.r.preis+'€</div></div>'+
+        '<div class="mbox" style="padding:.3rem .4rem"><div class="mbox-label">KapInv</div><div style="font-weight:700;font-size:.88rem">'+fmt(s.r.ki)+'</div></div>'+
+        '<div class="mbox" style="padding:.3rem .4rem"><div class="mbox-label">BK frei</div><div style="font-weight:700;font-size:.88rem">'+fmt(s.r.bkBud)+'</div></div>'+
+        '<div class="mbox" style="padding:.3rem .4rem"><div class="mbox-label">Nachfrage</div><div style="font-weight:700;font-size:.88rem;color:'+(s.r.sim.nfr>=kap?'#16a34a':'#d97706')+'">'+s.r.sim.nfr+'</div></div>'+
+        '<div class="mbox" style="padding:.3rem .4rem"><div class="mbox-label">Absatz</div><div style="font-weight:700;font-size:.88rem">'+s.r.sim.absatz+'</div></div>'+
+        '<div class="mbox" style="padding:.3rem .4rem"><div class="mbox-label">BG</div><div style="font-weight:900;font-size:1rem;color:'+barC+'">'+(bg>=0?'+':'')+fmt(bg)+'</div></div>'+
+      '</div>'+
+      '<div style="height:9px;background:#f3f4f6;border-radius:5px;overflow:hidden;margin-bottom:.4rem">'+
+        '<div style="height:100%;width:'+barW+'%;background:'+barC+';border-radius:5px;transition:width .5s"></div>'+
+      '</div>'+
+      '<p style="font-size:.8rem;line-height:1.6;color:#374151">'+s.note+'</p>'+
+      (s.trade?'<p style="font-size:.77rem;color:#b45309;margin-top:.25rem">'+s.trade+'</p>':'')+
+    '</div>';
+  }).join('');
+
+  // ────────────────────────────────────────────────
+  // Detail-Analyse pro BK-Posten
+  // ────────────────────────────────────────────────
+  var detailHtml=
   '<div class="a-block">'+
-  '<h3>💰 PREIS – Empfehlung: '+preis+'€</h3>'+
-  '<p>Der Preis ist der stärkste Hebel wenn Kapazität ('+kap+') der Engpass ist. '+
-  'Jeder Euro Preiserhöhung = +'+kap+'€ Umsatz ohne Mehrkosten. '+
-  'Preisempfindlichkeit BETA ist <b>mittel</b> (ε='+MODEL.EPS+'): Preis '+preis+'€ (+'+(preis>69?pDiff:0)+'% vs. P6 69€) '+
-  'reduziert Nachfrage um ~'+Math.round((1-Math.pow(69/preis,MODEL.EPS))*100)+'% — aber steigert Marge stark. '+
-  'Konkurrenz: Sunshine 71€, Ocean 69€. Bei Kapazitäts-Engpass spielt Preis nur Nachfrage-Seite, Absatz bleibt bei Kap.<br>'+
-  '<span class="a-verdict '+( preis>=72?'green':'red')+'">→ '+
-  (preis>=72?'Preis ≥ 72€ empfohlen. Höher = mehr Rohertrag.':'Preis unter 72€ lässt Marge unnötig liegen.')+
+  '<h3>💰 PREIS – aktuell '+preis+'€</h3>'+
+  '<p>Preisempfindlichkeit BETA: <b>mittel</b> (ε='+MODEL.EPS+'). '+
+  'Jeder +1€ Preis → Nachfrage −'+Math.round(MODEL.EPS/preis*100*10)/10+'%. '+
+  'Bei Preis '+preis+'€ ('+Math.round((preis/69-1)*100)+'% vs. P6) beträgt Nachfragerückgang ~'+
+  Math.round((1-Math.pow(69/preis,MODEL.EPS))*100)+'%. '+
+  'Gegner: Sunshine ~71€, Ocean ~69€. Über 75€ beginnen Kunden zur Konkurrenz zu wechseln.<br>'+
+  '<span class="a-verdict '+(preis>=72?'green':'red')+'">→ '+
+  (preis>=72?'Preis ≥72€ empfohlen wenn Kapazität Engpass. Höher = mehr Rohertrag, weniger Absatz.':'Unter 72€ lässt Marge liegen.')+
   '</span></p></div>'+
 
   '<div class="a-block">'+
-  '<h3>⭐ DIENSTLEISTUNGSVERBESSERUNG – Empfehlung: '+fmt(opt.dl)+'€ (höchste Priorität)</h3>'+
-  '<p>Wirkung: <b>hoch / hoch</b> (kurz- und langfristig, aus Szenarioübersicht). Gewicht: 0,85. '+
-  'Das bedeutet: 1€ hier → 0,85 BK-Eff.-Punkte → am meisten Nachfrage pro investiertem Euro. '+
-  'P5→P6 zeigt: Dienstleistung wuchs mit der stärksten Nachfrage-Korrelation aller Posten. '+
-  'Empfehlung: <b>Maximum des Budgets hier investieren</b> (zusammen mit Komplemente).</p></div>'+
+  '<h3>⭐ DIENSTLEISTUNG – Empfehlung: '+fmt(opt.dl)+'€</h3>'+
+  '<p>Wirkung <b>hoch/hoch</b>, Gewicht 0,85 — höchste Effizienz: 1€ → 0,85 Nachfrage-Punkte. '+
+  'Höchste Priorität zusammen mit Komplemente. In P5→P6 stärkster Wachstumstreiber.</p></div>'+
 
   '<div class="a-block">'+
-  '<h3>⭐ KOMPLEMENTE – Empfehlung: '+fmt(opt.ko)+'€ (höchste Priorität)</h3>'+
-  '<p>Wirkung: <b>hoch / hoch</b>. Gleiche Effizienz wie Dienstleistung. '+
-  'Komplemente hatten historisch den größten Einzelwert: P3=300, P5=910, P6=1.500. '+
-  'Geht Hand in Hand mit Dienstleistung. Beide auf gleichem Niveau halten. '+
-  'Empfehlung: <b>Gleichberechtigt neben Dienstleistung priorisieren.</b></p></div>'+
+  '<h3>⭐ KOMPLEMENTE – Empfehlung: '+fmt(opt.ko)+'€</h3>'+
+  '<p>Wirkung <b>hoch/hoch</b>, Gewicht 0,85. Gleich effizient wie Dienstleistung. '+
+  'P6: 1.500€ (größter Einzelposten) → stärkstes Nachfragesignal. Immer gleich hoch wie DL halten.</p></div>'+
 
   '<div class="a-block">'+
   '<h3>🟡 PERSONALENTWICKLUNG – Empfehlung: '+fmt(opt.pe)+'€</h3>'+
-  '<p>Wirkung: <b>hoch (kurzfristig)</b>, mittel langfristig. Gewicht: 0,75. '+
-  'Effizienter als Markenimage und VF, aber 12% schwächer als DL/KO. '+
-  'P2 (bestes BG +859): PE war nur 120€ — zeigt, dass Überinvestition hier nicht hilft. '+
-  'Empfehlung: <b>Solide Basisinvestition, nicht übergewichten.</b></p></div>'+
+  '<p>Wirkung <b>hoch (kurz)</b>, Gewicht 0,75 — 12% schwächer als DL/KO. '+
+  'P2 (bestes BG +859): nur 120€ PE. Solide Basis, nicht übergewichten.</p></div>'+
 
   '<div class="a-block">'+
-  '<h3>🟡 MARKENIMAGE – Empfehlung: '+fmt(opt.mi)+'€ (reduziert)</h3>'+
-  '<p>Wirkung: <b>mittel (kurzfristig)</b>, hoch langfristig. Gewicht: 0,55. '+
-  'Da P7 eine kurzfristige Entscheidung ist, wirkt Markenimage jetzt weniger. '+
-  'In P6 wurde 1.000€ investiert — das war zu viel für den kurzfristigen Effekt. '+
-  'Empfehlung: <b>Auf Mindestbetrag reduzieren, Budget lieber in DL/KO.</b></p></div>'+
+  '<h3>🟡 MARKENIMAGE – Empfehlung: '+fmt(opt.mi)+'€</h3>'+
+  '<p>Wirkung <b>mittel (kurz) / hoch (lang)</b>, Gewicht 0,55. '+
+  'Kurzfristig nur halb so wirksam wie DL. P6-Investition 1.000€ war zu viel. Auf Minimum reduzieren.</p></div>'+
 
   '<div class="a-block">'+
-  '<h3>🔻 VERKAUFSFÖRDERUNG – Empfehlung: '+fmt(opt.vf)+'€ (Minimum)</h3>'+
-  '<p>Wirkung: <b>mittel / mittel</b>. Gewicht: 0,55 — niedrigste Effizienz aller BK-Posten. '+
-  '1€ VF = 0,55 BK-Eff vs. 1€ DL = 0,85 BK-Eff. Das ist 35% weniger wirksam. '+
-  'P2 (BG +859): VF war 119€ und trotzdem das beste Ergebnis. '+
-  'Empfehlung: <b>Auf Minimum halten, Rest in DL + KO investieren.</b></p></div>'+
+  '<h3>🔻 VERKAUFSFÖRDERUNG – Empfehlung: '+fmt(opt.vf)+'€</h3>'+
+  '<p>Wirkung <b>mittel/mittel</b>, Gewicht 0,55 — schwächster Posten. '+
+  '1€ VF = 0,55 vs. 1€ DL = 0,85 (35% weniger wirksam). Nur Mindestbetrag, Rest in DL+KO.</p></div>'+
 
   '<div class="a-block">'+
-  '<h3>🏭 KAPAZITÄTSINVESTITION – Empfehlung: '+fmt(ki)+'€</h3>'+
-  '<p>KapInv hat keinen Effekt auf P7-BG — sie schafft Kapazität für P8. '+
-  '60€ je neue Einheit (Szenarioübersicht BETA). Mit '+fmt(ki)+'€ entstehen ~'+
-  Math.round(ki/60)+' neue Einheiten → P8-Kapazität: ~'+(kap+Math.round(ki/60))+'. '+
-  'Da Fire und Clover ausgeschieden sind, hat BETA großes Marktpotenzial. '+
-  'Empfehlung: <b>Moderate Investition beibehalten.</b></p></div>'+
+  '<h3>🏭 KAPAZITÄTSINVESTITION – aktuell '+fmt(ki)+'€</h3>'+
+  '<p>Kein P7-BG-Effekt — schafft P8-Kapazität. 60€/Einheit. '+
+  fmt(ki)+'€ → ~'+Math.round(ki/60)+' Einheiten → P8-Kap: ~'+(kap+Math.round(ki/60))+'. '+
+  'Abwägung: KapInv streichen = mehr BK-Budget jetzt, aber kein Wachstum. Siehe Szenarien oben.</p></div>'+
 
   '<div class="a-block" style="border-left-color:#16a34a">'+
-  '<h3>✅ OPTIMALE KOMBINATION (Zusammenfassung)</h3>'+
+  '<h3>✅ OPTIMALE KOMBINATION bei aktuellen Einstellungen</h3>'+
   '<p>Preis '+preis+'€ | PE '+fmt(opt.pe)+' | DL '+fmt(opt.dl)+' | KO '+fmt(opt.ko)+
   ' | MI '+fmt(opt.mi)+' | VF '+fmt(opt.vf)+' | PKB '+fmt(pkb)+' | KapInv '+fmt(ki)+'<br><br>'+
-  '→ Erwartete Nachfrage: <b>'+optSim.nfr+'</b> (Kap: '+kap+') | Absatz: <b>'+optSim.absatz+'</b><br>'+
-  '→ Rohertrag: <b>'+fmt(optSim.rt)+'</b> | BK: <b>'+fmt(optSim.bk)+'</b> | BK/RT: <b>'+pct(optSim.bkRat)+'</b><br>'+
-  '→ <b style="font-size:1.05rem;color:'+(optSim.bg>0?'#16a34a':'#dc2626')+'">'+
-  'Erwartetes BG: '+(optSim.bg>=0?'+':'')+fmt(optSim.bg)+' €</b><br><br>'+
-  'Zwischensumme: '+fmt(optSim.zs)+' € von '+fmt(totalBud)+' € verfügbar. Frei: '+fmt(totalBud-optSim.zs)+' €</p></div>';
+  '→ Nachfrage <b>'+optSim.nfr+'</b> | Absatz <b>'+optSim.absatz+'</b> | RT <b>'+fmt(optSim.rt)+'</b> | BK <b>'+fmt(optSim.bk)+'</b><br>'+
+  '→ <b style="font-size:1.05rem;color:'+(optSim.bg>=0?'#16a34a':'#dc2626')+'">'+(optSim.bg>=0?'+':'')+fmt(optSim.bg)+' € BG</b> '+
+  '| BK/RT <b>'+pct(optSim.bkRat)+'</b><br>'+
+  'Zwischensumme: '+fmt(optSim.zs)+' € von '+fmt(totalBud)+' € | Frei: '+fmt(totalBud-optSim.zs)+' €</p></div>';
 
-  el('analysis-content').innerHTML = html;
+  el('analysis-content').innerHTML =
+    '<div style="margin-bottom:1rem">'+
+      '<div style="font-weight:800;font-size:.95rem;color:#1e3a8a;margin-bottom:.6rem">🔀 Handlungsmöglichkeiten — was ist realistisch?</div>'+
+      '<div style="font-size:.79rem;color:#6b7280;margin-bottom:.7rem">'+
+        'Das Modell berechnet alle Szenarien automatisch. ★★★★★ = sehr realistisch umsetzbar, ★ = sehr riskant. '+
+        'Nachfrageeffekt durch Preiserhöhungen ist bereits einkalkuliert (Preisempfindlichkeit ε=0,7).'+
+      '</div>'+
+      scenHtml+
+    '</div>'+
+    '<hr class="sep" style="margin:1rem 0">'+
+    '<div style="font-weight:800;font-size:.95rem;color:#1e3a8a;margin-bottom:.6rem">📋 Detail-Analyse pro Kostenblock</div>'+
+    detailHtml;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
