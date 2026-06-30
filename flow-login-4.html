@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, initial-scale=1.0">
+<title>PlatzFrei – Flow: Login & Firebase Auth</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#0F1923;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{padding:22px 70px 16px}
+
+.header{text-align:center;margin-bottom:12px}
+.header .tag{display:inline-block;background:#F59E0B;color:#0F1923;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.header h1{font-size:21px;font-weight:800;margin-bottom:2px}
+.header p{color:#8896A6;font-size:11px}
+
+.top-row{display:flex;gap:18px;align-items:flex-start;margin-bottom:12px}
+.intro{flex:1;background:#1A1F2B;border:1.5px solid #F59E0B44;border-radius:10px;padding:9px 13px;font-size:10.5px;color:#8896A6;line-height:1.5}
+.intro strong{color:#FDE68A}
+.legend{display:flex;gap:16px;flex-shrink:0;align-items:center}
+.leg{display:flex;align-items:center;gap:6px;font-size:10px;color:#8896A6;font-weight:600}
+.leg-line{width:22px;height:2px;border-radius:1px}
+
+.diagram{display:flex;flex-direction:column;gap:0}
+.col-headers{display:grid;grid-template-columns:1fr 214px 1fr;margin-bottom:9px}
+.col-h{text-align:center;font-size:9px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:6px 12px;border-radius:8px}
+.col-h.fe{background:#1E2A38;color:#60A5FA;border:1.5px solid #2E3F52}
+.col-h.fb-auth{background:#2D1F00;color:#F59E0B;border:1.5px solid #92400E}
+.col-h.fb-fs{background:#0C1A3D;color:#60A5FA;border:1.5px solid #1E40AF}
+
+.exchange{display:grid;grid-template-columns:1fr 214px 1fr;align-items:center;margin-bottom:3px}
+
+.box{border-radius:9px;padding:7px 10px;font-size:10px;line-height:1.4;display:flex;align-items:flex-start;gap:7px}
+.box.fe-action{background:#0C1A3D;border:1.5px solid #60A5FA;color:#DDE3EA}
+.box.fe-recv  {background:#0F2E1A;border:1.5px solid #4ADE80;color:#DDE3EA}
+.box.fb-auth  {background:#2D1F00;border:1.5px solid #F59E0B;color:#FDE68A}
+.box.fb-fs    {background:#0C1A3D;border:1.5px solid #3B82F6;color:#93C5FD}
+.box.fe-final {background:#1A0F2E;border:1.5px solid #A78BFA;color:#DDE3EA}
+.box.empty    {background:transparent;border:none}
+
+.step-n{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;min-width:18px;border-radius:50%;background:#1E2A38;font-size:9px;font-weight:800;color:#DDE3EA;margin-top:1px}
+.box-body{flex:1}
+.box-tech{font-size:10px;color:#DDE3EA;font-weight:600;margin-bottom:2px}
+code{font-family:'Courier New',monospace;background:rgba(0,0,0,.4);padding:1px 4px;border-radius:3px;font-size:9px;color:#FDE68A;word-break:break-all}
+.box-plain{font-size:9px;color:#64748B;line-height:1.4;margin-top:3px;padding-top:3px;border-top:1px solid rgba(255,255,255,.06)}
+
+.arrow-col{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 4px}
+.arrow-code{font-family:'Courier New',monospace;font-size:8px;text-align:center;padding:3px 5px;border-radius:5px;line-height:1.3;word-break:break-all;max-width:206px}
+.arrow-code.req{background:#0F2A00;color:#4ADE80;border:1px solid #166534}
+.arrow-code.res{background:#1A0A00;color:#FBBF24;border:1px solid #92400E}
+.arrow-body{display:flex;align-items:center;width:100%}
+.arrow-line{height:2px;flex:1}
+.arrow-line.req{background:linear-gradient(to right,#1E3A1E,#4ADE80)}
+.arrow-line.res{background:linear-gradient(to left,#3A1A00,#FBBF24)}
+.arr{font-size:11px;flex-shrink:0}
+.arr.r{color:#4ADE80}.arr.l{color:#FBBF24}
+.arrow-hint{font-size:8px;color:#46566B;text-align:center;font-style:italic}
+
+.conn{height:12px;display:flex;justify-content:center;align-items:center;position:relative}
+.conn::before{content:'';position:absolute;left:50%;width:2px;height:100%;background:#2E3F52;transform:translateX(-50%)}
+.conn-dot{width:5px;height:5px;border-radius:50%;background:#2E3F52;z-index:1}
+.parallel-note{text-align:center;font-size:8.5px;font-weight:700;color:#A78BFA;padding:2px 0}
+
+.note-box{margin-top:8px;background:#1A1F2B;border:1px solid #2E3F52;border-radius:8px;padding:8px 12px;font-size:9.5px;color:#8896A6;line-height:1.5}
+.note-box strong{color:#DDE3EA}
+.footer{text-align:center;margin-top:6px;font-size:9px;color:#46566B}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">Flow 1 von 3</div>
+  <h1>🔐 Login &amp; Firebase Auth</h1>
+  <p>Von E-Mail + Passwort bis zur fertigen App-Session</p>
+</div>
+
+<div class="top-row">
+  <div class="intro">
+    <strong>Firebase Auth</strong> ist der Türsteher – er prüft Zugangsdaten und gibt eine eindeutige Nutzer-ID (uid) zurück. <strong>Firestore</strong> ist die eigentliche Datenbank dahinter, wo Profil, Buchungen und Freunde gespeichert sind. Beim Login werden beide nacheinander kontaktiert.
+  </div>
+  <div class="legend">
+    <div class="leg"><div class="leg-line" style="background:#4ADE80"></div>Frontend → Backend (Anfrage)</div>
+    <div class="leg"><div class="leg-line" style="background:#FBBF24"></div>Backend → Frontend (Antwort)</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="col-headers">
+    <div class="col-h fe">Frontend (Browser)</div>
+    <div></div>
+    <div class="col-h fb-auth">Firebase Backend</div>
+  </div>
+
+  <div class="exchange">
+    <div class="box fe-action"><div class="step-n">1</div><div class="box-body"><div class="box-tech">Nutzer gibt E-Mail + Passwort ein, klickt „Anmelden"</div><div class="box-plain">Das Frontend packt die Eingaben zusammen und schickt sie an Firebase Auth.</div></div></div>
+    <div class="arrow-col"><div class="arrow-code req">auth.signInWithEmailAndPassword(email, pw)</div><div class="arrow-body"><div class="arrow-line req"></div><div class="arr r">▶</div></div><div class="arrow-hint">„Kenn ich diesen Nutzer?"</div></div>
+    <div class="box fb-auth"><div class="step-n">🔑</div><div class="box-body"><div class="box-tech"><strong>Firebase Auth</strong> prüft die Zugangsdaten</div><div class="box-plain">Auth vergleicht E-Mail + Passwort mit seiner Nutzerliste auf Googles Servern.</div></div></div>
+  </div>
+  <div class="conn"><div class="conn-dot"></div></div>
+
+  <div class="exchange">
+    <div class="box fe-recv"><div class="step-n">2</div><div class="box-body"><div class="box-tech"><code>auth.onAuthStateChanged(fbUser)</code> springt automatisch an</div><div class="box-plain">Die App hört ständig auf Auth. Sobald die Bestätigung eintrifft, reagiert sie – kein manueller Schritt nötig.</div></div></div>
+    <div class="arrow-col"><div class="arrow-body"><div class="arr l">◀</div><div class="arrow-line res"></div></div><div class="arrow-code res">fbUser &#123; uid, email, displayName &#125;</div><div class="arrow-hint">„Ja! Hier ist dein Nutzer."</div></div>
+    <div class="box fb-auth"><div class="step-n">✓</div><div class="box-body"><div class="box-tech">Gibt <strong>fbUser</strong>-Objekt zurück</div><div class="box-plain">Firebase schickt uid, E-Mail und Anzeigename zurück. Die uid ist ab jetzt der Ausweis für alle weiteren Anfragen.</div></div></div>
+  </div>
+  <div class="conn"><div class="conn-dot"></div></div>
+
+  <div class="exchange">
+    <div class="box fe-action"><div class="step-n">3</div><div class="box-body"><div class="box-tech">Profildaten aus Firestore nachladen</div><div class="box-plain">Auth kennt nur E-Mail und Passwort. Name, Benutzername und Avatar stecken separat in Firestore – die App fragt dort jetzt nach.</div></div></div>
+    <div class="arrow-col"><div class="arrow-code req">db.collection("users").doc(uid).get()</div><div class="arrow-body"><div class="arrow-line req"></div><div class="arr r">▶</div></div><div class="arrow-hint">„Gib mir das Profil zu dieser uid"</div></div>
+    <div class="box fb-fs"><div class="step-n">🗄️</div><div class="box-body"><div class="box-tech"><strong>Firestore: users/</strong> sucht das Dokument</div><div class="box-plain">Firestore schaut im users-Bereich nach dem Eintrag mit genau dieser uid.</div></div></div>
+  </div>
+  <div class="conn"><div class="conn-dot"></div></div>
+
+  <div class="exchange">
+    <div class="box fe-recv"><div class="step-n">4</div><div class="box-body"><div class="box-tech"><code>S.user = &#123; name, u, email, avatar, id &#125;</code> gesetzt</div><div class="box-plain">Die App kennt jetzt den vollen Nutzer und speichert ihn im Arbeitsspeicher – für die ganze Session, ohne erneute Anfrage.</div></div></div>
+    <div class="arrow-col"><div class="arrow-body"><div class="arr l">◀</div><div class="arrow-line res"></div></div><div class="arrow-code res">DocumentSnapshot: &#123; name, u, avatar, email &#125;</div><div class="arrow-hint">„Hier ist dein Profil."</div></div>
+    <div class="box fb-fs"><div class="step-n">📄</div><div class="box-body"><div class="box-tech">Gibt vollständiges Nutzerprofil zurück</div><div class="box-plain">Firestore schickt alle gespeicherten Felder als Datenpaket ans Frontend.</div></div></div>
+  </div>
+  <div class="conn"><div class="conn-dot"></div></div>
+  <div class="parallel-note">⚡ Promise.all() — 3 Anfragen gleichzeitig</div>
+
+  <div class="exchange">
+    <div class="box fe-action"><div class="step-n">5</div><div class="box-body"><div class="box-tech">Buchungen, Freundschaftsanfragen &amp; Gruppen laden</div><div class="box-plain">Alle drei Anfragen gehen gleichzeitig raus – statt nacheinander – damit die App schnell startet.</div></div></div>
+    <div class="arrow-col"><div class="arrow-code req">bookings.where("uid").get()<br>friendRequests.where("from"/"to").get()<br>groups.where("members").get()</div><div class="arrow-body"><div class="arrow-line req"></div><div class="arr r">▶</div></div><div class="arrow-hint">3 Anfragen gleichzeitig</div></div>
+    <div class="box fb-fs"><div class="step-n">🗄️</div><div class="box-body"><div class="box-tech"><strong>Firestore:</strong> bookings/ · friendRequests/ · groups/</div><div class="box-plain">Firestore durchsucht drei Sammlungen parallel und gibt alles zurück, was zur uid passt.</div></div></div>
+  </div>
+  <div class="conn"><div class="conn-dot"></div></div>
+
+  <div class="exchange">
+    <div class="box fe-recv"><div class="step-n">6</div><div class="box-body"><div class="box-tech"><code>S.bookings[]</code>, <code>_friendReqs[]</code>, <code>_groups[]</code> befüllt</div><div class="box-plain">Alle drei Antworten kommen zurück. Die App hat jetzt alles – Buchungen, Freunde, Gruppen im Speicher.</div></div></div>
+    <div class="arrow-col"><div class="arrow-body"><div class="arr l">◀</div><div class="arrow-line res"></div></div><div class="arrow-code res">3× QuerySnapshot mit Dokumenten</div><div class="arrow-hint">Alle 3 Pakete kommen zurück</div></div>
+    <div class="box fb-fs"><div class="step-n">✓</div><div class="box-body"><div class="box-tech">Alle Snapshots zurückgegeben</div><div class="box-plain">Drei Antwortpakete – eines pro Anfrage, jedes mit den passenden Dokumenten.</div></div></div>
+  </div>
+  <div class="conn"><div class="conn-dot"></div></div>
+
+  <div class="exchange">
+    <div class="box fe-final"><div class="step-n">🎉</div><div class="box-body"><div class="box-tech"><strong>initApp()</strong> — Startseite erscheint, Login fertig</div><div class="box-plain">Ab jetzt läuft alles lokal. Kein weiterer Backend-Kontakt nötig – alle Daten sind bereits im Speicher.</div></div></div>
+    <div class="arrow-col"></div>
+    <div class="box empty"></div>
+  </div>
+</div>
+
+<div class="note-box">
+  <strong>Fehlerfall:</strong> Ist das Passwort falsch, schickt Firebase den Fehlercode <code>auth/wrong-password</code> zurück. Die App fängt das ab und zeigt eine Fehlermeldung auf Deutsch. Kein Zugriff auf Firestore findet statt.
+</div>
+<div class="footer">PlatzFrei · Firebase Auth + Firestore · Flow 1/3</div>
+</body>
+</html>
