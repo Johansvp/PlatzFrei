@@ -137,8 +137,12 @@ tr:hover td{background:#fafafa}
 <!-- BUDGET BAR -->
 <div class="bbar">
   <div class="bbar-field">
-    <label>Budget aus letzter Periode</label>
+    <label>Noch verfügbar (letzte Periode)</label>
     <input type="number" id="b_budget" value="12670" oninput="update()">
+  </div>
+  <div class="bbar-field">
+    <label id="bg-label" style="color:#fca5a5">± BG letzte Periode</label>
+    <div id="bg-display" style="color:#fca5a5;font-weight:700;font-size:.88rem;min-width:70px;text-align:right">–420</div>
   </div>
   <div class="bbar-field">
     <label>+ Darlehen / VC</label>
@@ -518,7 +522,17 @@ function update(){
   var budget  = val('b_budget');
   var vc      = val('b_vc');
   var zentrale= val('b_zentrale');
-  var totalBud= budget + vc;
+  var lastBG  = last().bg || 0;
+  var totalBud= budget + lastBG + vc;
+
+  // BG-Anzeige im Budget-Strip
+  var bgEl = el('bg-display');
+  var bgLb = el('bg-label');
+  if(bgEl){
+    bgEl.textContent = (lastBG>=0?'+':'')+fmt(lastBG)+' €';
+    bgEl.style.color = lastBG>=0 ? '#86efac' : '#fca5a5';
+    if(bgLb) bgLb.style.color = lastBG>=0 ? '#86efac' : '#fca5a5';
+  }
   var pkb     = val('in-pkb');
   var ki      = val('in-ki');
   var preis   = val('in-preis');
@@ -635,7 +649,7 @@ function update(){
     (vc>0?'<div class="seg"><div class="dot" style="background:#4ade80"></div>+VC '+fmt(vc)+'</div>':'');
 
   var restEl = el('bbar-rest');
-  restEl.textContent = 'Noch frei: '+fmt(rest)+' €';
+  restEl.textContent = 'Gesamt '+fmt(totalBud)+' € → frei: '+fmt(rest)+' €';
   restEl.className = rest < 0 ? 'bbar-result over' : 'bbar-result';
 
   // Kurve aufbauen
