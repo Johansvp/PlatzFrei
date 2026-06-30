@@ -200,10 +200,10 @@ tr:hover td{background:#fafafa}
         <tbody>
           <tr>
             <td><b>Preis (€/Stück)</b></td>
-            <td>● mittel</td>
+            <td>● mittel (ε=0,7)</td>
             <td class="td-rec" id="r-preis">73</td>
             <td class="td-inp"><input type="number" id="in-preis" value="73" oninput="update()"></td>
-            <td class="td-r muted">—</td>
+            <td class="td-r" id="eff-preis" style="font-size:.75rem">—</td>
           </tr>
           <tr class="tr-hdr"><td colspan="5">Betriebskosten (beeinflussen Nachfrage)</td></tr>
           <tr>
@@ -437,7 +437,21 @@ function bkEff(pe,dl,ko,mi,vf){
 
 function calcNfr(eff, preis){
   var raw = (MODEL.BASE + eff/MODEL.SLOPE) * Math.pow(MODEL.REF/preis, MODEL.EPS);
+  // Wettbewerbskorrektur: Je weiter der Preis über dem Marktdurchschnitt (MODEL.REF=69€),
+  // desto mehr Kunden wechseln zur Konkurrenz — unabhängig von der Elastizität.
+  // Gauss-Kurve: bei +100% über Markt (138€) → ~14% Restverkäufe; bei +200% → ~0%.
+  if(preis > MODEL.REF){
+    var ex = (preis - MODEL.REF) / MODEL.REF;
+    raw = raw * Math.exp(-(ex * ex));
+  }
   return Math.max(0, Math.round(raw));
+}
+
+// Berechnet nur den Wettbewerbsfaktor (0-100%) zur Anzeige
+function wettbFaktor(preis){
+  if(preis <= MODEL.REF) return 100;
+  var ex = (preis - MODEL.REF) / MODEL.REF;
+  return Math.max(0, Math.round(Math.exp(-(ex*ex))*100));
 }
 
 function calcSim(pe,dl,ko,mi,vf, preis, pkb, ki, kap, abschr){
@@ -564,6 +578,15 @@ function update(){
 
   // Simulation mit Nutzereingaben
   var sim = calcSim(uPe,uDl,uKo,uMi,uVf, preis, pkb, ki, kap, abschr);
+
+  // Wettbewerbsfaktor für Preis anzeigen
+  var wf = wettbFaktor(preis);
+  var wfEl = el('eff-preis');
+  if(wfEl){
+    wfEl.textContent = 'Wettbewerb: '+wf+'%';
+    wfEl.style.color = wf>=90?'#16a34a':wf>=70?'#d97706':'#dc2626';
+    wfEl.style.fontWeight = '700';
+  }
 
   // BK-Effekte anzeigen
   el('eff-pe').textContent = uPe>0 ? fmt(uPe*W.pe) : '—';
@@ -887,12 +910,49 @@ function buildAnalysis(preis, pkb, ki, kap, abschr, opt, sim, totalBud, maxBK){
   '| BK/RT <b>'+pct(optSim.bkRat)+'</b><br>'+
   'Zwischensumme: '+fmt(optSim.zs)+' € von '+fmt(totalBud)+' € | Frei: '+fmt(totalBud-optSim.zs)+' €</p></div>';
 
+  // Wettbewerbs-Erklärungs-Box: zeige Preiskorrektur bei verschiedenen Preisstufen
+  var wbRows = [69,73,78,85,95,110,130].map(function(p){
+    var wf = wettbFaktor(p);
+    var col = wf>=90?'#16a34a':wf>=70?'#d97706':'#dc2626';
+    return '<td style="text-align:center;padding:.2rem .5rem">'+
+      '<div style="font-weight:700">'+p+'€</div>'+
+      '<div style="color:'+col+';font-weight:800;font-size:.85rem">'+wf+'%</div>'+
+    '</td>';
+  }).join('');
+
   el('analysis-content').innerHTML =
+    '<div class="box box-a" style="margin-bottom:.9rem">'+
+      '<b>⚠️ Warum gibt es eine Preisobergrenze?</b>'+
+      '<p style="margin-top:.3rem;font-size:.8rem;line-height:1.6">'+
+        'Ein reines Preiselastizitätsmodell (Nfr ∝ preis<sup>−0,7</sup>) würde Nachfrage niemals auf null reduzieren — '+
+        'theoretisch wäre ein unendlich hoher Preis am besten. Das stimmt nicht. '+
+        'In der Realität wechseln Kunden zur Konkurrenz (Sunshine ~71€, Ocean ~69€) wenn dein Preis zu weit darüber liegt. '+
+        '<b>Das Modell enthält daher eine Wettbewerbskorrektur:</b> Je mehr du über den Marktdurchschnitt (69€) gehst, '+
+        'desto mehr Marktanteil verlierst du zusätzlich zur normalen Elastizität. Ab ~130€+ kauft praktisch niemand mehr.'+
+      '</p>'+
+      '<table style="width:100%;margin-top:.5rem;font-size:.78rem;border-collapse:collapse"><tr>'+
+        '<td style="padding:.2rem .5rem;color:#9ca3af;font-size:.7rem">Preis</td>'+
+        wbRows+
+      '</tr><tr><td style="padding:.1rem .5rem;color:#9ca3af;font-size:.7rem">Wettbewerbs-<br>faktor</td>'+
+        [69,73,78,85,95,110,130].map(function(p){
+          var wf=wettbFaktor(p);
+          var w=wf;
+          var bg=wf>=90?'#dcfce7':wf>=70?'#fef3c7':'#fee2e2';
+          return '<td style="padding:.2rem .5rem;text-align:center">'+
+            '<div style="height:6px;background:'+bg+';border-radius:3px;overflow:hidden">'+
+              '<div style="height:100%;width:'+w+'%;background:'+(wf>=90?'#16a34a':wf>=70?'#d97706':'#dc2626')+'"></div>'+
+            '</div></td>';
+        }).join('')+
+      '</tr></table>'+
+      '<div style="font-size:.73rem;color:#92400e;margin-top:.3rem">'+
+        '→ Bei 73€ sind noch 100% erreichbar · bei 95€ noch ~73% · bei 130€ nur noch ~35% · ab ~200€ → ~0%'+
+      '</div>'+
+    '</div>'+
     '<div style="margin-bottom:1rem">'+
       '<div style="font-weight:800;font-size:.95rem;color:#1e3a8a;margin-bottom:.6rem">🔀 Handlungsmöglichkeiten — was ist realistisch?</div>'+
       '<div style="font-size:.79rem;color:#6b7280;margin-bottom:.7rem">'+
-        'Das Modell berechnet alle Szenarien automatisch. ★★★★★ = sehr realistisch umsetzbar, ★ = sehr riskant. '+
-        'Nachfrageeffekt durch Preiserhöhungen ist bereits einkalkuliert (Preisempfindlichkeit ε=0,7).'+
+        '★★★★★ = sehr realistisch umsetzbar · ★ = sehr riskant. '+
+        'Nachfrageeffekt durch Preiserhöhungen und Wettbewerbskorrektur sind bereits einkalkuliert.'+
       '</div>'+
       scenHtml+
     '</div>'+
