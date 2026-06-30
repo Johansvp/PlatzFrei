@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>River Advisor – Planspiel-Berater</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563eb;--blue-l:#dbeafe;--blue-d:#1d4ed8;
+  --green:#16a34a;--green-l:#dcfce7;
+  --red:#dc2626;--red-l:#fee2e2;
+  --amber:#d97706;--amber-l:#fef3c7;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;
+  --g300:#d1d5db;--g400:#9ca3af;--g500:#6b7280;
+  --g700:#374151;--g900:#111827
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--g50);color:var(--g900);line-height:1.5;font-size:15px}
+.header{background:var(--blue);color:#fff;padding:.9rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header h1{font-size:1.2rem;font-weight:700}
+.header .sub{opacity:.8;font-size:.85rem}
+.tag{background:rgba(255,255,255,.2);border-radius:6px;padding:.15rem .6rem;font-size:.75rem;font-weight:600}
+.wrap{max-width:1080px;margin:0 auto;padding:1.25rem 1rem}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:2px solid var(--g200);margin-bottom:1.25rem;gap:0}
+.tab{padding:.55rem 1.1rem;cursor:pointer;font-weight:500;font-size:.9rem;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--g500);user-select:none}
+.tab.on{border-bottom-color:var(--blue);color:var(--blue);font-weight:700}
+.panel{display:none}.panel.on{display:block}
+
+/* Cards */
+.card{background:#fff;border:1px solid var(--g200);border-radius:10px;padding:1.2rem;margin-bottom:1rem}
+.card-title{font-weight:700;font-size:.95rem;margin-bottom:.9rem;display:flex;align-items:center;gap:.4rem;color:var(--g700)}
+.card-title .icon{font-size:1rem}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* Metric boxes */
+.metric{background:var(--g50);border-radius:8px;padding:.75rem 1rem;text-align:center}
+.metric-label{font-size:.7rem;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem}
+.metric-value{font-size:1.4rem;font-weight:700}
+.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.blue{color:var(--blue)}
+
+/* Table */
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:var(--g100);padding:.45rem .75rem;text-align:left;font-weight:600;border:1px solid var(--g200);white-space:nowrap}
+td{padding:.4rem .75rem;border:1px solid var(--g200);vertical-align:middle}
+tr:hover td{background:var(--g50)}
+.tr-total td{background:var(--g100)!important;font-weight:700;border-top:2px solid var(--g300)}
+.tr-hl td{background:#fefce8!important}
+.tr-sep td{background:var(--g50)!important;font-style:italic;color:var(--g500);font-size:.8rem}
+.num{text-align:right}
+.rec{background:var(--blue-l)!important;font-weight:700;color:var(--blue-d);text-align:right}
+.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
+
+/* Inputs */
+.inp{width:100%;border:1px solid var(--g300);border-radius:5px;padding:.3rem .5rem;font-size:.85rem;text-align:right;font-family:inherit}
+.inp:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+input[type=number]{border:1px solid var(--g300);border-radius:6px;padding:.4rem .6rem;font-size:.9rem;width:120px}
+input[type=number]:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+textarea{width:100%;border:1px solid var(--g300);border-radius:6px;padding:.5rem;font-size:.85rem;resize:vertical;font-family:inherit}
+textarea:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+label{font-size:.85rem;font-weight:500;color:var(--g700);display:block;margin-bottom:.2rem}
+
+/* Alert boxes */
+.box{border-radius:7px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:.88rem}
+.box-blue{background:var(--blue-l);border-left:4px solid var(--blue)}
+.box-green{background:var(--green-l);border-left:4px solid var(--green)}
+.box-red{background:var(--red-l);border-left:4px solid var(--red)}
+.box-amber{background:var(--amber-l);border-left:4px solid var(--amber)}
+.box strong{display:block;margin-bottom:.2rem}
+
+/* BG display */
+#bg-display{border-radius:10px;padding:1rem 1.5rem;margin-top:.75rem;text-align:center;transition:background .3s}
+#bg-display .big{font-size:2rem;font-weight:800;margin:.2rem 0}
+#bg-display .sub{font-size:.8rem;opacity:.8}
+
+/* Budget bar */
+.bar-track{height:10px;background:var(--g200);border-radius:5px;overflow:hidden;margin:.4rem 0}
+.bar-fill{height:100%;border-radius:5px;transition:width .3s,background .3s}
+
+/* Accordion */
+.acc{border:1px solid var(--g200);border-radius:8px;margin-bottom:.5rem;overflow:hidden}
+.acc-hd{background:var(--g100);padding:.7rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.9rem}
+.acc-hd:hover{background:var(--g200)}
+.acc-bd{display:none;padding:1rem;border-top:1px solid var(--g200)}
+.acc-bd.open{display:block}
+
+/* Chart */
+.chart{display:flex;align-items:flex-end;gap:.3rem;height:120px;padding:.5rem 0}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:.2rem;flex:1}
+.bar-col .bv{border-radius:4px 4px 0 0;width:100%;min-height:2px;transition:height .3s}
+.bar-col .bl{font-size:.65rem;color:var(--g500);white-space:nowrap}
+.bar-col .bval{font-size:.65rem;font-weight:700}
+
+.row-ctrl{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:.75rem}
+.sep{border:none;border-top:1px solid var(--g200);margin:.75rem 0}
+.muted{color:var(--g500);font-size:.8rem}
+.badge{display:inline-block;border-radius:4px;padding:.1rem .4rem;font-size:.75rem;font-weight:600}
+.badge-g{background:var(--green-l);color:var(--green)}
+.badge-r{background:var(--red-l);color:var(--red)}
+.badge-a{background:var(--amber-l);color:var(--amber)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>⚡ River Advisor</h1>
+    <div class="sub">Planspiel-Berater · Team RIVER · BerlinSim</div>
+  </div>
+  <span class="tag">BETA-Fokus</span>
+  <span class="tag">Periode 7 Analyse</span>
+</div>
+
+<div class="wrap">
+
+<div class="tabs">
+  <div class="tab on" onclick="showTab('p7')">📊 Periode 7</div>
+  <div class="tab" onclick="showTab('analyse')">🔍 Analyse</div>
+  <div class="tab" onclick="showTab('verlauf')">📋 Verlauf</div>
+</div>
+
+<!-- ===== PERIODE 7 TAB ===== -->
+<div class="panel on" id="tab-p7">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📌</span> Prognose-Werte Periode 7 <span class="muted">(aus Geschäftsfeldbericht P6)</span></div>
+    <div class="g4">
+      <div class="metric"><div class="metric-label">Kapazität</div><div class="metric-value blue">220</div></div>
+      <div class="metric"><div class="metric-label">PersonalkostenB (fix)</div><div class="metric-value">9.207</div></div>
+      <div class="metric"><div class="metric-label">Abschreibung</div><div class="metric-value">660</div></div>
+      <div class="metric"><div class="metric-label">Anlagevermögen</div><div class="metric-value">13.200</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">💰</span> Budget &amp; Externe Faktoren</div>
+    <div class="g2">
+      <div>
+        <label>Verfügbares Budget (€)</label>
+        <input type="number" id="budget" value="28000" onchange="update()">
+        <div class="bar-track" style="margin-top:.5rem"><div class="bar-fill" id="bbar" style="width:0%;background:var(--green)"></div></div>
+        <div id="budget-info" class="muted" style="font-size:.8rem;margin-top:.2rem"></div>
+      </div>
+      <div>
+        <label>Mitteilungen / Externe Faktoren</label>
+        <textarea id="extern" rows="3" placeholder="z.B. SURPRISE BETA, Venture Capital, Konkurrenz-Info…" onchange="update()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🎯</span> Auszahlungsplanung BETA – Periode 7</div>
+
+    <div class="box box-blue">
+      <strong>Algorithmus-Empfehlung: Betriebskosten deutlich reduzieren</strong>
+      In P5 &amp; P6 lagen Betriebskosten über dem Rohertrag → Verlust. Historisch bestes BG (P2: +859) bei BK/Rohertrag ≈ 45%.
+      Empfehlung zielt auf ~55% BK/Rohertrag für P7 bei 220 Einheiten Kapazität.
+    </div>
+
+    <div class="tscroll">
+    <table>
+      <thead>
+        <tr>
+          <th style="min-width:200px">Position</th>
+          <th class="rec" style="min-width:120px">💡 Empfehlung</th>
+          <th style="min-width:120px">Ihre Eingabe</th>
+          <th style="min-width:160px">Begründung</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="tr-hl">
+          <td><strong>Preis (€/Stück)</strong></td>
+          <td class="rec">72</td>
+          <td class="td-inp"><input class="inp" type="number" id="i_preis" value="72" min="50" max="100" onchange="update()"></td>
+          <td class="muted">Kapazität=Engpass → Preis erhöhen ok. Konkurrenz: Sunshine 71, Ocean 69</td>
+        </tr>
+        <tr class="tr-sep"><td colspan="4">— Betriebskosten —</td></tr>
+        <tr>
+          <td>Personalentwicklung</td>
+          <td class="rec" id="r_pe">580</td>
+          <td class="td-inp"><input class="inp" type="number" id="i_pe" value="580" min="0" onchange="update()"></td>
+          <td class="muted">~18% der Ziel-BK</td>
+        </tr>
+        <tr>
+          <td>Dienstleistungsverbesserung</td>
+          <td class="rec" id="r_dl">770</td>
+          <td class="td-inp"><input class="inp" type="number" id="i_dl" value="770" min="0" onchange="update()"></td>
+          <td class="muted">~24% der Ziel-BK</td>
+        </tr>
+        <tr>
+          <td>Komplemente</td>
+          <td class="rec" id="r_ko">900</td>
+          <td class="td-inp"><input class="inp" type="number" id="i_ko" value="900" min="0" onchange="update()"></td>
+          <td class="muted">~27% — wichtigster Nachfragehebel</td>
+        </tr>
+        <tr>
+          <td>Markenimage</td>
+          <td class="rec" id="r_mi">645</td>
+          <td class="td-inp"><input class="inp" type="number" id="i_mi" value="645" min="0" onchange="update()"></td>
+          <td class="muted">~20% der Ziel-BK</td>
+        </tr>
+        <tr>
+          <td>Verkaufsförderung</td>
+          <td class="rec" id="r_vf">390</td>
+          <td class="td-inp"><input class="inp" type="number" id="i_vf" value="390" min="0" onchange="update()"></td>
+          <td class="muted">~12% der Ziel-BK</td>
+        </tr>
+        <tr class="tr-sep"><td colspan="4">— Herstellungskosten (fix) —</td></tr>
+        <tr>
+          <td>Personalkostenbudget</td>
+          <td class="rec">9.207</td>
+          <td class="td-inp"><input class="inp" type="number" id="i_pkb" value="9207" onchange="update()"></td>
+          <td class="muted">Prognose-Wert aus P6-Bericht (Pflicht)</td>
+        </tr>
+        <tr>
+          <td>Kapazitätsinvestition</td>
+          <td class="rec">2.200</td>
+          <td class="td-inp"><input class="inp" type="number" id="i_ki" value="2200" min="0" onchange="update()"></td>
+          <td class="muted">Moderat — P8-Kapazität ~260</td>
+        </tr>
+        <tr class="tr-total">
+          <td>Zwischensumme BETA</td>
+          <td class="rec" id="r_sum">14.692</td>
+          <td class="num" id="i_sum" style="font-weight:700">14.692</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div id="bg-display">
+      <div class="sub" id="bg-detail">Berechnung wird geladen…</div>
+      <div class="big" id="bg-value">+2.688</div>
+      <div class="sub">Erwartetes Betriebsergebnis BETA</div>
+    </div>
+
+    <div id="budget-alert" style="margin-top:.75rem"></div>
+
+    <hr class="sep">
+    <div class="muted" style="font-size:.8rem;line-height:1.6">
+      ⚠️ <strong>Annahmen:</strong> Absatz = Kapazität (220 Stk) — Nachfrage lag in P5 &amp; P6 über Kapazität.
+      Falls Betriebskosten stark sinken, könnte Nachfrage auf 190–210 fallen → BG bleibt trotzdem positiv.
+      Preis beeinflusst nur Nachfrage, nicht das verkaufte Volumen (bei Kapazitäts-Engpass).
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span> Sensitivitätsanalyse</div>
+    <div id="sensitivity-table"></div>
+  </div>
+
+</div><!-- /panel p7 -->
+
+<!-- ===== ANALYSE TAB ===== -->
+<div class="panel" id="tab-analyse">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">💡</span> Wichtigste Erkenntnisse</div>
+    <div class="box box-red">
+      <strong>Problem P4 &amp; P6: Betriebskosten überstiegen Rohertrag</strong>
+      P4: BK 2.550 / RT 2.420 = 105% → BG −130 &nbsp;|&nbsp; P6: BK 4.804 / RT 4.384 = 110% → BG −420
+    </div>
+    <div class="box box-green">
+      <strong>Bestes Ergebnis P2: BK/RT = 44,5% → BG +859</strong>
+      Moderates Investitionsniveau bei voller Kapazitätsauslastung. Preis = 65, alle 110 Einheiten verkauft.
+    </div>
+    <div class="box box-blue">
+      <strong>Kapazität war ab P5 der Engpass — nicht Nachfrage</strong>
+      P5: Nachfrage 183 &gt; Kapazität 155 &nbsp;|&nbsp; P6: Nachfrage 207 &gt; Kapazität 190 &nbsp;|&nbsp; P7: Kapazität 220, Nachfrage wird ~220+
+    </div>
+    <div class="box box-amber">
+      <strong>Marktkonsolidierung: Fire (P=0) und Clover (P=0) ausgeschieden</strong>
+      Nur noch Sunshine (71€) und Ocean (69€) aktiv. River kann Preis auf 72€ anheben ohne Nachfragerisiko.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📈</span> Betriebsgewinn BETA – Verlauf</div>
+    <div id="bg-chart" class="chart"></div>
+    <div class="muted" style="text-align:center;font-size:.75rem;margin-top:.3rem">Perioden 1–6 (Ist) + 7 (Prognose)</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📉</span> BK/Rohertrag-Verhältnis</div>
+    <div id="ratio-chart" class="chart"></div>
+    <div class="muted" style="text-align:center;font-size:.75rem;margin-top:.3rem">Zielbereich: unter 70% — über 100% → Verlust</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Kennzahlen-Übersicht BETA</div>
+    <div class="tscroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Periode</th>
+          <th class="num">Preis</th>
+          <th class="num">Kapazität</th>
+          <th class="num">Absatz</th>
+          <th class="num">Rohertrag</th>
+          <th class="num">Betr.kosten</th>
+          <th class="num">BK/RT</th>
+          <th class="num">Betr.gewinn</th>
+          <th class="num">Marktanteil</th>
+        </tr>
+      </thead>
+      <tbody id="kpi-table"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🏭</span> Branchenvergleich Periode 6</div>
+    <div class="tscroll">
+    <table>
+      <thead><tr><th>Position</th><th class="num">Branche gesamt</th><th class="num">River P6</th><th class="num">River P7 Empf.</th><th>Kommentar</th></tr></thead>
+      <tbody>
+        <tr><td>Personalentwicklung</td><td class="num">1.460</td><td class="num neg">760</td><td class="num rec">580</td><td class="muted">Unter Branche, aber kapazitätsbeschränkt → ok</td></tr>
+        <tr><td>Dienstleistungsverbesserung</td><td class="num">2.764</td><td class="num neg">1.014</td><td class="num rec">770</td><td class="muted">Reduktion möglich da Kapazität Engpass</td></tr>
+        <tr><td>Komplemente</td><td class="num">3.250</td><td class="num neg">1.500</td><td class="num rec">900</td><td class="muted">Wichtigster Hebel — moderat halten</td></tr>
+        <tr><td>Markenimage</td><td class="num">1.950</td><td class="num neg">1.000</td><td class="num rec">645</td><td class="muted">Reduktion ok da Kapazität limitiert</td></tr>
+        <tr><td>Verkaufsförderung</td><td class="num">1.410</td><td class="num neg">530</td><td class="num rec">390</td><td class="muted">River schon unter Branche</td></tr>
+        <tr class="tr-total"><td>Gesamt Betr.kosten</td><td class="num">10.834</td><td class="num neg">4.804</td><td class="num rec">3.285</td><td></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</div><!-- /panel analyse -->
+
+<!-- ===== VERLAUF TAB ===== -->
+<div class="panel" id="tab-verlauf">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Historische Perioden (BETA)</div>
+    <div id="verlauf-list"></div>
+  </div>
+
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const H = [
+  {p:1, preis:65, pe:148, dl:129, ko:211, mi:102, vf:119, pkb:4520, ki:1470,
+   absatz:90, nfr:111, um:5850, pk:4520, abschr:270, rt:1060, bg:351, ma:20.0, kap:90},
+  {p:2, preis:65, pe:120, dl:180, ko:180, mi:90,  vf:119, pkb:5272, ki:330,
+   absatz:110, nfr:101, um:7150, pk:5272, abschr:330, rt:1548, bg:859, ma:23.7, kap:110},
+  {p:3, preis:70, pe:250, dl:350, ko:300, mi:250, vf:200, pkb:5239, ki:1530,
+   absatz:110, nfr:125, um:7700, pk:5239, abschr:330, rt:2131, bg:781, ma:24.4, kap:110},
+  {p:4, preis:72, pe:450, dl:600, ko:700, mi:500, vf:300, pkb:5974, ki:1890,
+   absatz:122, nfr:122, um:8784, pk:5974, abschr:390, rt:2420, bg:-130, ma:33.8, kap:130},
+  {p:5, preis:71, pe:585, dl:780, ko:910, mi:650, vf:390, pkb:6887, ki:2565,
+   absatz:155, nfr:183, um:11005, pk:6887, abschr:465, rt:3653, bg:338, ma:29.3, kap:155},
+  {p:6, preis:69, pe:760, dl:1014, ko:1500, mi:1000, vf:530, pkb:8156, ki:2370,
+   absatz:190, nfr:207, um:13110, pk:8156, abschr:570, rt:4384, bg:-420, ma:39.8, kap:190}
+];
+
+const P7 = {kap:220, pkb:9207, abschr:660, anlage:13200};
+
+const EVENTS = {
+  1:'VC +500 (Mitteilung P1)',
+  2:'NEMESIS VC +100',
+  3:'HANNIBAL DELTA 750 | ERIC HOLD ALPHA 2000',
+  4:'SURPRISE BETA | Corporate Governance §10/11 (Delta, Alpha)',
+  5:'Corporate Governance Alpha, Gamma',
+  6:'Venture Capital B +28.000'
+};
+
+// ─── HELPERS ────────────────────────────────────────────────────────────────
+
+const fmt = n => n.toLocaleString('de-DE');
+const pct = n => n.toFixed(1)+'%';
+const $ = id => document.getElementById(id);
+const bk = d => d.pe + d.dl + d.ko + d.mi + d.vf;
+const zs = d => d.pe + d.dl + d.ko + d.mi + d.vf + d.pkb + d.ki;
+
+function colorBG(v){
+  if(v > 500) return {bg:'#dcfce7',tx:'#166534'};
+  if(v > 0)   return {bg:'#fef3c7',tx:'#92400e'};
+  return {bg:'#fee2e2',tx:'#991b1b'};
+}
+
+// ─── UPDATE (LIVE CALC) ──────────────────────────────────────────────────────
+
+function update(){
+  const preis = +$('i_preis').value||69;
+  const pe    = +$('i_pe').value||0;
+  const dl    = +$('i_dl').value||0;
+  const ko    = +$('i_ko').value||0;
+  const mi    = +$('i_mi').value||0;
+  const vf    = +$('i_vf').value||0;
+  const pkb   = +$('i_pkb').value||9207;
+  const ki    = +$('i_ki').value||0;
+  const bud   = +$('budget').value||0;
+
+  const total_bk = pe+dl+ko+mi+vf;
+  const total_zs = pe+dl+ko+mi+vf+pkb+ki;
+
+  // Expected BG calc (assumes Absatz = min(kap, demand))
+  // With these BK levels, demand estimated at ~210-225 → still capacity-constrained
+  const umsatz = P7.kap * preis;
+  const rt = umsatz - pkb - P7.abschr;
+  const bg = rt - total_bk;
+  const ratio = rt > 0 ? (total_bk/rt*100) : 999;
+
+  $('i_sum').textContent = fmt(total_zs);
+
+  // BG display
+  const col = colorBG(bg);
+  const disp = $('bg-display');
+  disp.style.background = col.bg;
+  disp.style.color = col.tx;
+  $('bg-value').textContent = (bg>=0?'+':'')+fmt(Math.round(bg));
+  $('bg-detail').textContent = `Umsatz ${fmt(umsatz)} − Personal ${fmt(pkb)} − Abschr ${fmt(P7.abschr)} = RT ${fmt(Math.round(rt))} | BK ${fmt(total_bk)} | BK/RT ${ratio.toFixed(0)}%`;
+
+  // Budget check
+  const used_pct = bud>0 ? Math.min(100, total_zs/bud*100) : 0;
+  const barEl = $('bbar');
+  barEl.style.width = used_pct+'%';
+  barEl.style.background = used_pct>100?'var(--red)':used_pct>85?'var(--amber)':'var(--green)';
+  $('budget-info').textContent = `BETA: ${fmt(total_zs)} von ${fmt(bud)} € (${pct(used_pct)}) — noch verfügbar: ${fmt(bud-total_zs)}`;
+
+  const alertEl = $('budget-alert');
+  if(total_zs > bud && bud > 0){
+    alertEl.innerHTML = `<div class="box box-red"><strong>⚠️ Budget überschritten!</strong>Noch verfügbar: <strong>${fmt(bud-total_zs)} €</strong> — Eingaben reduzieren!</div>`;
+  } else if(bg < 0){
+    alertEl.innerHTML = `<div class="box box-red"><strong>⚠️ Betriebsgewinn negativ!</strong> BK/RT = ${ratio.toFixed(0)}% — Betriebskosten stärker reduzieren.</div>`;
+  } else if(bg < 300){
+    alertEl.innerHTML = `<div class="box box-amber"><strong>Betriebsgewinn niedrig.</strong> BK/RT = ${ratio.toFixed(0)}% — weiteres Einsparpotenzial vorhanden.</div>`;
+  } else {
+    alertEl.innerHTML = `<div class="box box-green"><strong>✓ Betriebsgewinn positiv.</strong> BK/RT = ${ratio.toFixed(0)}% — Zielbereich erreicht.</div>`;
+  }
+
+  // Sensitivity table
+  const rows = [60,65,70,72,75,78].map(pr=>{
+    const u=P7.kap*pr, r=u-pkb-P7.abschr, b=r-total_bk;
+    const c=b>500?'pos':b>0?'amber':'neg';
+    return `<tr><td>Preis = ${pr}€</td><td class="num">RT ${fmt(Math.round(r))}</td><td class="num ${c}">${(b>=0?'+':'')+fmt(Math.round(b))}</td></tr>`;
+  }).join('');
+  $('sensitivity-table').innerHTML = `<div class="tscroll"><table>
+    <thead><tr><th>Szenario</th><th class="num">Rohertrag</th><th class="num">Betriebsgewinn</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <div class="muted" style="margin-top:.4rem">Bei Ihren aktuellen Betriebskosten (${fmt(total_bk)} €)</div>`;
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+
+function showTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const ids=['p7','analyse','verlauf'];
+    t.classList.toggle('on', ids[i]===id);
+    $('tab-'+ids[i]).classList.toggle('on', ids[i]===id);
+  });
+}
+
+// ─── KPI TABLE ───────────────────────────────────────────────────────────────
+
+function buildKPITable(){
+  const tb = $('kpi-table');
+  tb.innerHTML = H.map(d=>{
+    const b=bk(d), r=d.rt, ratio=r>0?b/r*100:999;
+    const bgCls = d.bg>0?'pos':'neg';
+    const rCls = ratio>100?'neg':ratio>70?'amber':'pos';
+    return `<tr>
+      <td><strong>P${d.p}</strong> <span class="badge ${d.bg>0?'badge-g':'badge-r'}">${d.bg>0?'✓':'✗'}</span></td>
+      <td class="num">${d.preis}€</td>
+      <td class="num">${d.kap}</td>
+      <td class="num">${d.absatz}</td>
+      <td class="num">${fmt(r)}</td>
+      <td class="num">${fmt(b)}</td>
+      <td class="num ${rCls}">${ratio.toFixed(0)}%</td>
+      <td class="num ${bgCls}">${d.bg>=0?'+':''}${fmt(d.bg)}</td>
+      <td class="num">${d.ma}%</td>
+    </tr>`;
+  }).join('') + `<tr class="tr-total">
+    <td><strong>P7</strong> <span class="badge badge-a">Prognose</span></td>
+    <td class="num">72€</td><td class="num">220</td><td class="num">220</td>
+    <td class="num">~5.973</td><td class="num">~3.285</td><td class="num pos">55%</td>
+    <td class="num pos">+2.688</td><td class="num">~45%?</td>
+  </tr>`;
+}
+
+// ─── CHARTS ──────────────────────────────────────────────────────────────────
+
+function buildCharts(){
+  // BG chart
+  const allBG = [...H.map(d=>d.bg), 2688];
+  const minBG = Math.min(...allBG);
+  const maxBG = Math.max(...allBG);
+  const range = maxBG - minBG || 1;
+  const HPX = 100;
+
+  const bgChart = $('bg-chart');
+  bgChart.innerHTML = allBG.map((v,i)=>{
+    const pct = Math.max(4, ((v-minBG)/range)*HPX);
+    const col = v>0?'var(--green)':v===-420?'var(--red)':'var(--red)';
+    const lbl = i<6?'P'+(i+1):'P7★';
+    const valFmt = (v>=0?'+':'')+v;
+    return `<div class="bar-col">
+      <div class="bval ${v>=0?'green':'red'}" style="font-size:.65rem">${valFmt}</div>
+      <div class="bv" style="height:${pct}px;background:${i===6?'var(--blue)':col}"></div>
+      <div class="bl">${lbl}</div>
+    </div>`;
+  }).join('');
+
+  // BK/RT ratio chart
+  const ratios = H.map(d=>bk(d)/d.rt*100);
+  ratios.push(3285/5973*100); // P7 target
+  const maxR = Math.max(...ratios, 115);
+  const ratioChart = $('ratio-chart');
+  ratioChart.innerHTML = ratios.map((v,i)=>{
+    const pct = Math.max(4,(v/maxR)*HPX);
+    const col = v>100?'var(--red)':v>70?'var(--amber)':'var(--green)';
+    const lbl = i<6?'P'+(i+1):'P7★';
+    return `<div class="bar-col">
+      <div class="bval" style="color:${v>100?'var(--red)':v>70?'var(--amber)':'var(--green)'};font-size:.65rem">${v.toFixed(0)}%</div>
+      <div class="bv" style="height:${pct}px;background:${i===6?'var(--blue)':col}"></div>
+      <div class="bl">${lbl}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── VERLAUF ─────────────────────────────────────────────────────────────────
+
+function buildVerlauf(){
+  const el = $('verlauf-list');
+  el.innerHTML = H.map(d=>{
+    const b=bk(d), z=zs(d), ratio=d.rt>0?b/d.rt*100:0;
+    const ev = EVENTS[d.p]||'';
+    const bgCol = d.bg>0?'badge-g':'badge-r';
+    return `<div class="acc">
+      <div class="acc-hd" onclick="toggleAcc(this)">
+        <span>Periode ${d.p} — Beta</span>
+        <span>
+          <span class="badge ${bgCol}">BG ${d.bg>=0?'+':''}${fmt(d.bg)}</span>
+          &nbsp;Marktanteil ${d.ma}%&nbsp;
+          <span style="color:var(--g400)">▾</span>
+        </span>
+      </div>
+      <div class="acc-bd">
+        ${ev?`<div class="box box-amber" style="margin-bottom:.75rem"><strong>📢 Mitteilung:</strong> ${ev}</div>`:''}
+        <div class="g2">
+          <div>
+            <div class="card-title" style="font-size:.8rem;margin-bottom:.5rem">📝 Entscheidungen (Auszahlungsplanung)</div>
+            <table><tbody>
+              <tr><td>Preis</td><td class="num">${d.preis} €</td></tr>
+              <tr><td>Personalentwicklung</td><td class="num">${fmt(d.pe)}</td></tr>
+              <tr><td>Dienstleistungsverb.</td><td class="num">${fmt(d.dl)}</td></tr>
+              <tr><td>Komplemente</td><td class="num">${fmt(d.ko)}</td></tr>
+              <tr><td>Markenimage</td><td class="num">${fmt(d.mi)}</td></tr>
+              <tr><td>Verkaufsförderung</td><td class="num">${fmt(d.vf)}</td></tr>
+              <tr><td>Personalkostenbudget</td><td class="num">${fmt(d.pkb)}</td></tr>
+              <tr><td>Kapazitätsinvestition</td><td class="num">${fmt(d.ki)}</td></tr>
+              <tr class="tr-total"><td>Zwischensumme</td><td class="num">${fmt(z)}</td></tr>
+            </tbody></table>
+          </div>
+          <div>
+            <div class="card-title" style="font-size:.8rem;margin-bottom:.5rem">📊 Ergebnis (Geschäftsfeldbericht)</div>
+            <table><tbody>
+              <tr><td>Kapazität</td><td class="num">${d.kap}</td></tr>
+              <tr><td>Absatz</td><td class="num">${d.absatz}</td></tr>
+              <tr><td>Nachfrage</td><td class="num">${d.nfr}</td></tr>
+              <tr><td>Preis</td><td class="num">${d.preis} €</td></tr>
+              <tr><td>Umsatzerlöse</td><td class="num">${fmt(d.um)}</td></tr>
+              <tr><td>Personalkosten</td><td class="num neg">−${fmt(d.pk)}</td></tr>
+              <tr><td>Abschreibung</td><td class="num neg">−${fmt(d.abschr)}</td></tr>
+              <tr><td><strong>Rohertrag</strong></td><td class="num"><strong>${fmt(d.rt)}</strong></td></tr>
+              <tr><td>Betriebskosten gesamt</td><td class="num neg">−${fmt(b)}</td></tr>
+              <tr><td>BK / Rohertrag</td><td class="num ${ratio>100?'neg':ratio>70?'amber':'pos'}">${ratio.toFixed(0)}%</td></tr>
+              <tr class="tr-total"><td><strong>Betriebsgewinn</strong></td><td class="num ${d.bg>=0?'pos':'neg'}"><strong>${d.bg>=0?'+':''}${fmt(d.bg)}</strong></td></tr>
+              <tr><td>Marktanteil</td><td class="num">${d.ma}%</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAcc(el){
+  el.nextElementSibling.classList.toggle('open');
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+
+function init(){
+  buildKPITable();
+  buildCharts();
+  buildVerlauf();
+  update();
+}
+
+init();
+</script>
+</body>
+</html>
