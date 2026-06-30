@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200, initial-scale=1.0">
+<title>PlatzFrei – Flow: Platz buchen</title>
+<style>
+@page{size:A4 landscape;margin:10mm}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0F1923;color:#fff;padding:32px 20px 60px;min-height:100vh}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#0F1923!important;padding:0}}
+
+.header{text-align:center;margin-bottom:28px}
+.header .tag{display:inline-block;background:#4ADE80;color:#0F1923;font-size:11px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.header h1{font-size:26px;font-weight:800;margin-bottom:6px}
+.header p{color:#8896A6;font-size:13px}
+
+.intro{max-width:900px;margin:0 auto 20px;background:#1A1F2B;border:1.5px solid #4ADE8044;border-radius:12px;padding:14px 18px;font-size:12px;color:#8896A6;line-height:1.6}
+.intro strong{color:#86EFAC}
+
+.legend{max-width:900px;margin:0 auto 18px;display:flex;gap:20px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:7px;font-size:11px;color:#8896A6;font-weight:600}
+.leg-line{width:26px;height:2px;border-radius:1px}
+
+.diagram{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:0}
+
+.col-headers{display:grid;grid-template-columns:1fr 210px 1fr;margin-bottom:14px}
+.col-h{text-align:center;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:9px 14px;border-radius:10px}
+.col-h.fe{background:#1E2A38;color:#60A5FA;border:1.5px solid #2E3F52}
+.col-h.fb{background:#0C1A3D;color:#60A5FA;border:1.5px solid #1E40AF}
+
+.exchange{display:grid;grid-template-columns:1fr 210px 1fr;align-items:center;margin-bottom:4px}
+
+.box{border-radius:12px;padding:12px 14px;font-size:12px;line-height:1.5;display:flex;align-items:flex-start;gap:9px}
+.box.fe-action{background:#0C1A3D;border:1.5px solid #60A5FA;color:#DDE3EA}
+.box.fe-recv{background:#0F2E1A;border:1.5px solid #4ADE80;color:#DDE3EA}
+.box.fe-warn{background:#2D1B00;border:1.5px solid #FBBF24;color:#DDE3EA}
+.box.fb-fs{background:#0C1A3D;border:1.5px solid #3B82F6;color:#93C5FD}
+.box.fe-final{background:#1A0F2E;border:1.5px solid #A78BFA;color:#DDE3EA}
+.box.empty{background:transparent;border:none}
+
+.step-n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;min-width:22px;border-radius:50%;background:#1E2A38;font-size:10px;font-weight:800;color:#DDE3EA;margin-top:1px}
+
+.box-body{flex:1}
+.box-tech{font-size:11px;color:#DDE3EA;font-weight:600;margin-bottom:4px}
+code{font-family:'Courier New',monospace;background:rgba(0,0,0,.4);padding:2px 5px;border-radius:4px;font-size:10px;color:#FDE68A;word-break:break-all}
+.box-plain{font-size:11px;color:#64748B;line-height:1.55;margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.06)}
+
+.data-block{background:rgba(0,0,0,.3);border:1px solid #2E3F52;border-radius:7px;padding:7px 9px;font-family:'Courier New',monospace;font-size:10px;line-height:1.6;margin-top:6px}
+.dk{color:#93C5FD}
+.dv{color:#FDE68A}
+.dc{color:#46566B}
+
+.arrow-col{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 6px}
+.arrow-code{font-family:'Courier New',monospace;font-size:9.5px;text-align:center;padding:4px 7px;border-radius:6px;line-height:1.35;word-break:break-all;max-width:195px}
+.arrow-code.req{background:#0F2A00;color:#4ADE80;border:1px solid #166534}
+.arrow-code.res{background:#1A0A00;color:#FBBF24;border:1px solid #92400E}
+.arrow-body{display:flex;align-items:center;width:100%}
+.arrow-line{height:2px;flex:1}
+.arrow-line.req{background:linear-gradient(to right,#1E3A1E,#4ADE80)}
+.arrow-line.res{background:linear-gradient(to left,#3A1A00,#FBBF24)}
+.arr{font-size:13px;flex-shrink:0}
+.arr.r{color:#4ADE80}
+.arr.l{color:#FBBF24}
+.arrow-hint{font-size:9.5px;color:#46566B;text-align:center;font-style:italic}
+
+.conn{height:22px;display:flex;justify-content:center;align-items:center;position:relative}
+.conn::before{content:'';position:absolute;left:50%;width:2px;height:100%;background:#2E3F52;transform:translateX(-50%)}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:#2E3F52;z-index:1}
+
+.optional-note{text-align:center;font-size:10px;font-weight:700;color:#FBBF24;padding:3px 0}
+
+.note-box{max-width:900px;margin:16px auto 0;background:#1A1F2B;border:1px solid #2E3F52;border-radius:10px;padding:12px 16px;font-size:11px;color:#8896A6;line-height:1.6}
+.note-box strong{color:#DDE3EA}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">Flow 2 von 3</div>
+  <h1>📅 Platz buchen</h1>
+  <p>Von der Auswahl bis zur bestätigten Buchung in Firestore</p>
+</div>
+
+<div class="intro">
+  Wenn du einen Platz buchst, muss die App das dauerhaft speichern – nicht nur lokal, sonst ist es weg nach dem Schließen. Sie schickt deshalb ein Datenpaket an <strong>Firestore</strong>, Googles Cloud-Datenbank. Firestore legt einen neuen Eintrag an und schickt eine Bestätigungs-ID zurück.
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-line" style="background:#4ADE80"></div>Frontend → Backend (Anfrage)</div>
+  <div class="leg"><div class="leg-line" style="background:#FBBF24"></div>Backend → Frontend (Antwort)</div>
+</div>
+
+<div class="diagram">
+  <div class="col-headers">
+    <div class="col-h fe">Frontend (Browser)</div>
+    <div></div>
+    <div class="col-h fb">Firestore (Backend)</div>
+  </div>
+
+  <!-- 1 -->
+  <div class="exchange">
+    <div class="box fe-action">
+      <div class="step-n">1</div>
+      <div class="box-body">
+        <div class="box-tech">Nutzer wählt Stadt, Platz, Dauer &amp; Uhrzeit</div>
+        <div class="data-block">
+          <span class="dk">city</span>: <span class="dv">"München"</span><br>
+          <span class="dk">vname</span>: <span class="dv">"FC München Hauptplatz"</span><br>
+          <span class="dk">dur</span>: <span class="dv">60</span> Min. &nbsp;<span class="dk">time</span>: <span class="dv">"18:00"</span>
+        </div>
+        <div class="box-plain">Das Frontend sammelt alle Formular-Eingaben. Noch kein Backend-Kontakt – alles passiert erstmal lokal.</div>
+      </div>
+    </div>
+    <div class="arrow-col">
+      <div class="arrow-hint">Alles lokal zusammenbauen…</div>
+    </div>
+    <div class="box empty"></div>
+  </div>
+
+  <div class="conn"><div class="conn-dot"></div></div>
+
+  <!-- 2 -->
+  <div class="exchange">
+    <div class="box fe-action">
+      <div class="step-n">2</div>
+      <div class="box-body">
+        <div class="box-tech">Buchungspaket wird an Firestore geschickt</div>
+        <div class="data-block">
+          <span class="dk">uid</span>: <span class="dv">"abc123"</span> <span class="dc">← wer bucht</span><br>
+          <span class="dk">city</span>: <span class="dv">"München"</span> &nbsp;<span class="dk">vtype</span>: <span class="dv">"fusball"</span><br>
+          <span class="dk">dt</span>: <span class="dv">"2026-07-01T16:00:00Z"</span><br>
+          <span class="dk">dur</span>: <span class="dv">60</span> &nbsp;<span class="dk">cancelled</span>: <span class="dv">false</span><br>
+          <span class="dk">friends</span>: <span class="dv">["uid_freund"]</span>
+        </div>
+        <div class="box-plain">Das Frontend packt alle Infos in ein Objekt und schickt es los. Sinngemäß: „Speicher das bitte für mich ab."</div>
+      </div>
+    </div>
+    <div class="arrow-col">
+      <div class="arrow-code req">db.collection("bookings").add(bkData)</div>
+      <div class="arrow-body"><div class="arrow-line req"></div><div class="arr r">▶</div></div>
+      <div class="arrow-hint">„Lege einen neuen Eintrag an"</div>
+    </div>
+    <div class="box fb-fs">
+      <div class="step-n">🗄️</div>
+      <div class="box-body">
+        <div class="box-tech"><strong>Firestore: bookings/</strong> empfängt das Paket</div>
+        <div class="box-plain">Das Backend nimmt das Paket entgegen, legt es in der Buchungs-Sammlung ab und vergibt automatisch eine eindeutige ID.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conn"><div class="conn-dot"></div></div>
+
+  <!-- 3 -->
+  <div class="exchange">
+    <div class="box fe-recv">
+      <div class="step-n">3</div>
+      <div class="box-body">
+        <div class="box-tech"><code>S.bookings.push(&#123; id: ref.id, ...bkData &#125;)</code></div>
+        <div class="box-plain">Frontend bekommt die Buchungs-ID zurück und merkt sie sich lokal. Kein erneuter Datenbankaufruf nötig.</div>
+      </div>
+    </div>
+    <div class="arrow-col">
+      <div class="arrow-body"><div class="arr l">◀</div><div class="arrow-line res"></div></div>
+      <div class="arrow-code res">DocumentReference: ref.id = "xK92mPqA..."</div>
+      <div class="arrow-hint">„Gespeichert! Hier ist deine ID."</div>
+    </div>
+    <div class="box fb-fs">
+      <div class="step-n">✓</div>
+      <div class="box-body">
+        <div class="box-tech">Gibt neue Dokument-ID zurück</div>
+        <div class="box-plain">Firestore bestätigt: Eintrag angelegt. Schickt die auto-generierte ID zurück – wie eine Quittungsnummer.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conn"><div class="conn-dot"></div></div>
+  <div class="optional-note">📨 Nur wenn Freunde eingeladen wurden</div>
+
+  <!-- 4 -->
+  <div class="exchange">
+    <div class="box fe-warn">
+      <div class="step-n">4</div>
+      <div class="box-body">
+        <div class="box-tech">Einladung automatisch in den Chat schreiben</div>
+        <div class="box-plain">Das Frontend baut eine Einladungsnachricht und schickt sie in den Chat-Bereich von Firestore – der Freund sieht sie beim nächsten Öffnen.</div>
+      </div>
+    </div>
+    <div class="arrow-col">
+      <div class="arrow-code req">db.collection("chats").doc(key).set(&#123;messages, updatedAt&#125;)</div>
+      <div class="arrow-body"><div class="arrow-line req"></div><div class="arr r">▶</div></div>
+      <div class="arrow-hint">„Schreib das in den Chat"</div>
+    </div>
+    <div class="box fb-fs">
+      <div class="step-n">💬</div>
+      <div class="box-body">
+        <div class="box-tech"><strong>Firestore: chats/</strong> speichert die Einladung</div>
+        <div class="box-plain">Die Nachricht landet im chats-Bereich unter dem gemeinsamen Chat-Schlüssel beider Nutzer.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conn"><div class="conn-dot"></div></div>
+
+  <!-- Final -->
+  <div class="exchange">
+    <div class="box fe-final">
+      <div class="step-n">🎉</div>
+      <div class="box-body">
+        <div class="box-tech"><strong>Bestätigungsdialog erscheint</strong> – Buchung abgeschlossen</div>
+        <div class="box-plain">Die App zeigt das grüne Bestätigungsfenster. Kein weiterer Backend-Kontakt nötig – alles ist erledigt.</div>
+      </div>
+    </div>
+    <div class="arrow-col"></div>
+    <div class="box empty"></div>
+  </div>
+
+  <div class="note-box">
+    <strong>Wie weiß die App, ob ein Zeitslot belegt ist?</strong> Nicht durch eine extra Datenbankabfrage – sondern durch die beim Login geladenen Buchungen. Das Frontend prüft lokal ob sich die gewählte Zeit mit einer bestehenden Buchung überschneidet. Zeiten, die belegt sind, erscheinen durchgestrichen und sind nicht anklickbar.
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:28px;font-size:11px;color:#46566B">
+  PlatzFrei · Firestore · Flow 2/3
+</div>
+</body>
+</html>
