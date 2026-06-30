@@ -168,12 +168,30 @@ tr:hover td{background:#fafafa}
   <div id="tab-emp" class="tab-panel active">
 
     <div class="card">
-      <h2>📌 Fixwerte aus P6-Bericht</h2>
+      <h2>📌 Fixwerte P7 (aus P6-Bericht) &amp; Prognose P8</h2>
       <div class="g4">
-        <div class="mbox"><div class="mbox-label">Kapazität</div><div class="mbox-val blue" id="fix-kap">220</div></div>
-        <div class="mbox"><div class="mbox-label">PersonalkostenB (fix)</div><div class="mbox-val" id="fix-pkb">9.207</div></div>
-        <div class="mbox"><div class="mbox-label">Abschreibung</div><div class="mbox-val" id="fix-abschr">660</div></div>
-        <div class="mbox"><div class="mbox-label">KapInv je Einheit</div><div class="mbox-val">60 €</div></div>
+        <div class="mbox">
+          <div class="mbox-label">Kapazität P7 (fix)</div>
+          <div class="mbox-val blue" id="fix-kap">220</div>
+          <div style="font-size:.65rem;color:#9ca3af;margin-top:.1rem">festgelegt durch P6-KapInv</div>
+        </div>
+        <div class="mbox">
+          <div class="mbox-label">PersonalkostenB (fix)</div>
+          <div class="mbox-val" id="fix-pkb">9.207</div>
+        </div>
+        <div class="mbox">
+          <div class="mbox-label">Abschreibung (fix)</div>
+          <div class="mbox-val" id="fix-abschr">660</div>
+        </div>
+        <div class="mbox" style="border:2px solid #bfdbfe">
+          <div class="mbox-label">P8-Kapazität (Prognose)</div>
+          <div class="mbox-val" id="fix-kap8" style="color:#2563eb">256</div>
+          <div style="font-size:.65rem;color:#9ca3af;margin-top:.1rem" id="fix-kap8-note">+36 durch KapInv 2.200€</div>
+        </div>
+      </div>
+      <div class="box box-b" style="margin-top:.6rem;padding:.4rem .7rem;font-size:.77rem">
+        <b>Wie KapInv wirkt:</b> Die Kapazität für <b>P7 ist bereits fix</b> (220) — bestimmt durch P6's KapInv.
+        Was du jetzt für KapInv eingibst, bestimmt die <b>P8-Kapazität</b>. Bei KapInv = 0 bleibt P8 bei 220. Bei 2.200€ wächst sie auf 256.
       </div>
     </div>
 
@@ -578,6 +596,21 @@ function update(){
 
   // Simulation mit Nutzereingaben
   var sim = calcSim(uPe,uDl,uKo,uMi,uVf, preis, pkb, ki, kap, abschr);
+
+  // P8-Kapazität live berechnen und anzeigen
+  var p8Kap = kap + Math.round(ki / 60);
+  var kap8El = el('fix-kap8');
+  var kap8Note = el('fix-kap8-note');
+  if(kap8El){
+    kap8El.textContent = p8Kap;
+    kap8El.style.color = ki===0 ? '#d97706' : '#2563eb';
+    if(kap8Note){
+      kap8Note.textContent = ki===0
+        ? 'kein Wachstum (KapInv = 0)'
+        : '+'+(p8Kap-kap)+' durch KapInv '+fmt(ki)+'€';
+      kap8Note.style.color = ki===0 ? '#d97706' : '#9ca3af';
+    }
+  }
 
   // Wettbewerbsfaktor für Preis anzeigen
   var wf = wettbFaktor(preis);
