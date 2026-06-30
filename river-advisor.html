@@ -3,872 +3,919 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>River Advisor – Periode 7</title>
+<title>River Advisor</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --blue:#2563eb;--bl:#dbeafe;--bd:#1d4ed8;
-  --green:#16a34a;--gl:#dcfce7;
-  --red:#dc2626;--rl:#fee2e2;
-  --amber:#d97706;--al:#fef3c7;
-  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;
-  --g300:#d1d5db;--g400:#9ca3af;--g500:#6b7280;--g700:#374151;--g900:#111827
-}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#eef2ff;color:var(--g900);font-size:15px;line-height:1.5}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f0f2f5;color:#111;font-size:14px}
 
-.hdr{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:.9rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-.hdr h1{font-size:1.2rem;font-weight:800}
-.chip{background:rgba(255,255,255,.2);border-radius:20px;padding:.15rem .7rem;font-size:.73rem;font-weight:600}
+/* Header */
+.header{background:#1e3a8a;color:#fff;padding:.8rem 1.2rem;display:flex;align-items:center;gap:.8rem}
+.header h1{font-size:1.1rem;font-weight:800}
+.header .sub{font-size:.75rem;opacity:.7}
 
-/* Budget strip */
-.bstrip{background:#1e3a8a;border-bottom:3px solid #3b82f6;padding:.65rem 1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
-.bstrip .lbl{color:#93c5fd;font-size:.78rem;font-weight:600;white-space:nowrap}
-.bstrip input.bi{background:#1d4ed8;border:1px solid #3b82f6;color:#fff;border-radius:6px;padding:.28rem .55rem;font-size:.9rem;width:100px;text-align:right}
-.bstrip input.bi:focus{outline:2px solid #93c5fd}
-.bstrip .seg{display:flex;align-items:center;gap:.4rem}
-.bstrip .seg .dot{width:8px;height:8px;border-radius:2px}
-.bstrip .rest{color:#6ee7b7;font-weight:800;font-size:.95rem}
-.bstrip .warn-rest{color:#fca5a5;font-weight:800;font-size:.95rem}
-.bbar-wrap{flex:1;min-width:150px;max-width:300px}
-.bbar{height:8px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden}
-.bbar-fill{height:100%;border-radius:4px;transition:width .3s,background .3s}
+/* Budget Bar */
+.bbar{background:#1e40af;padding:.6rem 1.2rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;border-bottom:3px solid #3b82f6}
+.bbar-field{display:flex;align-items:center;gap:.4rem}
+.bbar-field label{color:#93c5fd;font-size:.75rem;font-weight:700;white-space:nowrap}
+.bbar-field input{background:#1d4ed8;border:1px solid #60a5fa;color:#fff;border-radius:5px;padding:.2rem .5rem;font-size:.85rem;width:95px;text-align:right}
+.bbar-field input:focus{outline:2px solid #93c5fd}
+.bbar-result{margin-left:auto;font-size:.85rem;color:#d1fae5;font-weight:700}
+.bbar-result.over{color:#fca5a5}
+.bbar-breakdown{display:flex;gap:.5rem;align-items:center;font-size:.75rem;color:#bfdbfe;flex-wrap:wrap}
+.seg{display:flex;align-items:center;gap:.2rem}
+.dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 
-.wrap{max-width:1100px;margin:0 auto;padding:1.1rem 1rem}
-.card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:1.1rem;margin-bottom:.9rem;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.card-title{font-weight:700;font-size:.93rem;color:var(--g700);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
+/* Main */
+.main{max-width:1060px;margin:0 auto;padding:1rem}
 
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:1rem;flex-wrap:wrap}
+.tab-btn{padding:.45rem .9rem;cursor:pointer;font-size:.82rem;font-weight:500;color:#6b7280;border-bottom:2px solid transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab-btn.active{border-bottom-color:#2563eb;color:#2563eb;font-weight:700}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Cards */
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:1rem;margin-bottom:.8rem;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.card h2{font-size:.9rem;font-weight:700;color:#374151;margin-bottom:.7rem;display:flex;align-items:center;gap:.35rem}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
-@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.75rem}
+@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}}
 
-.metric{background:var(--g50);border-radius:8px;padding:.65rem .9rem;text-align:center}
-.metric-l{font-size:.67rem;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.15rem}
-.metric-v{font-size:1.3rem;font-weight:800}
-.gn{color:var(--green)}.rd{color:var(--red)}.am{color:var(--amber)}.bl{color:var(--blue)}
+/* Metric box */
+.mbox{background:#f9fafb;border-radius:7px;padding:.6rem .8rem;text-align:center}
+.mbox-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.04em;color:#9ca3af;margin-bottom:.1rem}
+.mbox-val{font-size:1.2rem;font-weight:800}
+.green{color:#16a34a}.red{color:#dc2626}.amber{color:#d97706}.blue{color:#2563eb}
 
-.result-box{border-radius:12px;padding:1.1rem 1.4rem;text-align:center;margin:.6rem 0;transition:background .3s,color .3s}
-.result-box .big{font-size:2.2rem;font-weight:900;margin:.1rem 0}
-.result-box .sub{font-size:.8rem;opacity:.8}
-.result-box .detail{font-size:.77rem;opacity:.7;margin-top:.25rem}
+/* Result box */
+.result{border-radius:10px;padding:1rem 1.2rem;text-align:center;transition:background .3s}
+.result .num{font-size:2rem;font-weight:900;margin:.1rem 0}
+.result .sub{font-size:.75rem;opacity:.8}
 
-.tabs{display:flex;border-bottom:2px solid var(--g200);margin-bottom:.9rem;flex-wrap:wrap}
-.tab{padding:.5rem .9rem;cursor:pointer;font-weight:500;font-size:.85rem;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--g500);user-select:none}
-.tab.on{border-bottom-color:var(--blue);color:var(--blue);font-weight:700}
-.panel{display:none}.panel.on{display:block}
+/* Table */
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{background:#f3f4f6;padding:.38rem .6rem;text-align:left;font-weight:600;border:1px solid #e5e7eb;white-space:nowrap}
+td{padding:.33rem .6rem;border:1px solid #e5e7eb;vertical-align:middle}
+tr:hover td{background:#fafafa}
+.td-r{text-align:right}
+.td-rec{background:#dbeafe!important;color:#1d4ed8;font-weight:700;text-align:right}
+.td-inp input{width:100%;border:1px solid #d1d5db;border-radius:4px;padding:.22rem .4rem;font-size:.82rem;text-align:right;font-family:inherit}
+.td-inp input:focus{outline:2px solid #2563eb}
+.tr-sum td{background:#f3f4f6!important;font-weight:700;border-top:2px solid #d1d5db}
+.tr-hdr td{background:#f9fafb!important;font-size:.74rem;color:#9ca3af;font-style:italic}
+.pos{color:#16a34a;font-weight:600}.neg{color:#dc2626;font-weight:600}.wrn{color:#d97706;font-weight:600}
 
-.tscr{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.83rem}
-th{background:var(--g100);padding:.4rem .65rem;text-align:left;font-weight:600;border:1px solid var(--g200);white-space:nowrap}
-td{padding:.35rem .65rem;border:1px solid var(--g200);vertical-align:middle}
-tr:hover td{background:var(--g50)}
-.num{text-align:right}
-.rec{background:var(--bl)!important;font-weight:700;color:var(--bd);text-align:right}
-.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}.warn{color:var(--amber);font-weight:600}
-.tr-tot td{background:var(--g100)!important;font-weight:700;border-top:2px solid var(--g300)}
-.tr-sub td{background:var(--g50)!important;font-size:.76rem;color:var(--g500);font-style:italic}
-.tr-hl td{background:#fefce8!important}
+/* Badges */
+.badge{display:inline-block;border-radius:3px;padding:.08rem .4rem;font-size:.7rem;font-weight:700}
+.b-g{background:#dcfce7;color:#166534}.b-r{background:#fee2e2;color:#991b1b}
+.b-a{background:#fef3c7;color:#92400e}.b-b{background:#dbeafe;color:#1d4ed8}
 
-.inp{width:100%;border:1px solid var(--g300);border-radius:5px;padding:.28rem .45rem;font-size:.83rem;text-align:right;font-family:inherit}
-.inp:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+/* Boxes */
+.box{border-radius:7px;padding:.6rem .8rem;margin-bottom:.6rem;font-size:.82rem;line-height:1.55}
+.box-b{background:#dbeafe;border-left:3px solid #2563eb}
+.box-g{background:#dcfce7;border-left:3px solid #16a34a}
+.box-r{background:#fee2e2;border-left:3px solid #dc2626}
+.box-a{background:#fef3c7;border-left:3px solid #d97706}
+.box b{display:block;margin-bottom:.15rem}
 
-.badge{display:inline-block;border-radius:4px;padding:.1rem .45rem;font-size:.71rem;font-weight:700}
-.b-g{background:var(--gl);color:var(--green)}.b-r{background:var(--rl);color:var(--red)}
-.b-a{background:var(--al);color:var(--amber)}.b-b{background:var(--bl);color:var(--bd)}
+/* Demand bar */
+.demand-bar{height:26px;background:#f3f4f6;border-radius:6px;overflow:hidden;position:relative;border:1px solid #e5e7eb;margin:.4rem 0}
+.demand-fill{height:100%;border-radius:6px;transition:width .4s;display:flex;align-items:center;padding-left:8px;font-size:.72rem;font-weight:700}
+.demand-cap{position:absolute;top:0;bottom:0;width:3px;background:#2563eb;z-index:2}
 
-.box{border-radius:8px;padding:.7rem .9rem;margin-bottom:.65rem;font-size:.85rem;line-height:1.55}
-.box-b{background:var(--bl);border-left:4px solid var(--blue)}
-.box-g{background:var(--gl);border-left:4px solid var(--green)}
-.box-r{background:var(--rl);border-left:4px solid var(--red)}
-.box-a{background:var(--al);border-left:4px solid var(--amber)}
-.box strong{display:block;margin-bottom:.15rem}
+/* Chart */
+.chart{display:flex;align-items:flex-end;gap:2px;height:100px;padding-top:.2rem}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:1px;flex:1;min-width:0}
+.bar-body{border-radius:3px 3px 0 0;width:100%;min-height:2px}
+.bar-lbl{font-size:.58rem;color:#9ca3af;white-space:nowrap;overflow:hidden;max-width:100%;text-align:center}
+.bar-val{font-size:.6rem;font-weight:700;text-align:center}
 
-.dbar-track{height:26px;background:var(--g100);border-radius:8px;position:relative;overflow:hidden;border:1px solid var(--g200);margin:.4rem 0}
-.dbar-fill{position:absolute;top:0;bottom:0;left:0;border-radius:8px;display:flex;align-items:center;padding-left:8px;font-size:.73rem;font-weight:700;transition:width .4s,background .4s}
-.dbar-cap{position:absolute;top:2px;bottom:2px;width:3px;background:var(--blue);border-radius:2px}
-.dbar-lbls{display:flex;justify-content:space-between;font-size:.7rem;color:var(--g400)}
+/* Accordion */
+.acc-item{border:1px solid #e5e7eb;border-radius:8px;margin-bottom:.4rem;overflow:hidden}
+.acc-head{background:#f3f4f6;padding:.55rem .8rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.83rem}
+.acc-head:hover{background:#e5e7eb}
+.acc-body{display:none;padding:.8rem;border-top:1px solid #e5e7eb}
+.acc-body.open{display:block}
 
-.sdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:2px;vertical-align:middle}
-.s-hoch{background:#16a34a}.s-mittel{background:#d97706}.s-niedrig{background:#dc2626}.s-sh{background:#0d9488}
-
-.acc{border:1px solid var(--g200);border-radius:8px;margin-bottom:.45rem;overflow:hidden}
-.acc-hd{background:var(--g100);padding:.6rem .9rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.86rem}
-.acc-hd:hover{background:var(--g200)}
-.acc-bd{display:none;padding:.9rem;border-top:1px solid var(--g200)}
-.acc-bd.open{display:block}
-
-.chart{display:flex;align-items:flex-end;gap:.25rem;padding:.2rem 0 0}
-.bc{display:flex;flex-direction:column;align-items:center;gap:.1rem;flex:1;min-width:0}
-.bv{border-radius:3px 3px 0 0;width:100%;min-height:2px}
-.bl-txt{font-size:.62rem;color:var(--g500);white-space:nowrap}
-.bval-txt{font-size:.62rem;font-weight:700}
-
-.sep{border:none;border-top:1px solid var(--g200);margin:.65rem 0}
-.muted{color:var(--g500);font-size:.78rem}
-.row{display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;margin-bottom:.55rem}
-label.lbl{font-size:.82rem;font-weight:600;color:var(--g700);white-space:nowrap}
-input[type=number].fi{border:1px solid var(--g300);border-radius:6px;padding:.3rem .55rem;font-size:.88rem;text-align:right}
-input[type=number].fi:focus{outline:2px solid var(--blue);border-color:var(--blue)}
-
-/* Analysis text */
-.analysis-block{background:var(--g50);border-radius:10px;padding:1rem 1.1rem;margin-bottom:.75rem;border-left:4px solid var(--blue)}
-.analysis-block h3{font-size:.9rem;font-weight:700;margin-bottom:.35rem;color:var(--g700)}
-.analysis-block p{font-size:.84rem;line-height:1.6;color:var(--g700)}
-.analysis-block .verdict{display:inline-block;font-weight:700;font-size:.8rem;margin-top:.3rem}
-
-/* Good/bad pills */
-.good-pill{background:var(--gl);color:var(--green);border-radius:5px;padding:.15rem .5rem;font-size:.75rem;font-weight:600;display:inline-block;margin:.1rem .15rem}
-.bad-pill{background:var(--rl);color:var(--red);border-radius:5px;padding:.15rem .5rem;font-size:.75rem;font-weight:600;display:inline-block;margin:.1rem .15rem}
+/* Analysis blocks */
+.a-block{border-left:3px solid #2563eb;background:#f9fafb;border-radius:0 7px 7px 0;padding:.7rem .9rem;margin-bottom:.6rem}
+.a-block h3{font-size:.85rem;font-weight:700;color:#1e40af;margin-bottom:.3rem}
+.a-block p{font-size:.8rem;line-height:1.6;color:#374151}
+.a-verdict{font-size:.75rem;font-weight:700;margin-top:.25rem;display:inline-block}
 
 /* Upload form */
-.upload-section{background:var(--g50);border:2px dashed var(--g300);border-radius:10px;padding:1rem;margin-bottom:.75rem}
-.upload-section .form-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem;margin:.5rem 0}
-.upload-section input{width:100%;border:1px solid var(--g300);border-radius:5px;padding:.3rem .5rem;font-size:.82rem;text-align:right}
-.upload-section input:focus{outline:2px solid var(--blue);border-color:var(--blue)}
-.upload-section label.fl{font-size:.75rem;font-weight:600;color:var(--g500);display:block;margin-bottom:.15rem}
-.btn{display:inline-block;padding:.45rem 1.1rem;border-radius:7px;font-weight:600;cursor:pointer;border:none;font-size:.85rem;font-family:inherit}
-.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--bd)}
-.btn-gray{background:var(--g200);color:var(--g700)}.btn-gray:hover{background:var(--g300)}
+.upload-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.4rem;margin:.4rem 0}
+.upload-grid .field label{font-size:.7rem;color:#6b7280;font-weight:600;display:block;margin-bottom:.1rem}
+.upload-grid .field input{width:100%;border:1px solid #d1d5db;border-radius:4px;padding:.25rem .4rem;font-size:.8rem;text-align:right}
+.upload-grid .field input:focus{outline:2px solid #2563eb}
+.btn{padding:.4rem .9rem;border-radius:6px;font-weight:700;cursor:pointer;border:none;font-size:.82rem;font-family:inherit}
+.btn-blue{background:#2563eb;color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-gray{background:#e5e7eb;color:#374151}.btn-gray:hover{background:#d1d5db}
+
+.good{background:#dcfce7;color:#166534;border-radius:4px;padding:.08rem .4rem;font-size:.72rem;font-weight:600;display:inline-block;margin:.1rem .1rem}
+.bad{background:#fee2e2;color:#991b1b;border-radius:4px;padding:.08rem .4rem;font-size:.72rem;font-weight:600;display:inline-block;margin:.1rem .1rem}
+
+.sep{border:none;border-top:1px solid #e5e7eb;margin:.5rem 0}
+.muted{color:#9ca3af;font-size:.76rem}
 </style>
 </head>
 <body>
 
-<div class="hdr">
-  <div><h1>⚡ River Advisor</h1><div style="opacity:.7;font-size:.78rem">Team RIVER · BerlinSim · Nur BETA aktiv</div></div>
-  <span class="chip">BETA-Fokus</span>
-  <span class="chip">P1–P6 kalibriert</span>
+<div class="header">
+  <div>
+    <h1>⚡ River Advisor</h1>
+    <div class="sub">Team RIVER · BerlinSim · Nur BETA aktiv · P1–P6 kalibriert</div>
+  </div>
+  <span class="badge b-b">BETA-Fokus</span>
 </div>
 
-<!-- Budget Strip -->
-<div class="bstrip">
-  <div class="seg">
-    <span class="lbl">Verfügbares Budget (aus P6)</span>
-    <input type="number" class="bi" id="budget" value="12670" oninput="update()">
+<!-- BUDGET BAR -->
+<div class="bbar">
+  <div class="bbar-field">
+    <label>Budget aus letzter Periode</label>
+    <input type="number" id="b_budget" value="12670" oninput="update()">
   </div>
-  <div class="seg">
-    <span class="lbl">+ Darlehen / VC</span>
-    <input type="number" class="bi" id="extra" value="0" oninput="update()">
+  <div class="bbar-field">
+    <label>+ Darlehen / VC</label>
+    <input type="number" id="b_vc" value="0" oninput="update()">
   </div>
-  <div class="seg">
-    <span class="lbl">KapInv (€)</span>
-    <input type="number" class="bi" id="ki" value="2200" oninput="update()">
+  <div class="bbar-field">
+    <label>Zentrale / Sonstiges</label>
+    <input type="number" id="b_zentrale" value="0" oninput="update()">
   </div>
-  <div class="seg">
-    <span class="lbl">Zentrale</span>
-    <input type="number" class="bi" id="zentrale" value="0" oninput="update()">
-  </div>
-  <div class="bbar-wrap">
-    <div class="bbar"><div class="bbar-fill" id="bbar-fill"></div></div>
-  </div>
-  <div id="brest" class="rest">–</div>
+  <div class="bbar-breakdown" id="bbar-breakdown"></div>
+  <div class="bbar-result" id="bbar-rest">–</div>
 </div>
 
-<div class="wrap">
-<div class="tabs">
-  <div class="tab on" onclick="showTab('emp')">🎯 Empfehlung P7</div>
-  <div class="tab" onclick="showTab('anal')">📝 Analyse</div>
-  <div class="tab" onclick="showTab('per')">📊 Alle Perioden</div>
-  <div class="tab" onclick="showTab('neu')">➕ Neue Periode</div>
-</div>
-
-<!-- ===== EMPFEHLUNG ===== -->
-<div class="panel on" id="tab-emp">
-
-  <div class="card">
-    <div class="card-title">📌 Fixwerte Periode 7 (aus P6-Geschäftsfeldbericht)</div>
-    <div class="g4">
-      <div class="metric"><div class="metric-l">Kapazität</div><div class="metric-v bl">220</div></div>
-      <div class="metric"><div class="metric-l">PersonalkostenB</div><div class="metric-v">9.207 <span style="font-size:.7rem;opacity:.6">fix</span></div></div>
-      <div class="metric"><div class="metric-l">Abschreibung</div><div class="metric-v">660</div></div>
-      <div class="metric"><div class="metric-l">KapInv / Einheit</div><div class="metric-v">60 €</div></div>
-    </div>
+<div class="main">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('emp',this)">🎯 Empfehlung P7</button>
+    <button class="tab-btn" onclick="showTab('anal',this)">📝 Analyse</button>
+    <button class="tab-btn" onclick="showTab('per',this)">📊 Alle Perioden</button>
+    <button class="tab-btn" onclick="showTab('neu',this)">➕ Neue Periode</button>
   </div>
 
-  <div class="card">
-    <div class="card-title">🎯 Preis</div>
-    <div class="row">
-      <label class="lbl">Preis BETA (€)</label>
-      <input type="number" class="fi" id="preis" value="73" min="55" max="100" style="width:90px" oninput="syncPreis();update()">
-      <div id="preis-badge"></div>
-    </div>
-    <div id="preis-info" class="muted"></div>
-  </div>
+  <!-- ===== TAB: EMPFEHLUNG ===== -->
+  <div id="tab-emp" class="tab-panel active">
 
-  <div class="card">
-    <div class="card-title">📦 Nachfrage vs. Kapazität</div>
-    <div class="g2" style="margin-bottom:.6rem">
-      <div class="metric"><div class="metric-l">Geschätzte Nachfrage P7</div><div class="metric-v" id="nfr-v">–</div></div>
-      <div class="metric"><div class="metric-l">Absatz (min. Kap./Nfr.)</div><div class="metric-v" id="abs-v">–</div></div>
-    </div>
-    <div class="dbar-track">
-      <div class="dbar-fill" id="dbar-f"></div>
-      <div class="dbar-cap" id="dbar-c" style="left:73%"></div>
-    </div>
-    <div class="dbar-lbls"><span>0</span><span>Kapazität 220</span><span>300</span></div>
-    <div class="muted" id="nfr-note" style="margin-top:.3rem"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">💡 Auszahlungsplanung BETA – Periode 7</div>
-    <div class="tscr">
-    <table>
-      <thead>
-        <tr>
-          <th>Position</th>
-          <th>Wirkung (kurz)</th>
-          <th class="rec">💡 Optimal</th>
-          <th>Ihre Eingabe</th>
-          <th class="num">BK-Effekt</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="tr-hl">
-          <td><strong>Preis</strong></td>
-          <td><span class="sdot s-mittel"></span>mittel</td>
-          <td class="rec" id="r_preis">–</td>
-          <td><input class="inp" type="number" id="i_preis" value="73" oninput="syncPreis2()"></td>
-          <td class="muted">kein BK</td>
-        </tr>
-        <tr class="tr-sub"><td colspan="5">Betriebskosten (beeinflussen Nachfrage)</td></tr>
-        <tr>
-          <td>Personalentwicklung</td>
-          <td><span class="sdot s-hoch"></span>hoch</td>
-          <td class="rec" id="r_pe">–</td>
-          <td><input class="inp" type="number" id="i_pe" value="0" oninput="update()"></td>
-          <td class="num muted" id="eff_pe">–</td>
-        </tr>
-        <tr>
-          <td>Dienstleistungsverbesserung</td>
-          <td><span class="sdot s-sh"></span><strong>sehr hoch ★</strong></td>
-          <td class="rec" id="r_dl">–</td>
-          <td><input class="inp" type="number" id="i_dl" value="0" oninput="update()"></td>
-          <td class="num muted" id="eff_dl">–</td>
-        </tr>
-        <tr>
-          <td>Komplemente</td>
-          <td><span class="sdot s-sh"></span><strong>sehr hoch ★</strong></td>
-          <td class="rec" id="r_ko">–</td>
-          <td><input class="inp" type="number" id="i_ko" value="0" oninput="update()"></td>
-          <td class="num muted" id="eff_ko">–</td>
-        </tr>
-        <tr>
-          <td>Markenimage</td>
-          <td><span class="sdot s-mittel"></span>mittel</td>
-          <td class="rec" id="r_mi">–</td>
-          <td><input class="inp" type="number" id="i_mi" value="0" oninput="update()"></td>
-          <td class="num muted" id="eff_mi">–</td>
-        </tr>
-        <tr>
-          <td>Verkaufsförderung</td>
-          <td><span class="sdot s-mittel"></span>mittel</td>
-          <td class="rec" id="r_vf">–</td>
-          <td><input class="inp" type="number" id="i_vf" value="0" oninput="update()"></td>
-          <td class="num muted" id="eff_vf">–</td>
-        </tr>
-        <tr class="tr-sub"><td colspan="5">Herstellungskosten</td></tr>
-        <tr>
-          <td>Personalkostenbudget</td>
-          <td class="muted">fix</td>
-          <td class="rec">9.207</td>
-          <td><input class="inp" type="number" id="i_pkb" value="9207" oninput="update()"></td>
-          <td class="muted">–</td>
-        </tr>
-        <tr>
-          <td>Kapazitätsinvestition</td>
-          <td class="muted">→ P8</td>
-          <td class="rec" id="r_ki">2.200</td>
-          <td><input class="inp" type="number" id="i_ki" value="2200" oninput="update()"></td>
-          <td class="muted">–</td>
-        </tr>
-        <tr class="tr-tot">
-          <td colspan="2"><strong>Zwischensumme BETA</strong></td>
-          <td class="rec" id="r_sum">–</td>
-          <td class="num" id="i_sum" style="font-weight:700">–</td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="card">
+      <h2>📌 Fixwerte aus P6-Bericht</h2>
+      <div class="g4">
+        <div class="mbox"><div class="mbox-label">Kapazität</div><div class="mbox-val blue" id="fix-kap">220</div></div>
+        <div class="mbox"><div class="mbox-label">PersonalkostenB (fix)</div><div class="mbox-val" id="fix-pkb">9.207</div></div>
+        <div class="mbox"><div class="mbox-label">Abschreibung</div><div class="mbox-val" id="fix-abschr">660</div></div>
+        <div class="mbox"><div class="mbox-label">KapInv je Einheit</div><div class="mbox-val">60 €</div></div>
+      </div>
     </div>
 
-    <div class="result-box" id="result-box">
-      <div class="sub" id="res-break">–</div>
-      <div class="big" id="res-bg">–</div>
-      <div class="sub">Erwartetes Betriebsergebnis BETA Periode 7</div>
-      <div class="detail" id="res-det">–</div>
-    </div>
-    <div id="warn-box"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">📈 BG-Kurve: Optimum finden</div>
-    <div id="curve-ch" class="chart" style="height:120px"></div>
-    <div class="muted" style="text-align:center;font-size:.7rem;margin-top:.25rem">
-      Gesamthöhe Betriebskosten → BG. Blau = Optimum. Grün = positiv. Rot = Verlust.
-    </div>
-  </div>
-
-</div><!-- /emp -->
-
-<!-- ===== ANALYSE ===== -->
-<div class="panel" id="tab-anal">
-
-  <div class="card">
-    <div class="card-title">📝 Strategische Analyse Periode 7 – Was tun und warum?</div>
-    <div id="anal-content"></div>
-  </div>
-
-</div>
-
-<!-- ===== ALLE PERIODEN ===== -->
-<div class="panel" id="tab-per">
-
-  <div class="card">
-    <div class="card-title">📊 Überblick alle Perioden BETA</div>
-    <div class="tscr"><table>
-      <thead><tr><th>P</th><th class="num">Preis</th><th class="num">Absatz</th><th class="num">Nfr.</th><th class="num">RT</th><th class="num">BK</th><th class="num">BK/RT</th><th class="num">BG</th><th class="num">MA</th><th>Bewertung</th></tr></thead>
-      <tbody id="kpi-body"></tbody>
-    </table></div>
-  </div>
-
-  <div id="period-cards"></div>
-
-</div>
-
-<!-- ===== NEUE PERIODE ===== -->
-<div class="panel" id="tab-neu">
-
-  <div class="card">
-    <div class="card-title">➕ Neue Periode hinzufügen</div>
-    <div class="box box-b" style="margin-bottom:.8rem">
-      <strong>Wie es funktioniert:</strong>
-      Trage die Entscheidungen (Auszahlungsplanung) und das Ergebnis (Geschäftsfeldbericht) der neuen Periode ein.
-      Die App übernimmt die Daten, kalibriert das Modell neu und aktualisiert die Empfehlung für die nächste Periode.
-    </div>
-
-    <div class="upload-section">
-      <div style="font-weight:700;font-size:.9rem;margin-bottom:.6rem">📝 Auszahlungsplanung (Entscheidungen)</div>
-      <div class="form-row">
-        <div><label class="fl">Periode Nr.</label><input type="number" id="np_nr" value="7" min="1" max="20"></div>
-        <div><label class="fl">Preis (€)</label><input type="number" id="np_preis" placeholder="z.B. 73"></div>
-        <div><label class="fl">Personalentw.</label><input type="number" id="np_pe" placeholder="0"></div>
-        <div><label class="fl">Dienstleistung</label><input type="number" id="np_dl" placeholder="0"></div>
-        <div><label class="fl">Komplemente</label><input type="number" id="np_ko" placeholder="0"></div>
-        <div><label class="fl">Markenimage</label><input type="number" id="np_mi" placeholder="0"></div>
-        <div><label class="fl">Verkaufsförd.</label><input type="number" id="np_vf" placeholder="0"></div>
-        <div><label class="fl">PersonalkostenB</label><input type="number" id="np_pkb" placeholder="9207"></div>
-        <div><label class="fl">Kapazitätsinv.</label><input type="number" id="np_ki" placeholder="2200"></div>
+    <div class="card">
+      <h2>💡 Auszahlungsplanung BETA – Periode 7</h2>
+      <div id="main-hint" class="box box-b" style="margin-bottom:.7rem">
+        <b>Wie die Empfehlung berechnet wird:</b>
+        Das Modell findet die optimale BK-Verteilung, die Nachfrage ≥ Kapazität sichert —
+        mit Fokus auf Dienstleistung &amp; Komplemente (höchste Wirkung laut Szenarioübersicht).
+        Weniger BK = weniger Nachfrage = weniger Absatz. Mehr BK als nötig verschwendet Budget.
       </div>
 
-      <div style="font-weight:700;font-size:.9rem;margin:.75rem 0 .5rem">📊 Ergebnis (Geschäftsfeldbericht)</div>
-      <div class="form-row">
-        <div><label class="fl">Absatz (Stück)</label><input type="number" id="np_absatz" placeholder="0"></div>
-        <div><label class="fl">Nachfrage</label><input type="number" id="np_nfr" placeholder="0"></div>
-        <div><label class="fl">Rohertrag</label><input type="number" id="np_rt" placeholder="0"></div>
-        <div><label class="fl">Betriebsgewinn</label><input type="number" id="np_bg" placeholder="0"></div>
-        <div><label class="fl">Marktanteil %</label><input type="number" id="np_ma" placeholder="0" step="0.1"></div>
-        <div><label class="fl">Neue Kapazität</label><input type="number" id="np_kap" placeholder="220"></div>
-        <div><label class="fl">Abschreibung</label><input type="number" id="np_abschr" placeholder="660"></div>
-        <div><label class="fl">Nächste PKB</label><input type="number" id="np_npkb" placeholder="9207"></div>
-        <div><label class="fl">Nächste Kap.</label><input type="number" id="np_nkap" placeholder="220"></div>
+      <div class="tscroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Wirkung (kurz)</th>
+            <th class="td-rec">💡 Optimal</th>
+            <th>Ihre Eingabe</th>
+            <th class="td-r">BK-Effekt</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Preis (€/Stück)</b></td>
+            <td>● mittel</td>
+            <td class="td-rec" id="r-preis">73</td>
+            <td class="td-inp"><input type="number" id="in-preis" value="73" oninput="update()"></td>
+            <td class="td-r muted">—</td>
+          </tr>
+          <tr class="tr-hdr"><td colspan="5">Betriebskosten (beeinflussen Nachfrage)</td></tr>
+          <tr>
+            <td>Personalentwicklung</td>
+            <td>🟢 hoch</td>
+            <td class="td-rec" id="r-pe">—</td>
+            <td class="td-inp"><input type="number" id="in-pe" value="0" oninput="update()"></td>
+            <td class="td-r muted" id="eff-pe">—</td>
+          </tr>
+          <tr>
+            <td><b>Dienstleistungsverb. ★</b></td>
+            <td>🔵 sehr hoch</td>
+            <td class="td-rec" id="r-dl">—</td>
+            <td class="td-inp"><input type="number" id="in-dl" value="0" oninput="update()"></td>
+            <td class="td-r muted" id="eff-dl">—</td>
+          </tr>
+          <tr>
+            <td><b>Komplemente ★</b></td>
+            <td>🔵 sehr hoch</td>
+            <td class="td-rec" id="r-ko">—</td>
+            <td class="td-inp"><input type="number" id="in-ko" value="0" oninput="update()"></td>
+            <td class="td-r muted" id="eff-ko">—</td>
+          </tr>
+          <tr>
+            <td>Markenimage</td>
+            <td>🟡 mittel</td>
+            <td class="td-rec" id="r-mi">—</td>
+            <td class="td-inp"><input type="number" id="in-mi" value="0" oninput="update()"></td>
+            <td class="td-r muted" id="eff-mi">—</td>
+          </tr>
+          <tr>
+            <td>Verkaufsförderung</td>
+            <td>🟡 mittel</td>
+            <td class="td-rec" id="r-vf">—</td>
+            <td class="td-inp"><input type="number" id="in-vf" value="0" oninput="update()"></td>
+            <td class="td-r muted" id="eff-vf">—</td>
+          </tr>
+          <tr class="tr-hdr"><td colspan="5">Herstellungskosten</td></tr>
+          <tr>
+            <td>Personalkostenbudget</td>
+            <td class="muted">fix (Prognose)</td>
+            <td class="td-rec">9.207</td>
+            <td class="td-inp"><input type="number" id="in-pkb" value="9207" oninput="update()"></td>
+            <td class="td-r muted">—</td>
+          </tr>
+          <tr>
+            <td>Kapazitätsinvestition</td>
+            <td class="muted">→ P8-Kapazität</td>
+            <td class="td-rec" id="r-ki">2.200</td>
+            <td class="td-inp"><input type="number" id="in-ki" value="2200" oninput="update()"></td>
+            <td class="td-r muted">—</td>
+          </tr>
+          <tr class="tr-sum">
+            <td colspan="2"><b>Zwischensumme BETA</b></td>
+            <td class="td-rec" id="r-sum">—</td>
+            <td class="td-r" id="in-sum" style="font-weight:700">—</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
       </div>
 
-      <div style="margin:.4rem 0 .6rem">
-        <label class="fl">Mitteilung / Ereignis</label>
-        <input type="text" id="np_ev" placeholder="z.B. Venture Capital +15.000, SURPRISE BETA…" style="width:100%;border:1px solid var(--g300);border-radius:5px;padding:.3rem .5rem;font-size:.82rem">
+      <div class="result" id="result-box" style="margin:.7rem 0">
+        <div class="sub" id="res-break">—</div>
+        <div class="num" id="res-bg">—</div>
+        <div class="sub">Erwartetes Betriebsergebnis BETA Periode 7</div>
+        <div class="muted" id="res-detail" style="margin-top:.2rem">—</div>
       </div>
-
-      <div style="margin:.4rem 0 .6rem">
-        <label class="fl">Verfügbares Budget für nächste Periode (€ – aus Liquiditätsplanung)</label>
-        <input type="number" id="np_nextbudget" placeholder="z.B. 12670" style="width:160px;border:1px solid var(--g300);border-radius:5px;padding:.3rem .5rem;font-size:.82rem;text-align:right">
-      </div>
-
-      <div style="display:flex;gap:.5rem;margin-top:.65rem">
-        <button class="btn btn-blue" onclick="addPeriod()">✓ Periode hinzufügen</button>
-        <button class="btn btn-gray" onclick="clearNewForm()">Zurücksetzen</button>
-      </div>
-      <div id="add-status" style="margin-top:.4rem;font-size:.82rem"></div>
+      <div id="res-alerts"></div>
     </div>
 
-    <div class="box box-a">
-      <strong>Budget-Hinweis:</strong>
-      Das verfügbare Budget für jede Periode entspricht dem "noch verfügbar"-Wert aus der Liquiditätsplanung der Vorperiode.
-      P6 hatte <strong>12.670 €</strong> noch verfügbar → das ist der Startwert für P7 (oben im blauen Budget-Strip).
-      Falls in P7 Venture Capital oder ein Darlehen hinzukommt, trägst du das im "+ Darlehen/VC"-Feld ein.
+    <div class="card">
+      <h2>📦 Nachfrage vs. Kapazität</h2>
+      <div class="g2" style="margin-bottom:.5rem">
+        <div class="mbox"><div class="mbox-label">Geschätzte Nachfrage</div><div class="mbox-val" id="nfr-val">—</div></div>
+        <div class="mbox"><div class="mbox-label">Absatz (= min. Kap/Nfr)</div><div class="mbox-val" id="abs-val">—</div></div>
+      </div>
+      <div class="demand-bar">
+        <div class="demand-fill" id="demand-fill"></div>
+        <div class="demand-cap" id="demand-cap" style="left:73%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#9ca3af"><span>0</span><span>← Kapazität 220 →</span><span>300</span></div>
+      <div class="muted" id="demand-note" style="margin-top:.3rem"></div>
+    </div>
+
+    <div class="card">
+      <h2>📈 BG-Kurve nach BK-Höhe (bei aktuellem Preis)</h2>
+      <div id="curve-chart" class="chart"></div>
+      <div class="muted" style="text-align:center;margin-top:.2rem">Blaue Säule = Optimum · Grün = Gewinn · Rot = Verlust</div>
+    </div>
+
+  </div><!-- /emp -->
+
+  <!-- ===== TAB: ANALYSE ===== -->
+  <div id="tab-anal" class="tab-panel">
+    <div class="card">
+      <h2>📝 Schriftliche Analyse – Was tun und warum?</h2>
+      <div id="analysis-content">Bitte zuerst Eingaben in Tab "Empfehlung" machen.</div>
     </div>
   </div>
 
-</div>
+  <!-- ===== TAB: ALLE PERIODEN ===== -->
+  <div id="tab-per" class="tab-panel">
+    <div class="card">
+      <h2>📊 Überblick alle Perioden BETA</h2>
+      <div class="tscroll">
+      <table>
+        <thead>
+          <tr><th>P</th><th class="td-r">Preis</th><th class="td-r">Absatz</th><th class="td-r">Nfr.</th>
+              <th class="td-r">Rohertrag</th><th class="td-r">BK</th><th class="td-r">BK/RT</th>
+              <th class="td-r">BG</th><th class="td-r">MA%</th><th>Ergebnis</th></tr>
+        </thead>
+        <tbody id="kpi-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+    <div id="period-detail"></div>
+  </div>
 
-</div><!-- /wrap -->
+  <!-- ===== TAB: NEUE PERIODE ===== -->
+  <div id="tab-neu" class="tab-panel">
+    <div class="card">
+      <h2>➕ Neue Periode eingeben</h2>
+      <div class="box box-b" style="margin-bottom:.6rem">
+        <b>So funktioniert es:</b>
+        Trage nach jeder gespielten Runde die Entscheidungen (Auszahlungsplanung) und
+        das Ergebnis (Geschäftsfeldbericht) ein. Die App kalibriert das Modell automatisch
+        neu und passt die Empfehlung für die nächste Periode an.
+      </div>
+
+      <div style="font-weight:700;font-size:.85rem;margin-bottom:.4rem">📋 Auszahlungsplanung (Entscheidungen)</div>
+      <div class="upload-grid">
+        <div class="field"><label>Periode Nr.</label><input type="number" id="np-nr" value="7"></div>
+        <div class="field"><label>Preis (€)</label><input type="number" id="np-preis" placeholder="z.B. 73"></div>
+        <div class="field"><label>Personalentw.</label><input type="number" id="np-pe" placeholder="0"></div>
+        <div class="field"><label>Dienstleistung</label><input type="number" id="np-dl" placeholder="0"></div>
+        <div class="field"><label>Komplemente</label><input type="number" id="np-ko" placeholder="0"></div>
+        <div class="field"><label>Markenimage</label><input type="number" id="np-mi" placeholder="0"></div>
+        <div class="field"><label>Verkaufsförd.</label><input type="number" id="np-vf" placeholder="0"></div>
+        <div class="field"><label>PersonalkostenB</label><input type="number" id="np-pkb" placeholder="9207"></div>
+        <div class="field"><label>KapInv</label><input type="number" id="np-ki" placeholder="2200"></div>
+      </div>
+
+      <div style="font-weight:700;font-size:.85rem;margin:.6rem 0 .4rem">📊 Ergebnis (Geschäftsfeldbericht)</div>
+      <div class="upload-grid">
+        <div class="field"><label>Absatz (Stück)</label><input type="number" id="np-absatz" placeholder="0"></div>
+        <div class="field"><label>Nachfrage</label><input type="number" id="np-nfr" placeholder="0"></div>
+        <div class="field"><label>Rohertrag</label><input type="number" id="np-rt" placeholder="0"></div>
+        <div class="field"><label>Betriebsgewinn</label><input type="number" id="np-bg" placeholder="0"></div>
+        <div class="field"><label>Marktanteil %</label><input type="number" id="np-ma" placeholder="0" step="0.1"></div>
+        <div class="field"><label>Neue Kapazität</label><input type="number" id="np-kap" placeholder="220"></div>
+        <div class="field"><label>Abschreibung</label><input type="number" id="np-abschr" placeholder="660"></div>
+        <div class="field"><label>Nächste PKB</label><input type="number" id="np-npkb" placeholder="9207"></div>
+        <div class="field"><label>Nächste Kap.</label><input type="number" id="np-nkap" placeholder="256"></div>
+      </div>
+
+      <div style="margin:.5rem 0 .3rem">
+        <label style="font-size:.75rem;font-weight:700;color:#6b7280;display:block;margin-bottom:.15rem">Mitteilung / Ereignis</label>
+        <input type="text" id="np-ev" placeholder="z.B. Venture Capital +15.000, SURPRISE…" style="width:100%;border:1px solid #d1d5db;border-radius:4px;padding:.28rem .5rem;font-size:.82rem">
+      </div>
+      <div style="margin:.4rem 0 .5rem">
+        <label style="font-size:.75rem;font-weight:700;color:#6b7280;display:block;margin-bottom:.15rem">Verfügbares Budget für nächste Periode (€)</label>
+        <input type="number" id="np-nextbud" placeholder="z.B. 12670" style="width:140px;border:1px solid #d1d5db;border-radius:4px;padding:.28rem .5rem;font-size:.82rem;text-align:right">
+      </div>
+
+      <div style="display:flex;gap:.5rem;margin-top:.6rem">
+        <button class="btn btn-blue" onclick="addPeriod()">✓ Periode hinzufügen &amp; Modell neu kalibrieren</button>
+        <button class="btn btn-gray" onclick="resetForm()">Zurücksetzen</button>
+      </div>
+      <div id="add-msg" style="margin-top:.4rem;font-size:.8rem"></div>
+
+      <hr class="sep">
+      <div class="box box-a" style="margin:0">
+        <b>Budget-Hinweis:</b>
+        Das verfügbare Budget für jede Periode = "noch verfügbar" aus der Liquiditätsplanung der Vorperiode.
+        P6 hatte <b>12.670 €</b> noch verfügbar → Startwert für P7 (oben im Budget-Strip).
+        Falls in P7 Venture Capital oder ein Darlehen dazukommt, trage es im "+ Darlehen/VC"-Feld ein.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
 
 <script>
-// ─── DATEN ────────────────────────────────────────────────────────────────────
-let H = [
-  {p:1,preis:65,pe:148,dl:129,ko:211,mi:102,vf:119,pkb:4520,ki:1470,
-   absatz:90,nfr:111,rt:1060,bg:351,ma:20.0,kap:90,abschr:270,ev:'VC +500',nextKap:110,nextPkb:5272,nextAbschr:330},
-  {p:2,preis:65,pe:120,dl:180,ko:180,mi:90,vf:119,pkb:5272,ki:330,
-   absatz:110,nfr:101,rt:1548,bg:859,ma:23.7,kap:110,abschr:330,ev:'NEMESIS VC +100',nextKap:110,nextPkb:5239,nextAbschr:330},
-  {p:3,preis:70,pe:250,dl:350,ko:300,mi:250,vf:200,pkb:5239,ki:1530,
-   absatz:110,nfr:125,rt:2131,bg:781,ma:24.4,kap:110,abschr:330,ev:'HANNIBAL DELTA 750 | ERIC HOLD ALPHA 2000',nextKap:130,nextPkb:5974,nextAbschr:390},
-  {p:4,preis:72,pe:450,dl:600,ko:700,mi:500,vf:300,pkb:5974,ki:1890,
-   absatz:122,nfr:122,rt:2420,bg:-130,ma:33.8,kap:130,abschr:390,ev:'SURPRISE BETA | Corporate Governance §10/11',nextKap:155,nextPkb:6887,nextAbschr:465},
-  {p:5,preis:71,pe:585,dl:780,ko:910,mi:650,vf:390,pkb:6887,ki:2565,
-   absatz:155,nfr:183,rt:3653,bg:338,ma:29.3,kap:155,abschr:465,ev:'Corporate Governance Alpha, Gamma',nextKap:190,nextPkb:8156,nextAbschr:570},
-  {p:6,preis:69,pe:760,dl:1014,ko:1500,mi:1000,vf:530,pkb:8156,ki:2370,
-   absatz:190,nfr:207,rt:4384,bg:-420,ma:39.8,kap:190,abschr:570,ev:'Venture Capital B +28.000',nextKap:220,nextPkb:9207,nextAbschr:660}
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DATEN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+var data = [
+  {p:1, preis:65, pe:148, dl:129, ko:211, mi:102, vf:119, pkb:4520, ki:1470,
+   absatz:90, nfr:111, rt:1060, bg:351, ma:20.0, kap:90, abschr:270,
+   nKap:110, nPkb:5272, nAbschr:330, ev:'VC +500'},
+  {p:2, preis:65, pe:120, dl:180, ko:180, mi:90, vf:119, pkb:5272, ki:330,
+   absatz:110, nfr:101, rt:1548, bg:859, ma:23.7, kap:110, abschr:330,
+   nKap:110, nPkb:5239, nAbschr:330, ev:'NEMESIS VC +100'},
+  {p:3, preis:70, pe:250, dl:350, ko:300, mi:250, vf:200, pkb:5239, ki:1530,
+   absatz:110, nfr:125, rt:2131, bg:781, ma:24.4, kap:110, abschr:330,
+   nKap:130, nPkb:5974, nAbschr:390, ev:'HANNIBAL DELTA 750 | ERIC HOLD ALPHA 2000'},
+  {p:4, preis:72, pe:450, dl:600, ko:700, mi:500, vf:300, pkb:5974, ki:1890,
+   absatz:122, nfr:122, rt:2420, bg:-130, ma:33.8, kap:130, abschr:390,
+   nKap:155, nPkb:6887, nAbschr:465, ev:'SURPRISE BETA | Corporate Governance §10/11'},
+  {p:5, preis:71, pe:585, dl:780, ko:910, mi:650, vf:390, pkb:6887, ki:2565,
+   absatz:155, nfr:183, rt:3653, bg:338, ma:29.3, kap:155, abschr:465,
+   nKap:190, nPkb:8156, nAbschr:570, ev:'Corporate Governance Alpha, Gamma'},
+  {p:6, preis:69, pe:760, dl:1014, ko:1500, mi:1000, vf:530, pkb:8156, ki:2370,
+   absatz:190, nfr:207, rt:4384, bg:-420, ma:39.8, kap:190, abschr:570,
+   nKap:220, nPkb:9207, nAbschr:660, ev:'Venture Capital B +28.000'}
 ];
 
-// P7 Fixwerte (aus letztem Bericht)
-function lastPeriod(){ return H[H.length-1]; }
-function nextFixed(){
-  const l = lastPeriod();
-  return {kap: l.nextKap||220, pkb: l.nextPkb||9207, abschr: l.nextAbschr||660};
+// Gut/schlecht pro Periode
+var bewertung = {
+  1:{g:['Positives BG +351','Stabile Verteilung'],b:['Marktanteil nur 20%','Kapazität gering (90)']},
+  2:{g:['BESTES BG +859','BK/RT nur 44,5%','Volle Kapazität ausgelastet'],b:['Preis noch tief (65€)','Kaum KapInv (330) → wenig Wachstum']},
+  3:{g:['Preiserhöhung auf 70€ richtig','Kapazitätswachstum auf 130'],b:['BK/RT auf 63% gestiegen','BG sank vs. P2']},
+  4:{g:['Marktanteil 33,8% (stark)','Kapazität wuchs auf 155'],b:['BK > Rohertrag → Verlust!','Zu hohe BK-Steigerung','SURPRISE-Ereignis belastet']},
+  5:{g:['Erholt auf BG +338','BETA-Fokus richtig','Kapazität auf 190'],b:['BK/RT 90,7% — knapp positiv','Kapazität war Engpass']},
+  6:{g:['Marktanteil 39,8% (Höchstwert)','Kapazität 190 ausgelastet','VC +28.000 gesichert'],b:['BG −420 (Verlust!)','BK überstiegen Rohertrag','Betriebskosten zu hoch skaliert']}
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MODELL
+// Kalibriert aus P5 (BKeff=2447→Nfr=183) und P6 (BKeff=3548→Nfr=207)
+// Nfr = (BASE + BKeff/SLOPE) × (REF_PREIS/preis)^EPS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+var MODEL = {BASE:130, SLOPE:45.88, REF:69, EPS:0.7};
+
+var W = {pe:0.75, dl:0.85, ko:0.85, mi:0.55, vf:0.55};
+
+function bkEff(pe,dl,ko,mi,vf){
+  return pe*W.pe + dl*W.dl + ko*W.ko + mi*W.mi + vf*W.vf;
 }
 
-// ─── MODELL (neu kalibriert aus P5+P6) ───────────────────────────────────────
-// Nfr = (BASE + BKeff/SLOPE) * (refPrice/preis)^eps
-// BKeff = pe*.75 + dl*.85 + ko*.85 + mi*.55 + vf*.55
-// P5: BKeff=2447→Nfr=183, P6: BKeff=3548→Nfr=207
-// SLOPE=(3548-2447)/(207-183)=45.88, BASE=183-2447/45.88=130
-const S = {pe:.75, dl:.85, ko:.85, mi:.55, vf:.55};
-let MODEL = {BASE:130, SLOPE:45.88, REF:69, EPS:.7};
-
-function reCalib(){
-  // Kalibriere aus den letzten zwei Perioden mit bekannter Nachfrage
-  const pts = H.filter(d=>d.nfr>0&&bkH(d)>0);
-  if(pts.length<2) return;
-  const a = pts[pts.length-2], b = pts[pts.length-1];
-  const ea = bkeff({pe:a.pe,dl:a.dl,ko:a.ko,mi:a.mi,vf:a.vf});
-  const eb = bkeff({pe:b.pe,dl:b.dl,ko:b.ko,mi:b.mi,vf:b.vf});
-  // Adjust for price: Nfr_adj = Nfr * (preis/refPrice)^EPS
-  const na = a.nfr * Math.pow(a.preis/MODEL.REF, MODEL.EPS);
-  const nb = b.nfr * Math.pow(b.preis/MODEL.REF, MODEL.EPS);
-  if(eb===ea) return;
-  const slope = (eb-ea)/(nb-na);
-  const base  = na - ea/slope;
-  if(slope>5 && base>0){ MODEL.SLOPE=slope; MODEL.BASE=base; }
+function calcNfr(eff, preis){
+  var raw = (MODEL.BASE + eff/MODEL.SLOPE) * Math.pow(MODEL.REF/preis, MODEL.EPS);
+  return Math.max(0, Math.round(raw));
 }
 
-function bkeff(v){ return v.pe*S.pe + v.dl*S.dl + v.ko*S.ko + v.mi*S.mi + v.vf*S.vf; }
-function bkH(d){ return d.pe+d.dl+d.ko+d.mi+d.vf; }
-function zsH(d){ return bkH(d)+d.pkb+d.ki; }
-function calcNfr(eff,preis){ return Math.max(0,Math.round((MODEL.BASE+eff/MODEL.SLOPE)*Math.pow(MODEL.REF/preis,MODEL.EPS))); }
-
-function sim(v, preis, pkb, ki, kap){
-  const eff    = bkeff(v);
-  const nfr    = calcNfr(eff, preis);
-  const absatz = Math.min(kap, nfr);
-  const umsatz = absatz * preis;
-  const rt     = umsatz - pkb - (kap===220?660:lastPeriod().nextAbschr||660);
-  const bk     = v.pe+v.dl+v.ko+v.mi+v.vf;
-  return {eff, nfr, absatz, umsatz, rt, bk, bg:rt-bk, zs:bk+pkb+ki, bkRat:rt>0?bk/rt*100:999};
+function calcSim(pe,dl,ko,mi,vf, preis, pkb, ki, kap, abschr){
+  var eff    = bkEff(pe,dl,ko,mi,vf);
+  var nfr    = calcNfr(eff, preis);
+  var absatz = Math.min(kap, nfr);
+  var umsatz = absatz * preis;
+  var rt     = umsatz - pkb - abschr;
+  var bk     = pe+dl+ko+mi+vf;
+  var bg     = rt - bk;
+  var zs     = bk + pkb + ki;
+  var bkRat  = rt > 0 ? bk/rt*100 : 999;
+  return {eff:eff, nfr:nfr, absatz:absatz, umsatz:umsatz, rt:rt, bk:bk, bg:bg, zs:zs, bkRat:bkRat};
 }
 
-// Optimale Empfehlung: minimum BK das Nfr >= kapazität+5 sichert
-// DL+KO bekommen den Löwenanteil (höchste Effizienz)
-function optimal(preis, maxBK, kap){
-  const F = nextFixed();
-  kap = kap || F.kap;
-  const pMult = Math.pow(MODEL.REF/preis, MODEL.EPS);
-  const targetNfr = kap + 8;
-  const targetEff = ((targetNfr/pMult) - MODEL.BASE) * MODEL.SLOPE;
+function findOptimal(preis, maxBK, kap){
+  // Ziel: Nfr >= kap+5 (kleiner Puffer)
+  var pm   = Math.pow(MODEL.REF/preis, MODEL.EPS);
+  var tNfr = kap + 5;
+  var tEff = ((tNfr/pm) - MODEL.BASE) * MODEL.SLOPE;
+  if(tEff < 0) tEff = 0;
 
-  const minPE=170, minMI=160, minVF=140;
-  const baseEff = minPE*S.pe + minMI*S.mi + minVF*S.vf;
-  const rem = Math.max(0, targetEff - baseEff);
-  const each = Math.max(200, Math.ceil(rem/(2*S.dl)));
-  const rec = {pe:minPE, dl:each, ko:each, mi:minMI, vf:minVF};
+  // Basis-Minimum für jeden Posten
+  var minPE=150, minMI=150, minVF=120;
+  var baseEff = minPE*W.pe + minMI*W.mi + minVF*W.vf; // =150*.75+150*.55+120*.55=112.5+82.5+66=261
+  var extraEff = Math.max(0, tEff - baseEff);
+  var each = Math.max(200, Math.ceil(extraEff / (2 * W.dl)));
 
-  // Make sure total doesn't blow budget
-  const F2 = nextFixed();
-  const total = rec.pe+rec.dl+rec.ko+rec.mi+rec.vf+F2.pkb+(+$('ki').value||2200);
-  const bud   = +$('budget').value + +$('extra').value - +$('zentrale').value;
-  if(total > bud && bud > 0){
-    const scale = (bud - F2.pkb - (+$('ki').value||2200)) / (rec.pe+rec.dl+rec.ko+rec.mi+rec.vf);
-    if(scale > 0 && scale < 1){
-      rec.pe=Math.round(rec.pe*scale); rec.dl=Math.round(rec.dl*scale);
-      rec.ko=Math.round(rec.ko*scale); rec.mi=Math.round(rec.mi*scale);
-      rec.vf=Math.round(rec.vf*scale);
-    }
+  var rec = {pe:minPE, dl:each, ko:each, mi:minMI, vf:minVF};
+  var total = rec.pe + rec.dl + rec.ko + rec.mi + rec.vf;
+
+  // Skalieren falls Budget zu klein
+  if(maxBK > 0 && total > maxBK){
+    var scale = maxBK / total;
+    rec.pe = Math.round(rec.pe * scale);
+    rec.dl = Math.round(rec.dl * scale);
+    rec.ko = Math.round(rec.ko * scale);
+    rec.mi = Math.round(rec.mi * scale);
+    rec.vf = Math.round(rec.vf * scale);
   }
   return rec;
 }
 
-const fmt  = n => Math.round(n).toLocaleString('de-DE');
-const pct  = n => n.toFixed(0)+'%';
-const $    = id => document.getElementById(id);
+function reCalibrate(){
+  // Kalibriere aus den letzten 2 Perioden mit Nachfrage-Daten
+  var valid = data.filter(function(d){ return d.nfr>0 && (d.pe+d.dl+d.ko+d.mi+d.vf)>0; });
+  if(valid.length < 2) return;
+  var a = valid[valid.length-2];
+  var b = valid[valid.length-1];
+  var ea = bkEff(a.pe,a.dl,a.ko,a.mi,a.vf);
+  var eb = bkEff(b.pe,b.dl,b.ko,b.mi,b.vf);
+  if(Math.abs(eb-ea) < 50) return; // zu nah beieinander
+  // Preis-adjustiert
+  var na = a.nfr * Math.pow(a.preis/MODEL.REF, MODEL.EPS);
+  var nb = b.nfr * Math.pow(b.preis/MODEL.REF, MODEL.EPS);
+  if(Math.abs(nb-na) < 5) return;
+  var slope = (eb-ea)/(nb-na);
+  var base  = na - ea/slope;
+  if(slope > 10 && base > 0 && base < 200){
+    MODEL.SLOPE = slope;
+    MODEL.BASE  = base;
+  }
+}
 
-// ─── UPDATE ───────────────────────────────────────────────────────────────────
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// HELPERS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function el(id){ return document.getElementById(id); }
+function val(id){ return parseFloat(el(id).value) || 0; }
+function fmt(n){ return Math.round(n).toLocaleString('de-DE'); }
+function pct(n){ return n.toFixed(0)+'%'; }
+function last(){ return data[data.length-1]; }
+function nextKap(){ return last().nKap || 220; }
+function nextPkb(){ return last().nPkb || 9207; }
+function nextAbschr(){ return last().nAbschr || 660; }
+function totalBK(d){ return d.pe+d.dl+d.ko+d.mi+d.vf; }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UPDATE (Haupt-Funktion)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function update(){
-  const budget = +$('budget').value||0;
-  const extra  = +$('extra').value||0;
-  const totalBud = budget + extra;
-  const kiVal  = +$('ki').value||0;
-  const zentV  = +$('zentrale').value||0;
-  const pkb    = +$('i_pkb').value||9207;
-  const preis  = +$('preis').value||73;
-  const F      = nextFixed();
-  const kap    = F.kap;
+  var budget  = val('b_budget');
+  var vc      = val('b_vc');
+  var zentrale= val('b_zentrale');
+  var totalBud= budget + vc;
+  var pkb     = val('in-pkb');
+  var ki      = val('in-ki');
+  var preis   = val('in-preis');
+  var kap     = nextKap();
+  var abschr  = nextAbschr();
 
-  $('i_preis').value = preis;
+  if(preis < 1) preis = 73;
+  if(pkb  < 1)  pkb  = nextPkb();
+  if(ki   < 0)  ki   = 2200;
 
-  // Optimal recommendation
-  const opt = optimal(preis, totalBud, kap);
-  $('r_preis').textContent = preis+'€';
-  $('r_pe').textContent = fmt(opt.pe);
-  $('r_dl').textContent = fmt(opt.dl);
-  $('r_ko').textContent = fmt(opt.ko);
-  $('r_mi').textContent = fmt(opt.mi);
-  $('r_vf').textContent = fmt(opt.vf);
-  $('r_ki').textContent = fmt(kiVal);
-  $('r_sum').textContent = fmt(opt.pe+opt.dl+opt.ko+opt.mi+opt.vf+pkb+kiVal);
+  var maxBK = Math.max(0, totalBud - pkb - ki - zentrale);
 
-  // User sim
-  const pe=+$('i_pe').value||0, dl=+$('i_dl').value||0, ko=+$('i_ko').value||0;
-  const mi=+$('i_mi').value||0, vf=+$('i_vf').value||0;
-  const uVals = {pe,dl,ko,mi,vf};
-  const res = sim(uVals, preis, pkb, kiVal, kap);
+  // Optimale Empfehlung berechnen
+  var opt = findOptimal(preis, maxBK, kap);
 
-  $('i_sum').textContent = fmt(res.zs);
-  $('eff_pe').textContent = fmt(pe*S.pe);
-  $('eff_dl').textContent = fmt(dl*S.dl);
-  $('eff_ko').textContent = fmt(ko*S.ko);
-  $('eff_mi').textContent = fmt(mi*S.mi);
-  $('eff_vf').textContent = fmt(vf*S.vf);
+  // Empfehlungs-Spalte füllen
+  el('r-preis').textContent = preis+'€';
+  el('r-pe').textContent = fmt(opt.pe);
+  el('r-dl').textContent = fmt(opt.dl);
+  el('r-ko').textContent = fmt(opt.ko);
+  el('r-mi').textContent = fmt(opt.mi);
+  el('r-vf').textContent = fmt(opt.vf);
+  el('r-ki').textContent  = fmt(ki);
+  el('r-sum').textContent = fmt(opt.pe+opt.dl+opt.ko+opt.mi+opt.vf+pkb+ki);
 
-  // Demand bar
-  const scale = 300;
-  const kapPct = kap/scale*100;
-  const nfrPct = Math.min(100, res.nfr/scale*100);
-  const df = $('dbar-f');
-  $('dbar-c').style.left = kapPct+'%';
-  if(res.nfr >= kap){
+  // Nutzereingaben lesen
+  var uPe = val('in-pe'), uDl = val('in-dl'), uKo = val('in-ko');
+  var uMi = val('in-mi'), uVf = val('in-vf');
+
+  // Simulation mit Nutzereingaben
+  var sim = calcSim(uPe,uDl,uKo,uMi,uVf, preis, pkb, ki, kap, abschr);
+
+  // BK-Effekte anzeigen
+  el('eff-pe').textContent = uPe>0 ? fmt(uPe*W.pe) : '—';
+  el('eff-dl').textContent = uDl>0 ? fmt(uDl*W.dl) : '—';
+  el('eff-ko').textContent = uKo>0 ? fmt(uKo*W.ko) : '—';
+  el('eff-mi').textContent = uMi>0 ? fmt(uMi*W.mi) : '—';
+  el('eff-vf').textContent = uVf>0 ? fmt(uVf*W.vf) : '—';
+  el('in-sum').textContent = fmt(sim.zs);
+
+  // Nachfrage-Visualisierung
+  var sc = 300;
+  var kapPct = Math.min(99, kap/sc*100);
+  var nfrPct = Math.min(99, sim.nfr/sc*100);
+  el('demand-cap').style.left = kapPct+'%';
+  el('nfr-val').textContent = sim.nfr;
+  el('abs-val').textContent = sim.absatz;
+  el('nfr-val').className = 'mbox-val ' + (sim.nfr>=kap ? 'green' : 'amber');
+  el('abs-val').className = 'mbox-val ' + (sim.absatz>=kap ? 'green' : 'red');
+
+  var df = el('demand-fill');
+  if(sim.nfr >= kap){
     df.style.width = kapPct+'%';
-    df.style.background='#bbf7d0';
-    df.style.color='#166534';
-    df.textContent = `Absatz: ${res.absatz} ✓`;
+    df.style.background = '#bbf7d0';
+    df.style.color = '#166534';
+    df.textContent = 'Absatz: '+sim.absatz+' ✓ voll ausgelastet';
+    el('demand-note').textContent = '✓ Nachfrage ('+sim.nfr+') übersteigt Kapazität ('+kap+'). Kein Leerstand.';
   } else {
     df.style.width = nfrPct+'%';
-    df.style.background='#fde68a';
-    df.style.color='#92400e';
-    df.textContent = `Absatz: ${res.absatz} (Leerstand ${kap-res.absatz})`;
+    df.style.background = '#fde68a';
+    df.style.color = '#92400e';
+    df.textContent = 'Absatz: '+sim.absatz+' – Leerstand: '+(kap-sim.absatz);
+    el('demand-note').textContent = '⚠️ Nur '+sim.nfr+' von '+kap+' Kap. ausgelastet → BK erhöhen (DL + KO)!';
   }
-  $('nfr-v').textContent = res.nfr;
-  $('nfr-v').className = 'metric-v '+(res.nfr>=kap?'gn':'am');
-  $('abs-v').textContent = res.absatz;
-  $('abs-v').className = 'metric-v '+(res.absatz>=kap?'gn':'rd');
-  $('nfr-note').textContent = res.nfr>=kap
-    ? `✓ Kapazität (${kap}) vollständig ausgelastet. Keine weiteren BK nötig.`
-    : `⚠️ Nur ${res.nfr} von ${kap} → ${kap-res.nfr} Stück Leerstand. DL + Komplemente erhöhen!`;
 
-  // Price badge
-  const pb = preis>=75?`<span class="badge b-g">Empfohlen</span>`:
-             preis>=72?`<span class="badge b-b">Gut</span>`:
-             preis>=69?`<span class="badge b-a">Neutral</span>`:
-             `<span class="badge b-r">Zu niedrig</span>`;
-  $('preis-badge').innerHTML = pb;
-  $('preis-info').textContent = `Konkurrenz: Sunshine 71€, Ocean 69€. Preiseffekt: (${MODEL.REF}/${preis})^${MODEL.EPS} = ${Math.pow(MODEL.REF/preis,MODEL.EPS).toFixed(3)} auf Nachfrage.`;
+  // Ergebnis-Box
+  var hasInput = (uPe+uDl+uKo+uMi+uVf) > 0;
+  var bg_color, bg_bg;
+  if(!hasInput || sim.bg > 600){ bg_bg='#dcfce7'; bg_color='#166534'; }
+  else if(sim.bg > 0)           { bg_bg='#fef3c7'; bg_color='#92400e'; }
+  else                           { bg_bg='#fee2e2'; bg_color='#991b1b'; }
 
-  // Result
-  const c = res.bg>600?{b:'#dcfce7',t:'#166534'}:res.bg>0?{b:'#fef3c7',t:'#92400e'}:{b:'#fee2e2',t:'#991b1b'};
-  const rb=$('result-box');
-  rb.style.background=c.b; rb.style.color=c.t;
-  $('res-bg').textContent=(res.bg>=0?'+':'')+fmt(res.bg);
-  $('res-break').textContent=`${res.absatz}×${preis}€ = ${fmt(res.umsatz)} | −PKB ${fmt(pkb)} | −Abschr ${F.abschr} = RT ${fmt(res.rt)}`;
-  $('res-det').textContent=`BK ${fmt(res.bk)} | BK/RT ${res.rt>0?pct(res.bkRat):'–'} | BK-Effekt: ${fmt(res.eff)}`;
+  var rb = el('result-box');
+  rb.style.background = bg_bg; rb.style.color = bg_color;
+  el('res-break').textContent = sim.absatz+'×'+preis+'€ = '+fmt(sim.umsatz)+
+    ' | −PKB '+fmt(pkb)+' | −Abschr '+abschr+' = RT '+fmt(sim.rt);
+  el('res-bg').textContent = (sim.bg>=0?'+':'')+fmt(sim.bg);
+  el('res-detail').textContent = hasInput
+    ? 'BK '+fmt(sim.bk)+' | BK/RT '+fmt(sim.bkRat)+'% | BK-Effekt (gewichtet) '+fmt(sim.eff)
+    : 'Eingaben noch 0 — Empfehlungswerte in "Ihre Eingabe" übernehmen';
 
-  // Warnings
-  let w='';
-  if((pe+dl+ko+mi+vf)>0){
-    if(res.nfr<kap) w+=`<div class="box box-r"><strong>⚠️ Nachfrage zu niedrig!</strong> Betriebskosten erhöhen (v.a. Dienstleistung + Komplemente) bis Nfr ≥ ${kap}.</div>`;
-    if(res.bk>res.rt&&res.rt>0) w+=`<div class="box box-r"><strong>⚠️ BK > Rohertrag → Verlust!</strong> BK ${fmt(res.bk)} > RT ${fmt(res.rt)}.</div>`;
-    else if(res.bg>0) w+=`<div class="box box-g"><strong>✓ Positives Betriebsergebnis ${fmt(res.bg)} €</strong> BK/RT: ${pct(res.bkRat)} — Ziel erfüllt.</div>`;
+  // Alerts
+  var alerts = '';
+  if(hasInput){
+    if(sim.nfr < kap){
+      alerts += '<div class="box box-r"><b>⚠️ Nachfrage zu niedrig!</b> '+
+        'Absatz '+sim.nfr+' < Kapazität '+kap+'. Dienstleistung + Komplemente erhöhen!</div>';
+    }
+    if(sim.bk > sim.rt && sim.rt > 0){
+      alerts += '<div class="box box-r"><b>⚠️ Betriebskosten übersteigen Rohertrag!</b> '+
+        'BK '+fmt(sim.bk)+' > RT '+fmt(sim.rt)+'. Preis erhöhen oder BK senken.</div>';
+    } else if(sim.bg > 0){
+      alerts += '<div class="box box-g"><b>✓ Positives Betriebsergebnis: '+fmt(sim.bg)+' €</b> '+
+        'BK/RT = '+pct(sim.bkRat)+' — gesundes Verhältnis.</div>';
+    }
+    if(sim.zs > totalBud && totalBud > 0){
+      alerts += '<div class="box box-r"><b>⚠️ Budget überschritten!</b> '+
+        fmt(sim.zs)+' > '+fmt(totalBud)+'. Um '+fmt(sim.zs-totalBud)+' € reduzieren.</div>';
+    }
   }
-  if(res.zs>totalBud&&totalBud>0) w+=`<div class="box box-r"><strong>⚠️ Budget überschritten!</strong> ${fmt(res.zs)} > ${fmt(totalBud)}. Um ${fmt(res.zs-totalBud)} € reduzieren.</div>`;
-  $('warn-box').innerHTML = w;
+  el('res-alerts').innerHTML = alerts;
 
-  // Budget strip
-  const bkAmt=pe+dl+ko+mi+vf;
-  const used = bkAmt+pkb+kiVal+zentV;
-  const rest = totalBud - used;
-  const usedPct = totalBud>0?Math.min(100,used/totalBud*100):0;
-  $('bbar-fill').style.width=usedPct+'%';
-  $('bbar-fill').style.background=usedPct>100?'#f87171':usedPct>85?'#fbbf24':'#4ade80';
-  $('brest').className=rest<0?'warn-rest':'rest';
-  $('brest').textContent=`Frei: ${fmt(rest)} € (PKB ${fmt(pkb)} + BK ${fmt(bkAmt)} + KI ${fmt(kiVal)}${zentV?' + Z '+fmt(zentV):''}${extra?' + '+fmt(extra)+' VC/D':''})`;
+  // Budget Strip
+  var bkAmt = uPe+uDl+uKo+uMi+uVf;
+  var used  = bkAmt + pkb + ki + zentrale;
+  var rest  = totalBud - used;
+  var usedP = totalBud>0 ? Math.min(100,used/totalBud*100) : 0;
 
-  // Curve chart
-  buildCurve(preis, pkb, kiVal, kap, F.abschr);
+  el('bbar-breakdown').innerHTML =
+    '<div class="seg"><div class="dot" style="background:#818cf8"></div>PKB '+fmt(pkb)+'</div>'+
+    '<div class="seg"><div class="dot" style="background:#38bdf8"></div>BK '+fmt(bkAmt)+'</div>'+
+    '<div class="seg"><div class="dot" style="background:#fb923c"></div>KapInv '+fmt(ki)+'</div>'+
+    (zentrale>0?'<div class="seg"><div class="dot" style="background:#f472b6"></div>Zentrale '+fmt(zentrale)+'</div>':'')+
+    (vc>0?'<div class="seg"><div class="dot" style="background:#4ade80"></div>+VC '+fmt(vc)+'</div>':'');
 
-  // Update analysis
-  buildAnalysis(preis, pkb, kiVal, kap, F.abschr, opt, res);
+  var restEl = el('bbar-rest');
+  restEl.textContent = 'Noch frei: '+fmt(rest)+' €';
+  restEl.className = rest < 0 ? 'bbar-result over' : 'bbar-result';
+
+  // Kurve aufbauen
+  buildCurve(preis, pkb, ki, kap, abschr);
+
+  // Analyse aktualisieren
+  buildAnalysis(preis, pkb, ki, kap, abschr, opt, sim, totalBud, maxBK);
 }
 
-function syncPreis(){ $('i_preis').value=$('preis').value; update(); }
-function syncPreis2(){ $('preis').value=$('i_preis').value; update(); }
-
-// ─── KURVE ────────────────────────────────────────────────────────────────────
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// BG-KURVE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function buildCurve(preis, pkb, ki, kap, abschr){
-  const el=$('curve-ch');
-  const steps=[];
-  for(let t=500;t<=16000;t+=500){
-    const v={pe:Math.round(t*.15),dl:Math.round(t*.30),ko:Math.round(t*.30),mi:Math.round(t*.14),vf:Math.round(t*.11)};
-    const r=sim(v,preis,pkb,0,kap);
-    steps.push({t,bg:r.bg,nfr:r.nfr});
+  var steps = [];
+  for(var t=500; t<=16000; t+=500){
+    var pe=Math.round(t*0.15), dl=Math.round(t*0.30), ko=Math.round(t*0.30);
+    var mi=Math.round(t*0.14), vf=Math.round(t*0.11);
+    var s = calcSim(pe,dl,ko,mi,vf,preis,pkb,0,kap,abschr);
+    steps.push({t:t, bg:s.bg, nfr:s.nfr});
   }
-  const maxBG=Math.max(...steps.map(s=>s.bg));
-  const minBG=Math.min(...steps.map(s=>s.bg));
-  const rng=Math.max(1,maxBG-minBG);
-  const H=95;
-  const optI=steps.findIndex(s=>s.bg===maxBG);
-  el.innerHTML=steps.map((s,i)=>{
-    const h=Math.max(3,Math.round(((s.bg-minBG)/rng)*H));
-    const col=i===optI?'var(--blue)':s.bg>0?'var(--green)':'var(--red)';
-    return `<div class="bc" title="BK ${fmt(s.t)} → BG ${s.bg>=0?'+':''}${fmt(s.bg)} | Nfr ${s.nfr}">
-      <div class="bval-txt" style="color:${s.bg>0?'var(--green)':'var(--red)'};">${s.bg>=0?'+':''}${Math.round(s.bg)}</div>
-      <div class="bv" style="height:${h}px;background:${col}"></div>
-      <div class="bl-txt">${(s.t/1000).toFixed(1)}k</div>
-    </div>`;
+  var maxBG = Math.max.apply(null, steps.map(function(s){return s.bg;}));
+  var minBG = Math.min.apply(null, steps.map(function(s){return s.bg;}));
+  var rng   = Math.max(1, maxBG - minBG);
+  var H     = 90;
+  var optI  = steps.findIndex(function(s){return s.bg===maxBG;});
+
+  el('curve-chart').innerHTML = steps.map(function(s,i){
+    var h   = Math.max(2, Math.round(((s.bg-minBG)/rng)*H));
+    var col = i===optI ? '#2563eb' : s.bg>0 ? '#16a34a' : '#dc2626';
+    var vc  = (s.bg>=0?'+':'')+Math.round(s.bg);
+    return '<div class="bar-col" title="BK '+fmt(s.t)+' → BG '+vc+'">'+
+      '<div class="bar-val" style="color:'+(s.bg>=0?'#16a34a':'#dc2626')+'">'+vc+'</div>'+
+      '<div class="bar-body" style="height:'+h+'px;background:'+col+'"></div>'+
+      '<div class="bar-lbl">'+(s.t/1000).toFixed(1)+'k</div></div>';
   }).join('');
 }
 
-// ─── ANALYSE TEXT ─────────────────────────────────────────────────────────────
-function buildAnalysis(preis, pkb, ki, kap, abschr, opt, res){
-  const F=nextFixed();
-  const optRes=sim(opt,preis,pkb,ki,kap);
-  const html = `
-  <div class="analysis-block">
-    <h3>💰 Preis – Empfehlung: ${preis}€</h3>
-    <p>
-      Der Preis ist der stärkste Hebel wenn Kapazität (${kap} Stück) der Engpass ist.
-      Jeder Euro Preiserhöhung bringt direkt +${kap}€ mehr Umsatz ohne zusätzliche Kosten.
-      Die Preisempfindlichkeit für BETA ist <strong>mittel</strong> (Elastizität ε=0,7):
-      Eine Erhöhung um 4€ (von 69 auf ${preis}) reduziert die Nachfrage nur um
-      ~${((1-Math.pow(69/preis,0.7))*100).toFixed(1)}%, steigert aber den Umsatz je Stück um +${((preis/69-1)*100).toFixed(0)}%.
-      Konkurrenz liegt bei Sunshine 71€ und Ocean 69€ — ein Preis von ${preis}€ ist vertretbar.
-    </p>
-    <span class="verdict ${preis>=72?'gn':'rd'}">→ ${preis>=72?'Gut: Preis über Konkurrenzniveau sinnvoll.':'Vorsicht: Preis unter 72€ lässt Marge liegen.'}</span>
-  </div>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ANALYSE-TEXT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function buildAnalysis(preis, pkb, ki, kap, abschr, opt, sim, totalBud, maxBK){
+  var optSim = calcSim(opt.pe,opt.dl,opt.ko,opt.mi,opt.vf, preis, pkb, ki, kap, abschr);
+  var pFakt  = Math.pow(MODEL.REF/preis, MODEL.EPS).toFixed(3);
+  var pDiff  = ((preis/MODEL.REF-1)*100).toFixed(1);
 
-  <div class="analysis-block">
-    <h3>⭐ Dienstleistungsverbesserung – Empfehlung: ${fmt(opt.dl)}€ (höchste Priorität)</h3>
-    <p>
-      Wirkung: <strong>hoch/hoch</strong> (kurz- und langfristig). Mit Gewicht 0,85 ist jeder hier investierte Euro
-      am effektivsten: 1€ Dienstleistung = 0,85 BK-Effekt-Punkte, was ~1/46 Einheit mehr Nachfrage bringt.
-      Im Vergleich: 1€ Verkaufsförderung = nur 0,55 BK-Effekt-Punkte (+37% weniger effizient).
-      P5 und P6 zeigen: Dienstleistung wuchs konsistent mit dem Wachstum der Nachfrage.
-      Empfehlung: <strong>Maximum innerhalb des Budgets investieren.</strong>
-    </p>
-  </div>
+  var html =
+  '<div class="a-block">'+
+  '<h3>💰 PREIS – Empfehlung: '+preis+'€</h3>'+
+  '<p>Der Preis ist der stärkste Hebel wenn Kapazität ('+kap+') der Engpass ist. '+
+  'Jeder Euro Preiserhöhung = +'+kap+'€ Umsatz ohne Mehrkosten. '+
+  'Preisempfindlichkeit BETA ist <b>mittel</b> (ε='+MODEL.EPS+'): Preis '+preis+'€ (+'+(preis>69?pDiff:0)+'% vs. P6 69€) '+
+  'reduziert Nachfrage um ~'+Math.round((1-Math.pow(69/preis,MODEL.EPS))*100)+'% — aber steigert Marge stark. '+
+  'Konkurrenz: Sunshine 71€, Ocean 69€. Bei Kapazitäts-Engpass spielt Preis nur Nachfrage-Seite, Absatz bleibt bei Kap.<br>'+
+  '<span class="a-verdict '+( preis>=72?'green':'red')+'">→ '+
+  (preis>=72?'Preis ≥ 72€ empfohlen. Höher = mehr Rohertrag.':'Preis unter 72€ lässt Marge unnötig liegen.')+
+  '</span></p></div>'+
 
-  <div class="analysis-block">
-    <h3>⭐ Komplemente – Empfehlung: ${fmt(opt.ko)}€ (höchste Priorität)</h3>
-    <p>
-      Wirkung: <strong>hoch/hoch</strong>. Gleiche Effizienz wie Dienstleistung.
-      Komplemente hatten historisch den größten Einzelposten in guten Perioden (P3: 300, P5: 910, P6: 1500).
-      Die Nachfrageentwicklung P5→P6 zeigt, dass Komplemente stark zur Nachfragesteigerung beigetragen haben.
-      <strong>Gleiches Niveau wie Dienstleistung empfohlen.</strong>
-    </p>
-  </div>
+  '<div class="a-block">'+
+  '<h3>⭐ DIENSTLEISTUNGSVERBESSERUNG – Empfehlung: '+fmt(opt.dl)+'€ (höchste Priorität)</h3>'+
+  '<p>Wirkung: <b>hoch / hoch</b> (kurz- und langfristig, aus Szenarioübersicht). Gewicht: 0,85. '+
+  'Das bedeutet: 1€ hier → 0,85 BK-Eff.-Punkte → am meisten Nachfrage pro investiertem Euro. '+
+  'P5→P6 zeigt: Dienstleistung wuchs mit der stärksten Nachfrage-Korrelation aller Posten. '+
+  'Empfehlung: <b>Maximum des Budgets hier investieren</b> (zusammen mit Komplemente).</p></div>'+
 
-  <div class="analysis-block">
-    <h3>🔶 Personalentwicklung – Empfehlung: ${fmt(opt.pe)}€</h3>
-    <p>
-      Wirkung: <strong>hoch (kurzfristig)</strong>, mittel langfristig. Gewicht 0,75.
-      Effizienter als Markenimage und Verkaufsförderung, aber schwächer als DL/KO.
-      In P2 (bestes BG: +859) war PE-Anteil mit 120€ sehr moderat.
-      Empfehlung: <strong>Solide Basisinvestition, keine Übergewichtung.</strong>
-    </p>
-  </div>
+  '<div class="a-block">'+
+  '<h3>⭐ KOMPLEMENTE – Empfehlung: '+fmt(opt.ko)+'€ (höchste Priorität)</h3>'+
+  '<p>Wirkung: <b>hoch / hoch</b>. Gleiche Effizienz wie Dienstleistung. '+
+  'Komplemente hatten historisch den größten Einzelwert: P3=300, P5=910, P6=1.500. '+
+  'Geht Hand in Hand mit Dienstleistung. Beide auf gleichem Niveau halten. '+
+  'Empfehlung: <b>Gleichberechtigt neben Dienstleistung priorisieren.</b></p></div>'+
 
-  <div class="analysis-block">
-    <h3>🔶 Markenimage – Empfehlung: ${fmt(opt.mi)}€ (reduziert)</h3>
-    <p>
-      Wirkung: <strong>mittel (kurzfristig)</strong>, hoch langfristig. Gewicht 0,55.
-      Da P7 ein kurzfristiger Planungshorizont ist, ist Markenimage weniger wirksam als DL/KO.
-      In P6 wurde 1.000€ investiert — das war überproportional für den kurzfristigen Effekt.
-      Empfehlung: <strong>Reduzieren auf Basisbetrag, Langzeitwirkung spielt in P7 kaum eine Rolle.</strong>
-    </p>
-  </div>
+  '<div class="a-block">'+
+  '<h3>🟡 PERSONALENTWICKLUNG – Empfehlung: '+fmt(opt.pe)+'€</h3>'+
+  '<p>Wirkung: <b>hoch (kurzfristig)</b>, mittel langfristig. Gewicht: 0,75. '+
+  'Effizienter als Markenimage und VF, aber 12% schwächer als DL/KO. '+
+  'P2 (bestes BG +859): PE war nur 120€ — zeigt, dass Überinvestition hier nicht hilft. '+
+  'Empfehlung: <b>Solide Basisinvestition, nicht übergewichten.</b></p></div>'+
 
-  <div class="analysis-block">
-    <h3>🔻 Verkaufsförderung – Empfehlung: ${fmt(opt.vf)}€ (Minimum)</h3>
-    <p>
-      Wirkung: <strong>mittel/mittel</strong>. Mit Gewicht 0,55 der ineffizienteste BK-Posten.
-      Jeder Euro hier erzeugt nur 64% des Nachfrageeffekts wie ein Euro in Dienstleistung.
-      In P2 (BG +859): VF war 119€, trotzdem bestes Ergebnis.
-      Empfehlung: <strong>Auf Minimum reduzieren, Budget lieber in DL/KO stecken.</strong>
-    </p>
-  </div>
+  '<div class="a-block">'+
+  '<h3>🟡 MARKENIMAGE – Empfehlung: '+fmt(opt.mi)+'€ (reduziert)</h3>'+
+  '<p>Wirkung: <b>mittel (kurzfristig)</b>, hoch langfristig. Gewicht: 0,55. '+
+  'Da P7 eine kurzfristige Entscheidung ist, wirkt Markenimage jetzt weniger. '+
+  'In P6 wurde 1.000€ investiert — das war zu viel für den kurzfristigen Effekt. '+
+  'Empfehlung: <b>Auf Mindestbetrag reduzieren, Budget lieber in DL/KO.</b></p></div>'+
 
-  <div class="analysis-block">
-    <h3>🏭 Kapazitätsinvestition – Empfehlung: ${fmt(ki)}€</h3>
-    <p>
-      KapInv beeinflusst NICHT den Betriebsgewinn von P7 direkt — sie schafft Kapazität für P8.
-      Kosten pro Einheit: 60€ (Szenarioübersicht BETA). Mit ${fmt(ki)}€ entstehen ~${Math.round(ki/60)} neue Kapazitätseinheiten → P8-Kapazität: ~${kap+Math.round(ki/60)}.
-      Da Fire und Clover ausgeschieden sind, hat River großes Marktpotenzial.
-      Empfehlung: <strong>Moderate Investition beibehalten.</strong>
-    </p>
-  </div>
+  '<div class="a-block">'+
+  '<h3>🔻 VERKAUFSFÖRDERUNG – Empfehlung: '+fmt(opt.vf)+'€ (Minimum)</h3>'+
+  '<p>Wirkung: <b>mittel / mittel</b>. Gewicht: 0,55 — niedrigste Effizienz aller BK-Posten. '+
+  '1€ VF = 0,55 BK-Eff vs. 1€ DL = 0,85 BK-Eff. Das ist 35% weniger wirksam. '+
+  'P2 (BG +859): VF war 119€ und trotzdem das beste Ergebnis. '+
+  'Empfehlung: <b>Auf Minimum halten, Rest in DL + KO investieren.</b></p></div>'+
 
-  <div class="analysis-block" style="border-left-color:var(--green)">
-    <h3>✅ Optimale Kombination (Zusammenfassung)</h3>
-    <p>
-      Mit Preis ${preis}€, Personalentw. ${fmt(opt.pe)}, Dienstl. ${fmt(opt.dl)}, Kompl. ${fmt(opt.ko)}, Markenimage ${fmt(opt.mi)}, VerkaufsF ${fmt(opt.vf)}, PKB ${fmt(pkb)}, KapInv ${fmt(ki)}:<br><br>
-      → Erwartete Nachfrage: <strong>${optRes.nfr}</strong> (Kap: ${kap}) | Absatz: <strong>${optRes.absatz}</strong><br>
-      → Rohertrag: <strong>${fmt(optRes.rt)}</strong> | Betriebskosten: <strong>${fmt(optRes.bk)}</strong> | BK/RT: <strong>${optRes.rt>0?pct(optRes.bkRat):'–'}</strong><br>
-      → <strong style="font-size:1.05rem;color:${optRes.bg>0?'var(--green)':'var(--red)'}">Erwartetes Betriebsergebnis: ${optRes.bg>=0?'+':''}${fmt(optRes.bg)} €</strong><br><br>
-      Gesamtausgaben BETA: ${fmt(optRes.zs)} € von ${fmt(+$('budget').value++(+$('extra').value))} € verfügbar. Frei: ${fmt(+$('budget').value++(+$('extra').value)-optRes.zs-zentV)} €.
-    </p>
-  </div>`;
-  $('anal-content').innerHTML = html;
+  '<div class="a-block">'+
+  '<h3>🏭 KAPAZITÄTSINVESTITION – Empfehlung: '+fmt(ki)+'€</h3>'+
+  '<p>KapInv hat keinen Effekt auf P7-BG — sie schafft Kapazität für P8. '+
+  '60€ je neue Einheit (Szenarioübersicht BETA). Mit '+fmt(ki)+'€ entstehen ~'+
+  Math.round(ki/60)+' neue Einheiten → P8-Kapazität: ~'+(kap+Math.round(ki/60))+'. '+
+  'Da Fire und Clover ausgeschieden sind, hat BETA großes Marktpotenzial. '+
+  'Empfehlung: <b>Moderate Investition beibehalten.</b></p></div>'+
+
+  '<div class="a-block" style="border-left-color:#16a34a">'+
+  '<h3>✅ OPTIMALE KOMBINATION (Zusammenfassung)</h3>'+
+  '<p>Preis '+preis+'€ | PE '+fmt(opt.pe)+' | DL '+fmt(opt.dl)+' | KO '+fmt(opt.ko)+
+  ' | MI '+fmt(opt.mi)+' | VF '+fmt(opt.vf)+' | PKB '+fmt(pkb)+' | KapInv '+fmt(ki)+'<br><br>'+
+  '→ Erwartete Nachfrage: <b>'+optSim.nfr+'</b> (Kap: '+kap+') | Absatz: <b>'+optSim.absatz+'</b><br>'+
+  '→ Rohertrag: <b>'+fmt(optSim.rt)+'</b> | BK: <b>'+fmt(optSim.bk)+'</b> | BK/RT: <b>'+pct(optSim.bkRat)+'</b><br>'+
+  '→ <b style="font-size:1.05rem;color:'+(optSim.bg>0?'#16a34a':'#dc2626')+'">'+
+  'Erwartetes BG: '+(optSim.bg>=0?'+':'')+fmt(optSim.bg)+' €</b><br><br>'+
+  'Zwischensumme: '+fmt(optSim.zs)+' € von '+fmt(totalBud)+' € verfügbar. Frei: '+fmt(totalBud-optSim.zs)+' €</p></div>';
+
+  el('analysis-content').innerHTML = html;
 }
 
-// ─── PERIODE-BEWERTUNG ────────────────────────────────────────────────────────
-const BEWERTUNG = {
-  1:{good:['Stabile Aufteilung','Positives BG'],bad:['Kapazität nur 90 Stk.','Marktanteil niedrig']},
-  2:{good:['BESTES BG: +859','BK/RT nur 44% → effizient','Volle Kapazität ausgelastet'],bad:['Preis noch niedrig (65€)','Kapazität nicht gewachsen (KI=330)']},
-  3:{good:['Preiserhöhung auf 70€ richtig','Kapazitätswachstum','Alle 4 Produkte aktiv'],bad:['BK/RT auf 63% gestiegen','BG unter P2-Niveau']},
-  4:{good:['Marktanteil stark gewachsen (33,8%)','Kapazitätswachstum'],bad:['BK > Rohertrag → Verlust!','SURPRISE-Ereignis belastet','Zu hohe BK-Steigerung ohne Volumen']},
-  5:{good:['BETA-Fokus richtig','Kapazitätswachstum','Positives BG trotz hoher Fixkosten'],bad:['BK/RT bei 91% – gefährlich nah','Kapazität war Engpass (NFR > KAP)']},
-  6:{good:['Größte Kapazität (190)','Marktanteil 39,8%','VC-Injection sichert Liquidität'],bad:['BG −420 (Verlust!)','BK/RT > 100%','Betriebskosten zu stark gewachsen']}
-};
-
-function buildPerCards(){
-  const cards = H.map(d=>{
-    const bk=bkH(d), rat=d.rt>0?bk/d.rt*100:999, bw=BEWERTUNG[d.p]||{good:[],bad:[]};
-    return `
-    <div class="card" style="margin-bottom:.75rem">
-      <div class="card-title">
-        Periode ${d.p}
-        <span class="badge ${d.bg>0?'b-g':'b-r'}">BG ${d.bg>=0?'+':''}${fmt(d.bg)}</span>
-        <span class="badge b-a">${d.ma}% Marktanteil</span>
-        ${d.ev?`<span class="badge b-b" style="font-size:.68rem">${d.ev}</span>`:''}
-      </div>
-      <div class="g2">
-        <div>
-          <div style="font-weight:700;font-size:.8rem;margin-bottom:.3rem;color:var(--g500)">ENTSCHEIDUNGEN</div>
-          <table style="font-size:.8rem"><tbody>
-            <tr><td>Preis</td><td class="num">${d.preis}€</td></tr>
-            <tr><td>PersonalE</td><td class="num">${fmt(d.pe)}</td></tr>
-            <tr><td>Dienstleistung</td><td class="num">${fmt(d.dl)}</td></tr>
-            <tr><td>Komplemente</td><td class="num">${fmt(d.ko)}</td></tr>
-            <tr><td>Markenimage</td><td class="num">${fmt(d.mi)}</td></tr>
-            <tr><td>VerkaufsF</td><td class="num">${fmt(d.vf)}</td></tr>
-            <tr><td>PKB</td><td class="num">${fmt(d.pkb)}</td></tr>
-            <tr><td>KapInv</td><td class="num">${fmt(d.ki)}</td></tr>
-            <tr class="tr-tot"><td>Gesamt</td><td class="num">${fmt(zsH(d))}</td></tr>
-          </tbody></table>
-        </div>
-        <div>
-          <div style="font-weight:700;font-size:.8rem;margin-bottom:.3rem;color:var(--g500)">ERGEBNIS</div>
-          <table style="font-size:.8rem"><tbody>
-            <tr><td>Kapazität</td><td class="num">${d.kap}</td></tr>
-            <tr><td>Absatz</td><td class="num">${d.absatz}</td></tr>
-            <tr><td>Nachfrage</td><td class="num">${d.nfr}</td></tr>
-            <tr><td>Rohertrag</td><td class="num">${fmt(d.rt)}</td></tr>
-            <tr><td>BK</td><td class="num">${fmt(bk)}</td></tr>
-            <tr><td>BK/RT</td><td class="num ${rat>100?'neg':rat>70?'warn':'pos'}">${rat.toFixed(0)}%</td></tr>
-            <tr class="tr-tot"><td>Betriebsgewinn</td><td class="num ${d.bg>=0?'pos':'neg'}">${d.bg>=0?'+':''}${fmt(d.bg)}</td></tr>
-          </tbody></table>
-          <div style="margin-top:.6rem">
-            <div style="font-size:.75rem;font-weight:700;color:var(--green);margin-bottom:.2rem">✓ Was gut war</div>
-            ${bw.good.map(g=>`<span class="good-pill">${g}</span>`).join(' ')}
-            <div style="font-size:.75rem;font-weight:700;color:var(--red);margin-top:.4rem;margin-bottom:.2rem">✗ Was schlecht war</div>
-            ${bw.bad.map(b=>`<span class="bad-pill">${b}</span>`).join(' ')}
-          </div>
-        </div>
-      </div>
-    </div>`;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PERIODEN-ÜBERSICHT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function buildPeriods(){
+  // KPI-Tabelle
+  var rows = data.map(function(d){
+    var bk  = totalBK(d);
+    var rat = d.rt>0 ? bk/d.rt*100 : 999;
+    var rc  = rat>100?'neg':rat>70?'wrn':'pos';
+    return '<tr>'+
+      '<td><b>P'+d.p+'</b></td>'+
+      '<td class="td-r">'+d.preis+'€</td>'+
+      '<td class="td-r">'+d.absatz+'</td>'+
+      '<td class="td-r">'+d.nfr+'</td>'+
+      '<td class="td-r">'+fmt(d.rt)+'</td>'+
+      '<td class="td-r">'+fmt(bk)+'</td>'+
+      '<td class="td-r '+rc+'">'+pct(rat)+'</td>'+
+      '<td class="td-r '+(d.bg>=0?'pos':'neg')+'">'+(d.bg>=0?'+':'')+fmt(d.bg)+'</td>'+
+      '<td class="td-r">'+d.ma+'%</td>'+
+      '<td><span class="badge '+(d.bg>0?'b-g':'b-r')+'">'+(d.bg>0?'✓':' ✗')+'</span></td>'+
+    '</tr>';
   }).join('');
-  $('period-cards').innerHTML = cards;
-}
+  el('kpi-tbody').innerHTML = rows;
 
-function buildKPI(){
-  $('kpi-body').innerHTML = H.map(d=>{
-    const bk=bkH(d), rat=d.rt>0?bk/d.rt*100:999;
-    return `<tr>
-      <td><strong>P${d.p}</strong></td>
-      <td class="num">${d.preis}€</td>
-      <td class="num">${d.absatz}</td>
-      <td class="num">${d.nfr}</td>
-      <td class="num">${fmt(d.rt)}</td>
-      <td class="num">${fmt(bk)}</td>
-      <td class="num ${rat>100?'neg':rat>70?'warn':'pos'}">${rat.toFixed(0)}%</td>
-      <td class="num ${d.bg>=0?'pos':'neg'}">${d.bg>=0?'+':''}${fmt(d.bg)}</td>
-      <td class="num">${d.ma}%</td>
-      <td><span class="badge ${d.bg>0?'b-g':'b-r'}">${d.bg>0?'✓ positiv':'✗ Verlust'}</span></td>
-    </tr>`;
+  // Detail-Karten
+  var cards = data.map(function(d){
+    var bk  = totalBK(d);
+    var rat = d.rt>0 ? bk/d.rt*100 : 999;
+    var bw  = bewertung[d.p] || {g:[],b:[]};
+    var rc  = rat>100?'neg':rat>70?'wrn':'pos';
+    return '<div class="card" style="margin-bottom:.6rem">'+
+      '<h2>Periode '+d.p+' '+
+        '<span class="badge '+(d.bg>0?'b-g':'b-r')+'">'+(d.bg>0?'✓ BG +':'✗ BG ')+fmt(d.bg)+'</span> '+
+        '<span class="badge b-a">'+d.ma+'% Marktanteil</span>'+
+        (d.ev?'<span class="badge b-b" style="font-size:.66rem">'+d.ev+'</span>':'')+
+      '</h2>'+
+      '<div class="g2">'+
+      '<div>'+
+        '<div style="font-size:.74rem;font-weight:700;color:#9ca3af;margin-bottom:.3rem">ENTSCHEIDUNGEN</div>'+
+        '<table><tbody>'+
+          '<tr><td>Preis</td><td class="td-r">'+d.preis+'€</td></tr>'+
+          '<tr><td>Personalentw.</td><td class="td-r">'+fmt(d.pe)+'</td></tr>'+
+          '<tr><td>Dienstleistung</td><td class="td-r">'+fmt(d.dl)+'</td></tr>'+
+          '<tr><td>Komplemente</td><td class="td-r">'+fmt(d.ko)+'</td></tr>'+
+          '<tr><td>Markenimage</td><td class="td-r">'+fmt(d.mi)+'</td></tr>'+
+          '<tr><td>VerkaufsF</td><td class="td-r">'+fmt(d.vf)+'</td></tr>'+
+          '<tr><td>PKB</td><td class="td-r">'+fmt(d.pkb)+'</td></tr>'+
+          '<tr><td>KapInv</td><td class="td-r">'+fmt(d.ki)+'</td></tr>'+
+          '<tr class="tr-sum"><td>Gesamt</td><td class="td-r">'+fmt(bk+d.pkb+d.ki)+'</td></tr>'+
+        '</tbody></table>'+
+      '</div>'+
+      '<div>'+
+        '<div style="font-size:.74rem;font-weight:700;color:#9ca3af;margin-bottom:.3rem">ERGEBNIS</div>'+
+        '<table><tbody>'+
+          '<tr><td>Kapazität</td><td class="td-r">'+d.kap+'</td></tr>'+
+          '<tr><td>Absatz</td><td class="td-r">'+d.absatz+'</td></tr>'+
+          '<tr><td>Nachfrage</td><td class="td-r">'+d.nfr+'</td></tr>'+
+          '<tr><td>Rohertrag</td><td class="td-r">'+fmt(d.rt)+'</td></tr>'+
+          '<tr><td>BK gesamt</td><td class="td-r">'+fmt(bk)+'</td></tr>'+
+          '<tr><td>BK/RT</td><td class="td-r '+rc+'">'+pct(rat)+'</td></tr>'+
+          '<tr class="tr-sum"><td>Betriebsgewinn</td><td class="td-r '+(d.bg>=0?'pos':'neg')+'">'+(d.bg>=0?'+':'')+fmt(d.bg)+'</td></tr>'+
+        '</tbody></table>'+
+        '<div style="margin-top:.5rem">'+
+          '<div style="font-size:.72rem;font-weight:700;color:#16a34a;margin-bottom:.15rem">✓ Was gut war</div>'+
+          bw.g.map(function(x){return '<span class="good">'+x+'</span>';}).join('')+
+          '<div style="font-size:.72rem;font-weight:700;color:#dc2626;margin-top:.3rem;margin-bottom:.15rem">✗ Was schlecht war</div>'+
+          bw.b.map(function(x){return '<span class="bad">'+x+'</span>';}).join('')+
+        '</div>'+
+      '</div>'+
+      '</div>'+
+    '</div>';
   }).join('');
+  el('period-detail').innerHTML = cards;
 }
 
-// ─── NEUE PERIODE ─────────────────────────────────────────────────────────────
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// NEUE PERIODE HINZUFÜGEN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function addPeriod(){
-  const g = id => +$('np_'+id).value||0;
-  const s = id => $('np_'+id).value||'';
-  const nr = g('nr') || H[H.length-1].p+1;
+  var g = function(id){ return parseFloat(el('np-'+id).value)||0; };
+  var s = function(id){ return el('np-'+id).value||''; };
+  var nr = g('nr') || (last().p+1);
 
-  if(!g('preis')&&!g('absatz')){
-    $('add-status').innerHTML='<span style="color:red">Bitte mindestens Preis und Absatz ausfüllen.</span>';
+  if(!g('preis') && !g('absatz')){
+    el('add-msg').innerHTML = '<span style="color:red">Mindestens Preis und Absatz angeben.</span>';
     return;
   }
 
-  const newP = {
+  var nPkb  = g('npkb')  || nextPkb();
+  var nKap  = g('nkap')  || (g('kap')||nextKap()) + Math.round((g('ki')||2200)/60);
+  var nAb   = g('abschr')|| 660;
+  var ki    = g('ki')||2200;
+
+  var newP = {
     p:nr, preis:g('preis'), pe:g('pe'), dl:g('dl'), ko:g('ko'), mi:g('mi'), vf:g('vf'),
-    pkb:g('pkb')||9207, ki:g('ki')||2200,
+    pkb:g('pkb')||9207, ki:ki,
     absatz:g('absatz'), nfr:g('nfr'), rt:g('rt'), bg:g('bg'), ma:g('ma'),
-    kap:g('kap')||220, abschr:g('abschr')||660,
-    nextKap:g('nkap')||220+Math.round(g('ki')/60||36),
-    nextPkb:g('npkb')||9207,
-    nextAbschr:g('abschr')||660,
+    kap:g('kap')||220, abschr:nAb,
+    nKap:nKap, nPkb:nPkb, nAbschr:nAb,
     ev:s('ev')
   };
 
-  // Remove if same period already exists
-  H = H.filter(d=>d.p!==nr);
-  H.push(newP);
-  H.sort((a,b)=>a.p-b.p);
+  // Gleiches Periode ersetzen oder hinzufügen
+  data = data.filter(function(d){return d.p!==nr;});
+  data.push(newP);
+  data.sort(function(a,b){return a.p-b.p;});
+  bewertung[nr] = {g:[],b:[]};
 
-  reCalib();
+  // Modell neu kalibrieren
+  reCalibrate();
 
-  // Update budget if next-budget provided
-  if(g('nextbudget')>0){ $('budget').value=g('nextbudget'); }
+  // Budget für nächste Periode übernehmen
+  var nb = g('nextbud');
+  if(nb > 0){ el('b_budget').value = nb; }
 
-  buildKPI();
-  buildPerCards();
+  // Fixwerte-Anzeige aktualisieren
+  el('fix-kap').textContent   = nextKap();
+  el('fix-pkb').textContent   = fmt(nextPkb());
+  el('fix-abschr').textContent = nextAbschr();
+  el('in-pkb').value = nextPkb();
+  el('np-nr').value  = last().p+1;
+
+  buildPeriods();
   update();
-  $('add-status').innerHTML=`<span style="color:green">✓ Periode ${nr} hinzugefügt. Modell neu kalibriert.</span>`;
-  BEWERTUNG[nr] = {good:[],bad:[]};
+  el('add-msg').innerHTML = '<span style="color:#16a34a">✓ Periode '+nr+' hinzugefügt. Modell neu kalibriert. Empfehlung aktualisiert.</span>';
 }
 
-function clearNewForm(){
-  const ids=['nr','preis','pe','dl','ko','mi','vf','pkb','ki','absatz','nfr','rt','bg','ma','kap','abschr','npkb','nkap','nextbudget'];
-  ids.forEach(id=>{ const el=$('np_'+id); if(el) el.value=''; });
-  $('np_ev').value='';
-  $('np_nr').value = H[H.length-1].p+1;
-  $('add-status').innerHTML='';
+function resetForm(){
+  ['nr','preis','pe','dl','ko','mi','vf','pkb','ki','absatz','nfr','rt','bg','ma','kap','abschr','npkb','nkap','nextbud']
+    .forEach(function(id){ var e=el('np-'+id); if(e) e.value=''; });
+  el('np-ev').value='';
+  el('np-nr').value = last().p+1;
+  el('add-msg').innerHTML='';
 }
 
-// ─── TABS ─────────────────────────────────────────────────────────────────────
-function showTab(id){
-  ['emp','anal','per','neu'].forEach((t,i)=>{
-    document.querySelectorAll('.tab')[i].classList.toggle('on',t===id);
-    $('tab-'+t).classList.toggle('on',t===id);
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TABS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function showTab(id, btn){
+  ['emp','anal','per','neu'].forEach(function(t){
+    el('tab-'+t).classList.remove('active');
   });
+  el('tab-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function init(){
-  const F=nextFixed();
-  $('i_pkb').value = F.pkb;
+  // Fixwerte aus letzter Periode setzen
+  el('fix-kap').textContent    = nextKap();
+  el('fix-pkb').textContent    = fmt(nextPkb());
+  el('fix-abschr').textContent = nextAbschr();
+  el('in-pkb').value = nextPkb();
+  el('np-nr').value  = last().p+1;
 
-  // Pre-fill user inputs with optimal recommendation
-  const opt = optimal(73, 12670, F.kap);
-  $('i_pe').value=opt.pe; $('i_dl').value=opt.dl; $('i_ko').value=opt.ko;
-  $('i_mi').value=opt.mi; $('i_vf').value=opt.vf;
+  // Optimale Startwerte vorausfüllen
+  var opt = findOptimal(73, 12670-nextPkb()-2200, nextKap());
+  el('in-pe').value = opt.pe;
+  el('in-dl').value = opt.dl;
+  el('in-ko').value = opt.ko;
+  el('in-mi').value = opt.mi;
+  el('in-vf').value = opt.vf;
 
-  buildKPI();
-  buildPerCards();
+  buildPeriods();
   update();
 }
 
