@@ -971,14 +971,22 @@ function openBook(city,vtype,vname,vaddr){
 }
 function closeModal(){document.getElementById('book-modal').classList.remove('active');}
 function onDateChange(val){bkS.date=val;bkS.time=null;document.querySelectorAll('.ts').forEach(x=>x.classList.remove('sel'));genSlots(bkS.city,bkS.vname,val);chkBk();}
-function genSlots(city,vname,dateStr){
-  const all=S.bookings||[];const now=new Date();
+async function genSlots(city,vname,dateStr){
+  document.getElementById('tgrid').innerHTML='<div style="text-align:center;padding:16px;color:var(--mt);font-size:12px">⏳ Verfügbarkeit wird geladen…</div>';
+  let all=[];
+  try{
+    const snap=await db.collection('bookings').where('city','==',city).where('vname','==',vname).get();
+    all=snap.docs.map(d=>d.data()).filter(b=>!b.cancelled);
+  }catch(e){
+    all=(S.bookings||[]).filter(b=>b.city===city&&b.vname===vname&&!b.cancelled);
+  }
+  const now=new Date();
   const isToday=dateStr===todayStr();let h='';
   for(let hr=8;hr<=21;hr++)for(let mn=0;mn<60;mn+=30){
     const ts=`${String(hr).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
     const[y,mo,d]=dateStr.split('-').map(Number);const sd=new Date(y,mo-1,d,hr,mn,0,0);
     const isPast=isToday&&sd<now;
-    const taken=isPast||all.some(b=>{if(b.city!==city||b.vname!==vname)return false;const bs=new Date(b.dt);return sd>=bs&&sd<new Date(bs.getTime()+b.dur*60000);});
+    const taken=isPast||all.some(b=>{const bs=new Date(b.dt);return sd>=bs&&sd<new Date(bs.getTime()+b.dur*60000);});
     h+=`<div class="ts${taken?' taken':''}" ${taken?'':`onclick="selTime('${ts}',this)"`}>${ts}</div>`;
   }
   document.getElementById('tgrid').innerHTML=h;
